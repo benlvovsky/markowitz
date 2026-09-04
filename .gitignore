@@ -1,0 +1,26 @@
+# The price store: 36 parquet files, 3.7 MB, reproducible from `python -u pipeline/build.py`.
+#
+# Ignored for now, but no longer because it CANNOT be committed. The old layout was one file per
+# symbol (132 files, 14 MB) and every refresh rewrote all of them; since parquet is compressed
+# binary that git stores whole, a weekly cron would have added 14 MB to the history every week
+# forever. `pipeline/store.py` fixed that: closes are partitioned by calendar year and only
+# partitions whose CONTENT changed are written, so a weekly run touches the current year plus the
+# event log -- measured at ~216 KB. Committing the store is therefore a 3.7 MB one-off and
+# ~11 MB/year after, which is a decision about how much audit trail is worth, not a constraint.
+# Until that is decided the store stays local and CI refetches it.
+#
+# web/public/data/*.json is the opposite case and IS committed on purpose: it is 432 KB of text,
+# it is what the SPA loads, and GitHub Pages has no other way to serve it. That asymmetry is the
+# whole hosting design -- the repo is the database.
+pipeline/data/prices/
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+node_modules/
+web/dist/
+*.tsbuildinfo
+
+.DS_Store

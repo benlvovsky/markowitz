@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Efficient frontier — a cross-asset Markowitz portfolio</title>
+    <meta
+      name="description"
+      content="The mean-variance efficient frontier of a 116-asset cross-asset ETF universe, with a draggable portfolio, a risk-free-rate slider and a per-asset weight cap."
+    />
+  </head>
+  <!-- The two CATEGORICAL slots, in fixed order: frontier, capital market line. Validated
+       with the dataviz validator at --pairs all against both surfaces (#fcfcfb / #1a1a19):
+       all checks pass, worst CVD dE 24.7 (protan). The asset dots are #898781, deliberately
+       below the chroma floor because they are recessive context rather than an identity --
+       group membership is carried by the filter row, the legend and the table, never by
+       hue. Including gray in this attribute would fail the chroma check for a colour that
+       is not making a categorical claim. -->
+  <body data-palette="#2a78d6,#eb6834">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

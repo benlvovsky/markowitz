@@ -1,0 +1,94 @@
+# Build the SPA and publish it to GitHub Pages.
+#
+# Triggered by a push to the data OR the app, because either one changes what a visitor sees:
+# update-data.yml commits new JSON, this job rebuilds and republishes. That is the entire
+# deployment chain, and it needs no secrets -- Pages uses the workflow's own OIDC token.
+#
+# `vite.config.ts` sets `base: './'`, so the built bundle works at any subpath. That is what
+# makes this deployable to `<user>.github.io/<repo>/` without the repo name appearing anywhere
+# in the build config.
+#
+# NOT ENABLED YET. Committed for review. Enabling it requires one manual step that a workflow
+# file cannot do for itself: Settings -> Pages -> Source -> "GitHub Actions".
+
+name: deploy-web
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - '.github/workflows/deploy-web.yml'
+  # BOTH triggers are needed, and the second one is not redundant. A push made with the default
+  # GITHUB_TOKEN does not trigger workflows -- so update-data.yml committing to web/public/data
+  # would satisfy the `paths` filter above and still deploy nothing, leaving the site serving
+  # last week's frontier forever. `workflow_run` is the supported way to chain off it without
+  # issuing a personal access token to get around the restriction.
+  workflow_run:
+    workflows: [update-data]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  # Newest deploy wins: an in-flight build of older data has nothing worth finishing.
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # A failed data refresh must not republish. `workflow_run` fires on completion of any
+    # conclusion, including failure, so the conclusion has to be checked explicitly -- and the
+    # condition has to pass for the other two triggers too, where `workflow_run` is null.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Explicit, because the default is wrong for the `workflow_run` trigger. There,
+          # checkout resolves to the SHA that STARTED update-data -- which is the commit before
+          # the one update-data itself pushed. Left implicit, every scheduled refresh would
+          # publish the data as it stood one commit earlier, i.e. always exactly one week stale.
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - run: npm ci
+
+      # Typecheck, then the browser-math suite, then build -- in that order, and all three
+      # blocking. `portfolio.test.ts` reads the committed `public/data/*.json`, so it is also the
+      # gate that catches a data commit the SPA cannot interpret: if update-data.yml ever ships a
+      # frontier whose weights reference a symbol missing from stats.json, this fails here rather
+      # than rendering a broken chart in production.
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,257 @@
+# The global cross-asset ETF universe: the default, and the one the shipped site is built from.
+#
+# A universe file is DATA, read with `tomllib` -- not an importable Python module. That is a
+# deliberate limit: a universe is a list of tickers with labels plus the argument for why those
+# tickers, and nothing in it should be able to run. The consequence is that anyone can add a
+# universe without reading `universe.py`, and that `git log pipeline/universes/` is a readable
+# history of which instruments were considered when.
+#
+# Symbol order is the order the file is written in, and it is preserved through to the manifest,
+# so the sections below are also the reading order of the asset table in the SPA.
+
+key = "etf_global"
+name = "Global cross-asset ETFs"
+
+# The benchmark the SPA draws the selected portfolio's growth curve against. It is in `assets`
+# too, and that is fine: the frontier may or may not hold it, and the comparison is against
+# buy-and-hold SPY either way -- which is the null a portfolio has to beat before "optimal"
+# means anything.
+benchmark = "SPY"
+
+# The COLOUR CHANNEL, and why it exists separately from each asset's `asset_class`. The SPA plots
+# ~120 dots; 3 hues clear the all-pairs colourblind gate and 8 do not, so `group` is a deliberate
+# three-way partition and `asset_class` is the finer label that lives in the tooltip and the
+# filter row. Both are recorded per asset rather than inferred from the ticker, because a prefix
+# heuristic puts GLD and GDX in different groups (bullion is a real asset, a gold miner is an
+# equity) and that distinction is exactly the one a reader is looking at.
+groups = ["equity", "fixed_income", "real_asset_fx"]
+
+description = """
+Why ETFs rather than single stocks.
+
+Markowitz needs a covariance matrix, and a covariance matrix estimated from a sample is the
+weakest part of the whole construction: with N assets it has N(N+1)/2 free parameters estimated
+from N*T numbers, so at N=120 and T=3,800 daily bars the ratio of observations to parameters is
+about 63 -- which sounds comfortable and is not, because the errors land in the smallest
+eigenvalues, and the optimiser's job is precisely to lever the smallest eigenvalues. That is the
+"error maximisation" property: mean-variance optimisation is an estimation-error amplifier.
+
+120 mega-cap US stocks correlate at 0.4-0.6 with each other and 0.7+ with the index; their
+covariance matrix is near-singular in the directions that matter, and the frontier that comes out
+is a thin sliver with 6-8 nonzero weights. That is a real and instructive result -- it is the
+error-maximisation demo -- but it is a demo about estimation failure, not about diversification. A
+cross-asset ETF universe has genuinely different return generators (nominal bonds, TIPS, gold,
+currencies, energy) whose pairwise correlations run negative to mildly positive, so the frontier
+actually bends and the tangency portfolio holds something you would recognise as a portfolio.
+"""
+
+# HISTORY DEPTH IS A HARD CONSTRAINT, NOT A PREFERENCE. A covariance matrix needs one common
+# window across every asset: an asset that starts in 2018 either truncates the whole panel to
+# 2018 or has to be dropped. So no entry records a start date -- `fetch.py` measures it -- but
+# this list is deliberately weighted toward funds that launched before 2011, and the well-known
+# late arrivals are INCLUDED and expected to be dropped by the window filter rather than quietly
+# left out. They are here because the start date is a parameter: at `--start 2013-06-01` all of
+# them clear, at `--start 2011-01-01` several do not, and a universe that silently omitted them
+# would make that parameter look like it did nothing.
+late_arrivals = """
+XLRE (2015-10), XLC (2018-06)  -- the two sector-scheme additions
+MTUM QUAL VLUE (2013-04)       -- the iShares factor suite
+USMV (2011-10) SPLV (2011-05)  -- low-vol, marginal at a 2011-01-01 start
+IEMG IEFA (2012-10), INDA (2012-02), SCHH (2011-01), VTIP (2012-10)
+"""
+
+exclusion_policy = """
+Excluded as categories, without listing every ticker: leveraged and inverse funds (their
+arithmetic drift makes a mean-variance input meaningless over a multi-year window), volatility
+futures products, anything delisted mid-sample, and near-duplicate share classes of something
+already listed. Individual symbols excluded for reasons that are NOT visible in the code are
+named in [excluded] below, with the evidence.
+"""
+
+[assets]
+# ---- US equity beta
+SPY = { name = "S&P 500", asset_class = "us_large_cap", group = "equity" }
+VTI = { name = "US total market", asset_class = "us_broad", group = "equity" }
+QQQ = { name = "Nasdaq 100", asset_class = "us_large_growth", group = "equity" }
+DIA = { name = "Dow Jones 30", asset_class = "us_large_cap", group = "equity" }
+RSP = { name = "S&P 500 equal weight", asset_class = "us_large_cap", group = "equity" }
+IWM = { name = "Russell 2000", asset_class = "us_small_cap", group = "equity" }
+IJR = { name = "S&P SmallCap 600", asset_class = "us_small_cap", group = "equity" }
+MDY = { name = "S&P MidCap 400", asset_class = "us_mid_cap", group = "equity" }
+VO = { name = "US mid cap", asset_class = "us_mid_cap", group = "equity" }
+VB = { name = "US small cap", asset_class = "us_small_cap", group = "equity" }
+
+# ---- US style tilts
+IWF = { name = "Russell 1000 Growth", asset_class = "us_large_growth", group = "equity" }
+IWD = { name = "Russell 1000 Value", asset_class = "us_large_value", group = "equity" }
+VIG = { name = "Dividend growers", asset_class = "us_dividend", group = "equity" }
+VYM = { name = "High dividend yield", asset_class = "us_dividend", group = "equity" }
+SDY = { name = "S&P dividend aristocrats", asset_class = "us_dividend", group = "equity" }
+MTUM = { name = "US momentum factor", asset_class = "us_factor", group = "equity" }
+QUAL = { name = "US quality factor", asset_class = "us_factor", group = "equity" }
+VLUE = { name = "US value factor", asset_class = "us_factor", group = "equity" }
+USMV = { name = "US minimum volatility", asset_class = "us_factor", group = "equity" }
+SPLV = { name = "S&P 500 low volatility", asset_class = "us_factor", group = "equity" }
+
+# ---- US sectors
+XLK = { name = "Technology sector", asset_class = "us_sector", group = "equity" }
+XLF = { name = "Financials sector", asset_class = "us_sector", group = "equity" }
+XLE = { name = "Energy sector", asset_class = "us_sector", group = "equity" }
+XLV = { name = "Health care sector", asset_class = "us_sector", group = "equity" }
+XLI = { name = "Industrials sector", asset_class = "us_sector", group = "equity" }
+XLP = { name = "Consumer staples sector", asset_class = "us_sector", group = "equity" }
+XLY = { name = "Consumer discretionary sector", asset_class = "us_sector", group = "equity" }
+XLU = { name = "Utilities sector", asset_class = "us_sector", group = "equity" }
+XLB = { name = "Materials sector", asset_class = "us_sector", group = "equity" }
+XLRE = { name = "Real estate sector", asset_class = "us_sector", group = "equity" }
+XLC = { name = "Communication services sector", asset_class = "us_sector", group = "equity" }
+
+# ---- US industries
+SMH = { name = "Semiconductors", asset_class = "us_industry", group = "equity" }
+IGV = { name = "Software", asset_class = "us_industry", group = "equity" }
+IBB = { name = "Biotech (cap weighted)", asset_class = "us_industry", group = "equity" }
+XBI = { name = "Biotech (equal weighted)", asset_class = "us_industry", group = "equity" }
+PPH = { name = "Pharmaceuticals", asset_class = "us_industry", group = "equity" }
+XHB = { name = "Homebuilders", asset_class = "us_industry", group = "equity" }
+ITB = { name = "Home construction", asset_class = "us_industry", group = "equity" }
+IYT = { name = "Transport", asset_class = "us_industry", group = "equity" }
+ITA = { name = "Aerospace and defence", asset_class = "us_industry", group = "equity" }
+XRT = { name = "Retail", asset_class = "us_industry", group = "equity" }
+KRE = { name = "Regional banks", asset_class = "us_industry", group = "equity" }
+KBE = { name = "Banks", asset_class = "us_industry", group = "equity" }
+XME = { name = "Metals and mining", asset_class = "us_industry", group = "equity" }
+OIH = { name = "Oil services", asset_class = "us_industry", group = "equity" }
+XOP = { name = "Oil and gas exploration", asset_class = "us_industry", group = "equity" }
+GDX = { name = "Gold miners", asset_class = "us_industry", group = "equity" }
+GDXJ = { name = "Junior gold miners", asset_class = "us_industry", group = "equity" }
+
+# ---- Developed ex-US equity
+EFA = { name = "Developed ex-US (MSCI EAFE)", asset_class = "intl_developed", group = "equity" }
+VEA = { name = "Developed ex-US (FTSE)", asset_class = "intl_developed", group = "equity" }
+IEFA = { name = "Developed ex-US core", asset_class = "intl_developed", group = "equity" }
+SCZ = { name = "Developed ex-US small cap", asset_class = "intl_developed", group = "equity" }
+VGK = { name = "Europe", asset_class = "intl_developed", group = "equity" }
+IEV = { name = "Europe 350", asset_class = "intl_developed", group = "equity" }
+EZU = { name = "Eurozone", asset_class = "intl_developed", group = "equity" }
+EWJ = { name = "Japan", asset_class = "intl_country", group = "equity" }
+EWU = { name = "United Kingdom", asset_class = "intl_country", group = "equity" }
+EWG = { name = "Germany", asset_class = "intl_country", group = "equity" }
+EWQ = { name = "France", asset_class = "intl_country", group = "equity" }
+EWL = { name = "Switzerland", asset_class = "intl_country", group = "equity" }
+EWD = { name = "Sweden", asset_class = "intl_country", group = "equity" }
+EWN = { name = "Netherlands", asset_class = "intl_country", group = "equity" }
+EWI = { name = "Italy", asset_class = "intl_country", group = "equity" }
+EWP = { name = "Spain", asset_class = "intl_country", group = "equity" }
+EWA = { name = "Australia", asset_class = "intl_country", group = "equity" }
+EWC = { name = "Canada", asset_class = "intl_country", group = "equity" }
+EWH = { name = "Hong Kong", asset_class = "intl_country", group = "equity" }
+EWS = { name = "Singapore", asset_class = "intl_country", group = "equity" }
+
+# ---- Emerging equity
+EEM = { name = "Emerging markets (MSCI)", asset_class = "emerging", group = "equity" }
+VWO = { name = "Emerging markets (FTSE)", asset_class = "emerging", group = "equity" }
+IEMG = { name = "Emerging markets core", asset_class = "emerging", group = "equity" }
+EPP = { name = "Asia-Pacific ex-Japan", asset_class = "emerging", group = "equity" }
+FXI = { name = "China large cap", asset_class = "emerging_country", group = "equity" }
+MCHI = { name = "China broad", asset_class = "emerging_country", group = "equity" }
+EWY = { name = "South Korea", asset_class = "emerging_country", group = "equity" }
+EWT = { name = "Taiwan", asset_class = "emerging_country", group = "equity" }
+EWZ = { name = "Brazil", asset_class = "emerging_country", group = "equity" }
+EWW = { name = "Mexico", asset_class = "emerging_country", group = "equity" }
+INDA = { name = "India", asset_class = "emerging_country", group = "equity" }
+EZA = { name = "South Africa", asset_class = "emerging_country", group = "equity" }
+TUR = { name = "Turkey", asset_class = "emerging_country", group = "equity" }
+ILF = { name = "Latin America 40", asset_class = "emerging", group = "equity" }
+
+# ---- Fixed income: government
+SHV = { name = "US T-bills 0-1y", asset_class = "govt_short", group = "fixed_income" }
+SHY = { name = "US Treasuries 1-3y", asset_class = "govt_short", group = "fixed_income" }
+IEI = { name = "US Treasuries 3-7y", asset_class = "govt_intermediate", group = "fixed_income" }
+IEF = { name = "US Treasuries 7-10y", asset_class = "govt_intermediate", group = "fixed_income" }
+TLH = { name = "US Treasuries 10-20y", asset_class = "govt_long", group = "fixed_income" }
+TLT = { name = "US Treasuries 20y+", asset_class = "govt_long", group = "fixed_income" }
+GOVT = { name = "US Treasuries all maturities", asset_class = "govt_broad", group = "fixed_income" }
+TIP = { name = "US TIPS", asset_class = "inflation_linked", group = "fixed_income" }
+VTIP = { name = "US short TIPS", asset_class = "inflation_linked", group = "fixed_income" }
+BWX = { name = "International sovereign ex-US", asset_class = "govt_intl", group = "fixed_income" }
+IGOV = { name = "International Treasuries", asset_class = "govt_intl", group = "fixed_income" }
+
+# ---- Fixed income: credit
+AGG = { name = "US aggregate bond", asset_class = "agg_bond", group = "fixed_income" }
+BND = { name = "US total bond market", asset_class = "agg_bond", group = "fixed_income" }
+BNDX = { name = "International bond hedged", asset_class = "agg_bond", group = "fixed_income" }
+LQD = { name = "US investment grade corporate", asset_class = "credit_ig", group = "fixed_income" }
+VCIT = { name = "IG corporate intermediate", asset_class = "credit_ig", group = "fixed_income" }
+VCSH = { name = "IG corporate short", asset_class = "credit_ig", group = "fixed_income" }
+HYG = { name = "US high yield (iBoxx)", asset_class = "credit_hy", group = "fixed_income" }
+JNK = { name = "US high yield (Bloomberg)", asset_class = "credit_hy", group = "fixed_income" }
+BKLN = { name = "Senior loans", asset_class = "credit_hy", group = "fixed_income" }
+EMB = { name = "Emerging sovereign USD", asset_class = "credit_em", group = "fixed_income" }
+MUB = { name = "US municipal bonds", asset_class = "municipal", group = "fixed_income" }
+MBB = { name = "US agency MBS", asset_class = "securitised", group = "fixed_income" }
+PFF = { name = "US preferred shares", asset_class = "preferred", group = "fixed_income" }
+CWB = { name = "US convertible bonds", asset_class = "convertible", group = "fixed_income" }
+
+# ---- Real assets: commodities
+GLD = { name = "Gold bullion", asset_class = "precious_metals", group = "real_asset_fx" }
+IAU = { name = "Gold bullion (low fee)", asset_class = "precious_metals", group = "real_asset_fx" }
+SLV = { name = "Silver bullion", asset_class = "precious_metals", group = "real_asset_fx" }
+PPLT = { name = "Platinum bullion", asset_class = "precious_metals", group = "real_asset_fx" }
+PALL = { name = "Palladium bullion", asset_class = "precious_metals", group = "real_asset_fx" }
+DBC = { name = "Broad commodity basket", asset_class = "commodity_broad", group = "real_asset_fx" }
+GSG = { name = "GSCI commodity index", asset_class = "commodity_broad", group = "real_asset_fx" }
+DJP = { name = "Bloomberg commodity index", asset_class = "commodity_broad", group = "real_asset_fx" }
+DBA = { name = "Agriculture", asset_class = "commodity_agriculture", group = "real_asset_fx" }
+DBB = { name = "Base metals", asset_class = "commodity_industrial", group = "real_asset_fx" }
+USO = { name = "WTI crude oil", asset_class = "commodity_energy", group = "real_asset_fx" }
+UNG = { name = "US natural gas", asset_class = "commodity_energy", group = "real_asset_fx" }
+
+# ---- Real assets: real estate
+VNQ = { name = "US REITs", asset_class = "real_estate", group = "real_asset_fx" }
+IYR = { name = "US real estate", asset_class = "real_estate", group = "real_asset_fx" }
+SCHH = { name = "US REITs (low fee)", asset_class = "real_estate", group = "real_asset_fx" }
+REM = { name = "Mortgage REITs", asset_class = "real_estate", group = "real_asset_fx" }
+RWX = { name = "International real estate", asset_class = "real_estate", group = "real_asset_fx" }
+VNQI = { name = "Global ex-US real estate", asset_class = "real_estate", group = "real_asset_fx" }
+
+# ---- Currency
+UUP = { name = "US dollar index (long)", asset_class = "fx", group = "real_asset_fx" }
+FXE = { name = "Euro", asset_class = "fx", group = "real_asset_fx" }
+FXY = { name = "Japanese yen", asset_class = "fx", group = "real_asset_fx" }
+FXB = { name = "British pound", asset_class = "fx", group = "real_asset_fx" }
+FXF = { name = "Swiss franc", asset_class = "fx", group = "real_asset_fx" }
+FXC = { name = "Canadian dollar", asset_class = "fx", group = "real_asset_fx" }
+FXA = { name = "Australian dollar", asset_class = "fx", group = "real_asset_fx" }
+# Symbols deliberately kept out, where the reason would otherwise be invisible. This section is
+# not consumed by the pipeline -- `[assets]` is the universe. It exists because "why is copper
+# missing" is a question a reader will have, and the answer is not inferable from the code.
+[excluded]
+
+CPER = """
+Excluded for a DATA reason, not a portfolio one. Yahoo's CPER series carries bad prints:
+2014-12-03 closes at 19.52, 2014-12-04 at 13.05, 2014-12-05 back at 19.56, with copper itself
+flat -- a fabricated -33%/+50% round trip, and the same pattern again on 2015-02-02/03. Those two
+pairs alone would make CPER the highest-variance asset in the universe and would corrupt its
+whole covariance ROW, not just its own column.
+
+Dropped by name rather than by an automated outlier filter because the signature is not separable
+from real data: the same "large move immediately reversed" test fires on XOP, USO, UNG, EWZ, EWW,
+XLF and GDXJ, where the moves are March 2020 and entirely real. A filter that removed those would
+be deleting the most informative days in the sample. So the honest handling is a named exclusion
+with the evidence written down, and a test (test_no_panel_asset_has_a_split_sized_daily_move)
+that bounds what can reach the optimiser: the largest real daily move in the panel is XOP at
+36.9%, CPER's artifact is 49.9%, and the bound sits between them. Copper exposure is still
+present via DBB.
+"""
+
+RSX = """
+Halted in 2022 after the invasion of Ukraine and delisted. Its last print is not a price -- it is
+the last quote before trading stopped, with the underlying market closed -- so the final return is
+a fiction of unknown size and the series cannot be windowed around.
+"""
+
+VXX = """
+VIX futures. The roll cost is a structural ~-50%/yr, which is not a risk premium and not
+stationary; with shorting off the optimiser simply assigns it zero weight, so it would add a dot
+to the chart at (very high vol, very negative return) and nothing else.
+"""

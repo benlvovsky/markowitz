@@ -1,0 +1,23 @@
+# Pinned to what the shipped web/public/data/*.json was actually built with. The frontier is a
+# numerical result, so an unpinned solver stack means the JSON is not reproducible: a different
+# cvxpy backend can return weights that differ in the 4th decimal and move every number the SPA
+# displays. Versions read off the environment that produced the current data, not chosen.
+#
+#   pyenv virtualenv 3.11.11 markowitz && pip install -r pipeline/requirements.txt
+#
+# Solvers: PyPortfolioOpt drives cvxpy, and cvxpy picks a conic solver at runtime. All three of
+# its candidates are pinned rather than left to resolution order, because WHICH one it picks
+# changes the answer's last digits.
+
+numpy==2.4.6
+pandas==3.0.5
+scipy==1.17.1
+pyarrow==25.0.1
+
+pyportfolioopt==1.6.0
+cvxpy==1.9.2
+clarabel==0.11.1
+osqp==1.1.3
+scs==3.2.11
+
+pytest==9.1.1

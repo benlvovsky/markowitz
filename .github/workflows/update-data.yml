@@ -1,0 +1,102 @@
+# Refresh the prices, re-solve the frontiers, commit the JSON.
+#
+# THIS IS THE WHOLE BACKEND. There is no server, no Lambda, no S3, no database. The repo is the
+# database: this job runs the same `pipeline/build.py` a developer runs locally, and commits its
+# six JSON files into `web/public/data/`. A push there triggers deploy-web.yml, which publishes
+# the SPA that reads them. Total infrastructure: two cron jobs and a git history.
+#
+# Why the price store is NOT committed and is refetched every run: it is 3.7 MB of parquet that a
+# 90-second fetch reproduces, and the 432 KB of JSON is the artifact worth versioning -- versioning
+# it means the git history is a free audit trail of how the "optimal" portfolio moved as data
+# arrived, which is exactly the estimation-error story the three weight caps exist to tell.
+#
+# That is now a CHOICE rather than a necessity, and the choice is open. Under the old one-file-
+# per-symbol layout committing the store was out of the question: every refresh rewrote all 132
+# files and git stores compressed parquet whole, so the history would have grown 14 MB a week.
+# `pipeline/store.py` partitions closes by calendar year and writes only partitions whose content
+# actually moved, so a weekly refresh changes ~216 KB. See `.gitignore`.
+#
+# NOT ENABLED YET. Committed for review; `schedule` fires only once this lands on the default
+# branch of a repo with Actions turned on.
+
+name: update-data
+
+on:
+  # Saturday 07:00 UTC. Weekly, not daily: the window is 15+ years of daily bars, so one more
+  # week of data moves an annualised mean by ~0.1pp. A daily cron would spend 365 commits a year
+  # re-solving a problem whose answer barely moved, and would make the history unreadable.
+  schedule:
+    - cron: '0 7 * * 6'
+  workflow_dispatch:
+    inputs:
+      start:
+        description: 'First day of the common window (YYYY-MM-DD)'
+        default: '2011-01-03'
+      points:
+        description: 'Frontier points to solve per cap'
+        default: '60'
+
+permissions:
+  contents: write
+
+concurrency:
+  # Two of these running at once would race on the same six files and one would lose its solve.
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+
+      - run: pip install -r pipeline/requirements.txt
+
+      # No cache for the price store on purpose: a stale cache is how a "fresh" run silently ships
+      # month-old prices. The fetch is the cheap part. Note this also means CI exercises the
+      # cold-start path every week -- the store is built from nothing, so a bug in the partition
+      # writer cannot hide behind a warm directory that already had the right answer in it.
+      - name: Fetch prices and solve the frontiers
+        run: |
+          python -u pipeline/build.py \
+            --start "${{ inputs.start || '2011-01-03' }}" \
+            --points "${{ inputs.points || '60' }}" \
+            --caps 1.0,0.2,0.1 \
+            --rf auto
+
+      # The pipeline's own invariant suite, against the artifacts THIS run just produced. A
+      # scheduled job with nobody watching is exactly where a bad print or a silently dropped
+      # fund gets committed, so the tests are a gate on the commit, not a separate report.
+      - name: Test the artifacts before committing them
+        run: python -m pytest pipeline/tests -q
+
+      - name: Commit the data if it changed
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add web/public/data
+          # `git diff --cached --quiet` is the check that keeps the history meaningful: on a
+          # holiday week the prices are unchanged, the solve is identical, and an unconditional
+          # commit would add an empty one.
+          if git diff --cached --quiet; then
+            echo 'No change in the solved frontiers; nothing to commit.'
+          else
+            git commit -m "data: refresh prices and re-solve frontiers ($(date -u +%Y-%m-%d))"
+            git push
+          fi
+
+      # Kept regardless of the commit decision: if a solve goes wrong, the artifacts that
+      # produced the failing tests are the only evidence of why.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: data-${{ github.run_number }}
+          path: web/public/data
+          retention-days: 30
