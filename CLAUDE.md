@@ -31,9 +31,12 @@ web/                      Vite + React 19 + TS, no chart library
 - **No AWS. No server of any kind.** Not even serverless. The pipeline commits JSON and Pages
   serves it. If a task seems to need a backend, the answer is almost certainly to precompute more
   and ship it in the JSON.
-- **The GitHub side is not live yet.** `.github/workflows/*.yml` are scaffolded but no repo has
-  been created, nothing has been pushed, and Pages is off. Do not create a remote, push, or
-  enable Pages without being asked.
+- **The GitHub side went live on 2026-09-04.** `git@github.com:benlvovsky/markowitz.git`, public,
+  default branch `main`, serving at https://benlvovsky.github.io/markowitz/. Both workflows are
+  active. Two of the three switches that make it work are **repository settings, not files** —
+  Pages source = "GitHub Actions", and Actions workflow permissions = "Read and write" (without
+  the second, `update-data`'s final `git push` 403s no matter what `permissions:` says in the
+  workflow). If CI breaks in a way the YAML cannot explain, check those two first.
 - **`rf` is browser-side, never a pipeline parameter.** The frontier does not depend on it. Any
   change that makes the pipeline emit per-rf files is a regression in the design, not a feature.
 - **The weight cap IS a pipeline parameter** (a constraint on the QP), so each cap is its own

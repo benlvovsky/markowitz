@@ -16,8 +16,11 @@
 # `pipeline/store.py` partitions closes by calendar year and writes only partitions whose content
 # actually moved, so a weekly refresh changes ~216 KB. See `.gitignore`.
 #
-# NOT ENABLED YET. Committed for review; `schedule` fires only once this lands on the default
-# branch of a repo with Actions turned on.
+# LIVE since 2026-09-04. The `schedule` below only fires because this file is on the default
+# branch of a repo with Actions on; and the `git push` at the end only works because the repo's
+# Actions setting is "Read and write permissions". The `permissions: contents: write` block below
+# cannot grant what the repo caps at: with the default read-only setting this job fetches, solves
+# and tests for ten minutes and then fails on the push. That setting is not in this file.
 
 name: update-data
 

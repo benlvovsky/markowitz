@@ -173,6 +173,17 @@ wrong and not only when the code is.
 
 ## Deployment
 
-`.github/workflows/` holds both halves: `update-data.yml` (weekly cron — fetch, solve, test,
-commit the JSON) and `deploy-web.yml` (typecheck, test, build, publish to Pages). **Neither is
-active yet**; enabling Pages requires a manual switch in repository settings.
+Live at **https://benlvovsky.github.io/markowitz/**.
+
+`.github/workflows/` holds both halves: `update-data.yml` (weekly cron, Saturday 07:00 UTC —
+fetch, solve, test, commit the JSON) and `deploy-web.yml` (typecheck, test, build, publish to
+Pages). `update-data` has no `push` trigger on purpose, so pushing code never spends 90 seconds
+refetching prices; run it by hand with `gh workflow run update-data` when you want fresh data now.
+
+Two of the three things that make this work are **repository settings rather than files**, and
+neither workflow can set them for itself:
+
+| Setting | Value | What breaks without it |
+|---|---|---|
+| Pages → Source | GitHub Actions | `configure-pages` fails with "Get Pages site failed" *after* a green build |
+| Actions → Workflow permissions | Read and write | `update-data` fetches, solves and tests, then 403s on `git push` |

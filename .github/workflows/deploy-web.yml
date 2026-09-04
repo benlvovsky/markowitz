@@ -8,8 +8,11 @@
 # makes this deployable to `<user>.github.io/<repo>/` without the repo name appearing anywhere
 # in the build config.
 #
-# NOT ENABLED YET. Committed for review. Enabling it requires one manual step that a workflow
-# file cannot do for itself: Settings -> Pages -> Source -> "GitHub Actions".
+# LIVE since 2026-09-04 at https://benlvovsky.github.io/markowitz/. The one step this file cannot
+# do for itself is Settings -> Pages -> Source -> "GitHub Actions"; until that was set, every run
+# got through npm ci, typecheck, test and build and then failed on `configure-pages` with
+# "Get Pages site failed". If that error ever comes back, it is the repository setting, not this
+# workflow.
 
 name: deploy-web
 
