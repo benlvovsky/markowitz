@@ -151,9 +151,10 @@ wrong and not only when the code is.
   same total growth the optimiser measured. Plus the store's own: a year partition holds only its
   year, re-writing unchanged history touches no file, and the reconstructed total return matches
   the vendor's `adjclose` at the 24 sampled bars per symbol.
-- `pipeline/tests/_mutate.py` — a mutation harness: 24 mutants, each one source-text edit (drop
+- `pipeline/tests/_mutate.py` — a mutation harness: 32 mutants, each one source-text edit (drop
   the monthly anchor, annualise at 365, forward-fill the panel, never apply the dividends, adjust
-  the ex-date bar too, partition on the run date, use arithmetic means, …), each asserted to be
+  the ex-date bar too, partition on the run date, use arithmetic means, ship a frontier file with
+  no run stamp, accept an asset in a group the universe never declared, …), each asserted to be
   caught by a *named* test. It exists because "89 passed" is not evidence, and it has found four
   tests that guarded less than their names claimed and one rule the shipped data cannot exercise
   at all.
@@ -170,6 +171,16 @@ wrong and not only when the code is.
   at its integer index, checks the three-scalar segment quadratic against a brute-force
   quadratic form to 1e-12, and checks the closed-form tangency root against a dense scan at
   seven risk-free rates.
+- `web/src/data.test.ts` — the load, with `fetch` serving the real `public/data` off disk: six
+  files fetched separately can arrive from two different pipeline runs, and last week's
+  `stats.json` against this week's frontier has exactly the right number of symbols in exactly
+  the right order, so every count agrees and the page silently prices today's weights with last
+  week's covariance. The one field that can see it is `generated_at`, and the refusal is tested
+  one stale file at a time — a stale frontier is as likely as a stale `stats.json`.
+- `web/src/viz.test.ts` — half behaviour, half a scan of `src/` itself. A group's display name
+  used to be a hardcoded map in four files, two of them disagreeing about capitalisation; the
+  labels now come from `manifest.group_labels`, and only a source scan can fail when someone adds
+  a fifth copy, because a fifth copy renders correctly for *this* universe.
 
 ## Deployment
 

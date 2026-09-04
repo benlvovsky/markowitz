@@ -39,6 +39,11 @@ web/                      Vite + React 19 + TS, no chart library
   workflow). If CI breaks in a way the YAML cannot explain, check those two first.
 - **`rf` is browser-side, never a pipeline parameter.** The frontier does not depend on it. Any
   change that makes the pipeline emit per-rf files is a regression in the design, not a feature.
+  The one place the two halves do meet is its *precision*: `build.fetch_rf` rounds the T-bill
+  yield to 4 dp, `config.RF_STEP` is 1 basis point, and `pct(rf, 2)` prints two decimals of
+  percent. All three have to agree, or the seeded default is a slider position the reader cannot
+  return to and the URL then carries an `rf=` forever. `config.test.ts` asserts the shipped
+  `rf_default` is on that grid; nothing else fails, because both values are individually fine.
 - **The weight cap IS a pipeline parameter** (a constraint on the QP), so each cap is its own
   solve and its own file.
 - **Weights are interpolated, never curves.** The browser takes convex combinations of solved
@@ -69,9 +74,28 @@ web/                      Vite + React 19 + TS, no chart library
   and reports what it dropped — a load that silently adjusts something is a load that lied.
   There is no account and nothing is uploaded. If a backend is ever added, `parseFile`/`serialise`
   are the seam; nothing else in the file needs to know.
-- **A universe is a file, not code.** `universe.py` loads and validates; the symbols live in
-  `pipeline/universes/*.toml`. One store keyed by symbol serves all of them, so a symbol two
-  universes share is fetched once. Adding a universe must not require touching `universe.py`.
+- **A universe is a file, not code — in the browser too.** `universe.py` loads and validates; the
+  symbols live in `pipeline/universes/*.toml`. One store keyed by symbol serves all of them, so a
+  symbol two universes share is fetched once. Adding a universe must not require touching
+  `universe.py` — and must not require touching `web/src` either. **No group name of any universe
+  appears anywhere in `web/src`.** Labels come from `manifest.group_labels`, which the pipeline
+  fills for every declared group, read through the single `viz.groupLabel`; `types.Group` is
+  `string` rather than a union of this universe's three, because a compile-time union enforces the
+  opposite of the rule. There were four hardcoded `{equity: 'Equity', …}` maps, two disagreeing
+  about capitalisation, and all four would have rendered blank for a second universe with no error
+  anywhere. `viz.test.ts` scans `src/` for a group name in either shape a copy takes (quoted, or
+  bare before a colon) — that scan is the only guard that can fail when a fifth copy appears,
+  since a fifth copy renders correctly for *this* universe. It strips comment lines, or it flags
+  the comments written to prevent the thing.
+- **One `generated_at` per run, on all six artifacts, and `data.loadBundle` refuses a bundle where
+  they disagree.** The counts cannot see the failure this catches: `update-data` runs weekly over
+  a symbol set that rarely changes, so last week's cached `stats.json` against this week's
+  frontier has exactly the right number of symbols in exactly the right order, and every
+  calculation on the page succeeds while pricing today's weights with last week's covariance. Six
+  files fetched separately with per-file cache lifetimes is exactly how that happens, and
+  `no-cache` on the request is a request. Throwing is right rather than picking the newest: there
+  is no second source, and a reload is the fix. `data.test.ts` tests the refusal **one stale file
+  at a time** — a stale frontier is as likely as a stale `stats.json`.
 
 ## Two pieces of algebra the browser depends on
 
@@ -104,7 +128,7 @@ return compounds at least as fast as price return", whose `>=` was satisfied by 
 dividend adjustment outright). Run it after touching `frontier.py`, `fetch.py` or `store.py`:
 
 ```bash
-python -u pipeline/tests/_mutate.py     # exits 1 if any mutation survives
+python -u pipeline/tests/_mutate.py     # 32 mutants, ~4.5 min; exits 1 if any survives
 ```
 
 It also found a claim the shipped data **cannot** exercise: all 116 survivors trade on exactly the
@@ -112,6 +136,13 @@ same 3,941 days, so `ffill().dropna()` and `dropna()` return the identical panel
 rule in `fetch.py`'s docstring was guarded by nothing. Guards for that class of property have to
 be built on a synthetic store — see `test_load_panel_intersects_trading_days_rather_than_forward_filling`.
 When a mutation survives, ask which of the two it is before touching a test.
+
+The `universe.py` mutants are that same shape for a different reason: they remove a *validation*,
+and the shipped universe file is valid, so the rebuild produces byte-identical artifacts and no
+artifact test can notice. They are caught by `test_universe_invariants.py`, which writes a
+deliberately broken universe to `tmp_path` and requires the raise. A validator can only be tested
+with input the shipped data by definition does not contain — so adding a `raise` to `universe.py`
+without adding a case there guards nothing.
 
 Three known false-comparison traps, all already fixed — do not reintroduce them:
 
@@ -145,11 +176,30 @@ Built to the `dataviz` skill; the non-obvious consequences:
   there collide unless decluttered.
 - The tangency marker is a **ring** larger than the handle, because the handle's default
   position is the tangency and a filled disc was invisible underneath it.
+- **The root `<svg>` is `role="group"`, and `role="img"` sits on an inner `<g>` holding every mark
+  *except* the handle.** Not a stylistic choice: WAI-ARIA makes every descendant of a `role="img"`
+  presentational — the subtree is replaced by the label — so with `role="img"` on the root, the
+  handle's `role="slider"` was inside a node telling assistive technology to ignore its children,
+  and the page's only interactive control could be pruned from the accessibility tree. The split
+  keeps both the long numeric description and the slider. Moving `role="img"` back to the `<svg>`
+  reintroduces it silently, since nothing about the picture changes.
 - `.axis-title` is **not** uppercased: `text-transform: uppercase` renders "annualised σ" as
   "annualised Σ", the summation operator.
 
-After any chart change, render it and look at it — `npm run build && npx vite preview`, then
-screenshot both themes. The palette validator checks colour, not layout.
+After any chart change, render it and look at it, then screenshot both themes. The palette
+validator checks colour, not layout.
+
+**`npx vite preview` cannot serve this build to a browser** under Vite 7.3.6: `/assets/*.js`
+returns 404 when the request carries `Sec-Fetch-Dest: script`, which every real
+`<script type="module">` request has. The CSS loads, React never mounts, and the page is a blank
+white `<div id="root">` — which looks like a chart bug and is not one. Verified by curl: same URL,
+`Sec-Fetch-Dest: empty` → 200, `script` → 404. Pages deployment is unaffected. Serve `web/dist`
+with anything else instead, remembering the `/markowitz/` base the absolute asset paths assume:
+
+```bash
+npm run build && mkdir -p /tmp/serve && ln -sfn "$PWD/dist" /tmp/serve/markowitz
+(cd /tmp/serve && python3 -m http.server 4455)   # then http://localhost:4455/markowitz/#theme=dark
+```
 
 ## Reporting numbers
 
