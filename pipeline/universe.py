@@ -25,6 +25,20 @@ Start dates. History depth decides which of these instruments survives, but it i
 from the prices (`fetch.load_panel`) and reported in the manifest with the reason for every
 drop -- never asserted in the universe. A hand-recorded inception date is a fact that goes
 stale silently; a measured one cannot.
+
+WHAT IS IN A UNIVERSE FILE AND HAS TO REACH THE PAGE
+----------------------------------------------------
+`description`, `excluded` and `[group_labels]` are not notes to the next maintainer -- they are
+the parts of a universe that a reader of the site needs and cannot derive. `build.py` copies all
+three into the manifest, which is what lets the SPA name a group in a button, print the argument
+for the selection, and show which instruments were left out ON PURPOSE (as opposed to dropped by
+the measured window filter, which is a different list with a different meaning). Validating them
+here and then not shipping them was the bug this docstring exists to prevent recurring: the
+evidence for an exclusion is the whole reason to record the exclusion.
+
+`[group_labels]` in particular is why a second universe with different groups needs no code
+change. The label is a fact about the universe, so it lives in the universe file; a label
+hardcoded in the SPA would make "a universe is a file" false in the layer the reader sees.
 """
 from __future__ import annotations
 
@@ -42,6 +56,13 @@ DEFAULT = "etf_global"
 REQUIRED_ASSET_FIELDS = ("name", "asset_class", "group")
 
 
+def derived_label(group: str) -> str:
+    """The label a group gets when the file does not give it one: `real_asset_fx` -> "Real asset
+    fx". Deliberately plain -- it is legible, and it is obviously not what a human would have
+    written, so an unlabelled group looks unfinished rather than looking intentional."""
+    return group.replace("_", " ").strip().capitalize()
+
+
 @dataclass(frozen=True)
 class Universe:
     key: str
@@ -52,6 +73,9 @@ class Universe:
     # symbol -> (name, asset_class, group). The tuple form is what `frontier.asset_table`
     # takes, and it is the whole per-asset payload, so it is stored once rather than rebuilt.
     meta: dict[str, tuple[str, str, str]]
+    # group -> the human label. Complete: every declared group has an entry, derived if the
+    # file did not supply one, so no consumer needs a fallback of its own.
+    group_labels: dict[str, str]
     description: str
     excluded: dict[str, str]
     path: Path
@@ -115,6 +139,21 @@ def load(key: str = DEFAULT) -> Universe:
     if overlap:
         raise ValueError(f"{path}: {sorted(overlap)} are both in [assets] and [excluded]")
 
+    excluded = {k: str(v).strip() for k, v in (doc.get("excluded") or {}).items()}
+    blank = sorted(k for k, v in excluded.items() if not v)
+    if blank:
+        # An exclusion without its reason is the one form of this record that is worse than
+        # nothing: it removes an instrument from the universe and leaves no way to tell whether
+        # that was a data problem, a judgement, or a mistake nobody has revisited.
+        raise ValueError(f"{path}: {blank} are in [excluded] with no reason given")
+
+    # A label for a group that does not exist is a typo in the group name, and silently ignoring
+    # it would leave the group it was meant for showing the derived label instead.
+    labels = {k: str(v).strip() for k, v in (doc.get("group_labels") or {}).items()}
+    stray = sorted(set(labels) - set(groups))
+    if stray:
+        raise ValueError(f"{path}: [group_labels] names {stray}, not in {list(groups)}")
+
     return Universe(
         key=doc.get("key", key),
         name=doc.get("name", key),
@@ -122,7 +161,8 @@ def load(key: str = DEFAULT) -> Universe:
         groups=groups,
         symbols=tuple(meta),
         meta=meta,
+        group_labels={g: labels.get(g) or derived_label(g) for g in groups},
         description=(doc.get("description") or "").strip(),
-        excluded={k: str(v).strip() for k, v in (doc.get("excluded") or {}).items()},
+        excluded=excluded,
         path=path,
     )

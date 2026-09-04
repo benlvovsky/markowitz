@@ -76,6 +76,7 @@ cleaned weights would be a small lie that nothing downstream could detect.
 from __future__ import annotations
 
 import math
+import sys
 from dataclasses import dataclass
 
 import numpy as np
@@ -207,10 +208,21 @@ def _clean(weights: dict[str, float], symbols: list[str], cap: float) -> np.ndar
 
 
 def _solve(mu: pd.Series, cov: pd.DataFrame, cap: float, objective, *args, **kwargs) -> np.ndarray | None:
+    """One QP. `None` means "this target is not attainable", which is a normal answer.
+
+    The except stays broad on purpose -- cvxpy raises at least four unrelated types for an
+    infeasible or badly-scaled problem, and enumerating them would turn a solver upgrade into a
+    crash. But it PRINTS: an infeasible return target near the frontier's right end is expected
+    and shows up as a `failed_targets` entry, while a renamed PyPortfolioOpt method or a
+    singular matrix would make every target "infeasible" and produce a shorter frontier with no
+    other symptom. The two are indistinguishable in the artifact and obvious in the log.
+    """
     ef = EfficientFrontier(mu, cov, weight_bounds=(0.0, cap))
     try:
         getattr(ef, objective)(*args, **kwargs)
-    except Exception:
+    except Exception as exc:
+        print(f"  solve {objective}{args} at cap {cap}: {type(exc).__name__}: {exc}",
+              file=sys.stderr, flush=True)
         return None
     return _clean(ef.clean_weights(cutoff=WEIGHT_FLOOR), list(mu.index), cap)
 

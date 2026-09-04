@@ -26,6 +26,17 @@ benchmark = "SPY"
 # equity) and that distinction is exactly the one a reader is looking at.
 groups = ["equity", "fixed_income", "real_asset_fx"]
 
+# How each group is NAMED on the page: in the filter buttons, the tooltip, the weight table and
+# the CSV export. Here rather than in the SPA because the label is a fact about this universe --
+# a second universe partitions the world differently and has to be able to say so without a code
+# change. `universe.py` derives a plain label ("Real asset fx") for any group missing an entry,
+# which is legible enough to ship and obviously unfinished enough to notice.
+#
+# An INLINE table, not a `[group_labels]` section: a section header would capture every top-level
+# key written after it -- `description` would silently become `group_labels.description` -- and
+# the failure would look like a missing description rather than like a TOML mistake.
+group_labels = { equity = "Equity", fixed_income = "Fixed income", real_asset_fx = "Real assets & FX" }
+
 description = """
 Why ETFs rather than single stocks.
 

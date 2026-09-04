@@ -71,7 +71,11 @@ def fetch_rf() -> tuple[float, str]:
         last = float(df["adjclose"].iloc[-1]) / 100.0
         if not 0.0 <= last < 0.25:
             raise ValueError(f"implausible {RF_TICKER} value {last}")
-        return round(last, 5), f"{RF_TICKER} close {df.index[-1].date()}"
+        # FOUR DECIMALS = ONE BASIS POINT, which is the SPA's rf slider step and the precision
+        # its readout prints. At five the seeded default lands between two slider positions, so
+        # the reader who touches the slider can never get back to it and the URL fragment then
+        # carries an `rf=` forever. `web/src/config.test.ts` asserts the two agree.
+        return round(last, 4), f"{RF_TICKER} close {df.index[-1].date()}"
     except Exception as exc:
         print(f"rf: falling back to {RF_FALLBACK} ({exc})", file=sys.stderr, flush=True)
         return RF_FALLBACK, f"fallback ({type(exc).__name__})"
@@ -86,6 +90,25 @@ def write_json(path: Path, payload) -> int:
 
 def cap_slug(cap: float) -> str:
     return f"cap{round(cap * 100):d}"
+
+
+def cap_slugs(caps: list[float]) -> list[str]:
+    """One slug per cap, ASSERTED DISTINCT.
+
+    `cap_slug` rounds to whole percent, so 0.125 and 0.124 both come out `cap12`. Left
+    unchecked that is silent and asymmetric: `frontiers[slug]` keeps only the second solve,
+    while the manifest lists two caps pointing at the one file -- so the SPA offers two
+    selectable caps that are the same frontier, and every cross-cap invariant compares a
+    file with itself and passes. Raise instead; the caller wanted two frontiers.
+    """
+    slugs = [cap_slug(c) for c in caps]
+    if len(set(slugs)) != len(slugs):
+        clashes = sorted({s for s in slugs if slugs.count(s) > 1})
+        raise SystemExit(
+            f"--caps {caps} collide on the slug(s) {clashes}: caps are named to the nearest "
+            "whole percent, so two caps within 1% of each other cannot both be built"
+        )
+    return slugs
 
 
 def main(argv=None) -> int:
@@ -112,6 +135,7 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
 
     caps = [float(c) for c in args.caps.split(",")]
+    slugs = cap_slugs(caps)
     u = uni.load(args.universe)
     print(f"universe {u.key} ({u.name}): {len(u.symbols)} symbols from {u.path.name}", flush=True)
 
@@ -128,7 +152,9 @@ def main(argv=None) -> int:
         print(f"fetching {len(symbols_wanted)} symbols -> {args.price_dir}", flush=True)
         ok, failed = fetch.download(symbols_wanted, args.price_dir, max_age_days=args.max_age_days)
 
-    rf = (fetch_rf() if args.rf == "auto" else (float(args.rf), "explicit"))
+    # Rounded on both paths, `auto` and explicit, for the reason in `fetch_rf`: this number seeds
+    # a 1bp slider, and one that cannot be returned to is worse than one that is 1bp off.
+    rf = (fetch_rf() if args.rf == "auto" else (round(float(args.rf), 4), "explicit"))
     rf_value, rf_source = rf
     print(f"rf_default = {rf_value:.4f} ({rf_source})", flush=True)
 
@@ -150,10 +176,15 @@ def main(argv=None) -> int:
     assets = fr.asset_table(est, panel, rf_value, u.meta)
     symbols = list(est.mu.index)
 
+    # ONE STAMP FOR THE WHOLE RUN, taken before anything is written, and carried by every one of
+    # the six files. It is what lets the browser refuse a MIXED BUNDLE -- last week's cached
+    # frontier against this week's covariance -- which is the failure mode of a weekly cron plus
+    # HTTP caching, and which no other field can detect when the symbol set has not changed.
+    generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
     frontiers = {}
-    for cap in caps:
-        payload = fr.build(est, rf=rf_value, cap=cap, n_points=args.points)
-        slug = cap_slug(cap)
+    for cap, slug in zip(caps, slugs):
+        payload = {"generated_at": generated_at, **fr.build(est, rf=rf_value, cap=cap, n_points=args.points)}
         frontiers[slug] = payload
         n = payload["n_points"]
         tan = payload["frontier"][payload["max_sharpe_index"]]
@@ -166,7 +197,6 @@ def main(argv=None) -> int:
         )
 
     monthly = fetch.monthly_returns(panel)
-    generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
     # THE DENOMINATOR IS RETURNS, NOT BARS. `mean_historical_return` annualises with the
     # exponent 252/len(returns), and 3,939 price bars carry 3,938 returns. Using the bar
@@ -196,16 +226,30 @@ def main(argv=None) -> int:
         "rf_source": rf_source,
         # Which universe file this directory of artifacts is a statement about. Recorded so an
         # output directory is self-describing; see the module docstring on why the path is not
-        # derived from it.
-        "universe": {"key": u.key, "name": u.name, "file": u.path.name},
+        # derived from it. `description` rides along because it is the ARGUMENT for the
+        # selection, and an argument that stays in the TOML is an argument no reader ever sees.
+        "universe": {
+            "key": u.key,
+            "name": u.name,
+            "file": u.path.name,
+            "description": u.description,
+        },
         "benchmark": u.benchmark if u.benchmark in symbols else None,
         "groups": list(u.groups),
+        # The label per group, so no consumer has to hold its own copy. A group map hardcoded in
+        # the SPA is what made "a universe is a file" false everywhere the reader could see.
+        "group_labels": dict(u.group_labels),
         "n_universe": len(symbols_wanted),
         "n_assets": len(symbols),
-        "caps": [{"cap": c, "file": f"frontier_{cap_slug(c)}.json", "slug": cap_slug(c)} for c in caps],
+        "caps": [{"cap": c, "file": f"frontier_{s}.json", "slug": s} for c, s in zip(caps, slugs)],
+        # THREE LISTS BECAUSE THERE ARE THREE DIFFERENT CLAIMS, and collapsing them would lose
+        # the only one that carries an argument. `deliberate` is a judgement recorded in the
+        # universe file with its evidence and is NOT part of `n_universe`; the other two are
+        # measured this run, and both are failures of a symbol the universe did ask for.
         "excluded": {
             "fetch_failed": failed,
             "window_or_coverage": dropped,
+            "deliberate": dict(u.excluded),
         },
         "assets": assets,
     }

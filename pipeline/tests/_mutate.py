@@ -35,7 +35,7 @@ ELSE that failed is reported as collateral rather than silently accepted.
 
 WHY A 26-SYMBOL SUBSET AND A CACHED PRICE DIRECTORY
 ---------------------------------------------------
-Full runs are 116 assets x 3 caps x 62 quadratic programs per rebuild, and there are 14
+Full runs are 116 assets x 3 caps x 62 quadratic programs per rebuild, and there are ~30
 mutants. The subset keeps every structural feature the suite needs -- a dividend payer, a
 reverse-splitter, two near-duplicate pairs (GLD/IAU, UUP/FXE), a T-bill fund, two funds
 that start after the window and must be dropped -- while making the whole harness a
@@ -51,6 +51,13 @@ caught by `test_store_invariants.py`, whose layout tests write a throwaway store
 mutant's own code. That is the reason those tests are unit tests on `tmp_path` rather than
 assertions about the shipped store: a store can only be wrong on the SECOND write, and the
 shipped one only shows the result of the last.
+
+The `universe.py` mutants are the same shape for a different reason. They remove a VALIDATION,
+and the shipped universe file is valid -- so the rebuild produces byte-identical artifacts and
+no artifact test can possibly notice. They are caught by `test_universe_invariants.py`, which
+writes a deliberately broken universe to `tmp_path` and requires the raise. A validator can only
+be tested with input the shipped data by definition does not contain, and the corollary is that
+adding a `raise` to `universe.py` without adding a case there guards nothing.
 """
 from __future__ import annotations
 
@@ -367,6 +374,79 @@ MUTATIONS: list[Mutation] = [
                 "    return {int(y): chunk for y, chunk in "
                 "long.groupby(pd.Series(pd.Timestamp.today().year, index=long.index), sort=True)}")],
         kills=["test_a_year_partition_contains_only_that_year"],
+    ),
+    Mutation(
+        name="frontier-files-shipped-unstamped",
+        why="write the frontier payloads without the run stamp -- the state this shipped in. The "
+            "browser then cannot detect a MIXED BUNDLE (a cached frontier against a fresh "
+            "covariance), which is the weekly cron's own failure mode and is invisible whenever "
+            "the symbol set has not changed",
+        file="build.py",
+        edits=[('        payload = {"generated_at": generated_at, **fr.build(est, rf=rf_value, cap=cap, n_points=args.points)}',
+                "        payload = fr.build(est, rf=rf_value, cap=cap, n_points=args.points)")],
+        kills=["test_every_artifact_carries_the_same_generated_at"],
+    ),
+    Mutation(
+        name="one-artifact-stamped-from-another-run",
+        why="the stamp present on all six files but not AGREEING -- what a stale HTTP cache "
+            "actually produces. Distinct from the mutation above, which removes the field: this "
+            "one leaves every field in place and only the cross-file comparison can see it",
+        file="build.py",
+        edits=[('    manifest = {\n        "generated_at": generated_at,',
+                '    manifest = {\n        "generated_at": "1970-01-01T00:00:00+00:00",')],
+        kills=["test_every_artifact_carries_the_same_generated_at"],
+    ),
+    Mutation(
+        name="cap-slug-collision-unchecked",
+        why="drop the distinct-slug guard: 0.125 and 0.124 both slug to `cap12`, the second solve "
+            "overwrites the first, and the manifest advertises two caps that are one file -- so "
+            "every cross-cap invariant compares a file with itself and passes",
+        file="build.py",
+        edits=[("    if len(set(slugs)) != len(slugs):", "    if False:")],
+        kills=["test_two_caps_that_share_a_slug_are_refused_rather_than_silently_merged"],
+    ),
+    Mutation(
+        name="group-labels-dropped-from-the-manifest",
+        why="ship `groups` without `group_labels`: the SPA has no map of its own by design, so "
+            "every filter button, tooltip and table cell renders an empty group name",
+        file="build.py",
+        edits=[('        "group_labels": dict(u.group_labels),', "")],
+        kills=["test_the_manifest_names_every_group_it_asks_the_page_to_show"],
+    ),
+    Mutation(
+        name="deliberate-exclusions-not-shipped",
+        why="validate the universe's exclusions and their evidence, then drop them -- the state "
+            "this shipped in. The argument for leaving an instrument out is the whole reason to "
+            "record leaving it out, and it never reached the page",
+        file="build.py",
+        edits=[('            "deliberate": dict(u.excluded),', "")],
+        kills=["test_deliberate_exclusions_ship_with_their_evidence"],
+    ),
+    Mutation(
+        name="undeclared-asset-group-accepted",
+        why="drop the group check in the loader: the asset is optimised over and held, but has no "
+            "label, no filter button and no legend entry -- present in the portfolio and absent "
+            "from the chart that is supposed to explain it",
+        file="universe.py",
+        edits=[('        if row["group"] not in groups:', "        if False:")],
+        kills=["test_an_asset_whose_group_is_not_declared_is_rejected"],
+    ),
+    Mutation(
+        name="exclusion-without-a-reason-accepted",
+        why="allow an empty exclusion reason: an instrument leaves the universe with nothing to "
+            "say whether that was a measured data fault, a judgement, or an oversight",
+        file="universe.py",
+        edits=[("    if blank:", "    if False:")],
+        kills=["test_an_exclusion_with_no_reason_is_rejected"],
+    ),
+    Mutation(
+        name="mislabelled-group-silently-ignored",
+        why="accept a [group_labels] key that names no declared group: the typo is inert and the "
+            "group it was meant for keeps the derived label, so the only symptom is the button "
+            "the label was added to fix",
+        file="universe.py",
+        edits=[("    if stray:", "    if False:")],
+        kills=["test_a_label_for_an_undeclared_group_is_rejected"],
     ),
     Mutation(
         name="freshness-reads-only-the-newest-partition",

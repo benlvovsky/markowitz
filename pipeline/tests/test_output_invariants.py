@@ -27,6 +27,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+import build as bld
+
 CONSISTENCY_TOL = 2e-5
 
 
@@ -35,6 +37,86 @@ def _w_vec(point, index, n):
     for sym, x in point["w"].items():
         w[index[sym]] = x
     return w
+
+
+def test_every_artifact_carries_the_same_generated_at(manifest, stats, history, frontiers):
+    """SIX FILES, ONE RUN. The browser fetches them separately and any of them can come from a
+    stale HTTP cache, so a bundle of this week's covariance against last week's weights is a
+    live failure mode -- and an undetectable one whenever the symbol set has not changed, which
+    is most weeks. The stamp is the only field that can catch it, which is why every file has to
+    carry it: a frontier file without one cannot be checked at all.
+    """
+    stamps = {"manifest.json": manifest["generated_at"], "stats.json": stats["generated_at"],
+              "history.json": history["generated_at"]}
+    for slug, doc in frontiers.items():
+        assert "generated_at" in doc, f"frontier_{slug}.json carries no generated_at"
+        stamps[f"frontier_{slug}.json"] = doc["generated_at"]
+    assert len(set(stamps.values())) == 1, f"artifacts from different runs: {stamps}"
+
+
+def test_the_cap_files_are_distinct_files_with_distinct_slugs(manifest, frontiers):
+    """`cap_slug` rounds to whole percent, so two caps within 1% collide and the second solve
+    overwrites the first -- leaving the manifest advertising two caps that are one frontier.
+    `build.cap_slugs` raises on that; this is the artifact-side statement of the same claim,
+    and it also catches a manifest whose `file` and `slug` fields disagree."""
+    caps = manifest["caps"]
+    assert len({c["slug"] for c in caps}) == len(caps), f"duplicate slug in {caps}"
+    assert len({c["file"] for c in caps}) == len(caps), f"two caps share a file: {caps}"
+    assert len({c["cap"] for c in caps}) == len(caps)
+    for c in caps:
+        assert c["file"] == f"frontier_{c['slug']}.json"
+        assert frontiers[c["slug"]]["weight_cap"] == c["cap"], (
+            f"{c['file']} was solved at {frontiers[c['slug']]['weight_cap']}, manifest says {c['cap']}"
+        )
+
+
+def test_two_caps_that_share_a_slug_are_refused_rather_than_silently_merged():
+    """The other half of the test above, on the input side, because the shipped caps cannot
+    exercise it: 1.0/0.2/0.1 do not collide, so only a synthetic pair can show the guard works.
+
+    Asymmetric failure is what makes this worth a raise rather than a warning. `frontiers[slug]`
+    keeps the LAST solve while `manifest["caps"]` lists BOTH, so the SPA offers two cap buttons
+    that select the same frontier, and every cross-cap invariant compares a file with itself and
+    passes. Nothing downstream can see it.
+    """
+    assert bld.cap_slugs([1.0, 0.2, 0.1]) == ["cap100", "cap20", "cap10"]
+    with pytest.raises(SystemExit, match="cap12"):
+        bld.cap_slugs([0.125, 0.124])
+    # Rounds, does not truncate, so 0.199 is `cap20` and collides with 0.2 rather than aliasing
+    # to `cap19` and looking fine.
+    with pytest.raises(SystemExit, match="cap20"):
+        bld.cap_slugs([0.2, 0.199])
+
+
+def test_the_manifest_names_every_group_it_asks_the_page_to_show(manifest):
+    """The SPA reads these labels; it has no map of its own. A group in `groups` with no entry in
+    `group_labels` renders an empty filter button, and an entry for a group that is not in
+    `groups` is a typo whose only symptom is the button it was meant to fix."""
+    assert set(manifest["group_labels"]) == set(manifest["groups"])
+    assert all(v.strip() for v in manifest["group_labels"].values()), manifest["group_labels"]
+    used = {a["group"] for a in manifest["assets"]}
+    assert used <= set(manifest["groups"]), f"asset group not declared: {used - set(manifest['groups'])}"
+
+
+def test_deliberate_exclusions_ship_with_their_evidence(manifest):
+    """The universe file records WHY an instrument was left out, at length, and that argument is
+    the reason the record is worth keeping. Validated in `universe.py` and then dropped on the
+    floor is the state this test exists to prevent returning to.
+
+    Also asserts the three lists mean different things: `deliberate` is a judgement made in the
+    universe file and is not part of `n_universe`, while `window_or_coverage` is measured this
+    run over symbols the universe did ask for.
+    """
+    deliberate = manifest["excluded"]["deliberate"]
+    assert deliberate, "no deliberate exclusions shipped at all"
+    kept = {a["symbol"] for a in manifest["assets"]}
+    for sym, why in deliberate.items():
+        assert sym not in kept, f"{sym} is both deliberately excluded and held"
+        assert sym not in manifest["excluded"]["window_or_coverage"], sym
+        # 80 characters is not a style rule: every reason in the shipped file is a paragraph of
+        # evidence, and a one-word reason ("bad") is the thing that makes the record worthless.
+        assert len(why) > 80, f"{sym}'s exclusion reason is {len(why)} chars: {why!r}"
+    assert manifest["universe"]["description"].strip(), "the universe ships no description"
 
 
 def test_manifest_lists_every_universe_member_as_kept_or_excluded(manifest):
