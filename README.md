@@ -61,6 +61,23 @@ npm test                                       # browser-side maths, against the
 npm run build
 ```
 
+To look at the built page rather than the dev server — which is the step a chart change needs,
+since a palette validator cannot see a label collision:
+
+```bash
+cd web && npm run build
+mkdir -p /tmp/serve && ln -sfn "$PWD/dist" /tmp/serve/markowitz
+(cd /tmp/serve && python3 -m http.server 4455) &          # /markowitz/, matching Pages
+node tools/shoot.mjs http://localhost:4455/markowitz/ /tmp/light.png '' light
+node tools/shoot.mjs http://localhost:4455/markowitz/ /tmp/dark.png  '.chart' dark
+```
+
+`tools/shoot.mjs` is a headless-Chrome screenshotter over the DevTools protocol, no dependencies.
+It prints the console and any failed request and exits nonzero if the page complained, which is
+the part that matters: a chart that fails to mount and a chart that mounts wrong produce the same
+blank PNG. With a selector it clips to one element (opening any `<details>` first); without one,
+the whole page at its real scroll height.
+
 `build.py --skip-fetch` reuses the local price store in `pipeline/data/prices/` (gitignored,
 3.7 MB, reproducible). Useful flags: `--universe`, `--out`, `--symbols` for a subset, `--caps`,
 `--points`, `--start`, `--rf auto|0.042`.
@@ -181,6 +198,24 @@ wrong and not only when the code is.
   used to be a hardcoded map in four files, two of them disagreeing about capitalisation; the
   labels now come from `manifest.group_labels`, and only a source scan can fail when someone adds
   a fifth copy, because a fifth copy renders correctly for *this* universe.
+- `web/tests/_mutate.mjs` — the same instrument as `_mutate.py`, pointed at the other half: 38
+  mutants over `config.ts`, `export.ts`, `data.ts` and `viz.ts` (write the default cap into a
+  shared link, treat `pos: 0` as absent, let storage beat the URL, stop comparing the six run
+  stamps, drop the CSV quoting, assert the weight total as 1, put a hardcoded group map back, take
+  the rf slider off the basis-point grid, …), each asserted to be caught by a *named* test. 38 s,
+  and it runs against a staged copy of `web/` so an interrupted run cannot leave a mutated source
+  in the tree.
+
+Neither harness runs in CI. They are tests **of** the test suites, run by hand after touching what
+they cover; `_mutate.py` has already found four pipeline tests that guarded less than their names
+claimed. A survivor means one of two things, and they need opposite fixes: a test that guards less
+than it says, or a property the shipped data cannot exercise — the second needs a synthetic
+fixture, not a weakened assertion.
+
+```bash
+python -u pipeline/tests/_mutate.py    # 32 mutants, ~4.5 min
+node web/tests/_mutate.mjs             # 38 mutants, ~40 s; --only <substring>, --list, --keep
+```
 
 ## Deployment
 

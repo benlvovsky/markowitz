@@ -7,7 +7,15 @@
 # partitions whose CONTENT changed are written, so a weekly run touches the current year plus the
 # event log -- measured at ~216 KB. Committing the store is therefore a 3.7 MB one-off and
 # ~11 MB/year after, which is a decision about how much audit trail is worth, not a constraint.
-# Until that is decided the store stays local and CI refetches it.
+#
+# DECIDED 2026-09-04: it stays ignored, and CI refetches. Not because of the size -- because the
+# store would be the one committed artifact nothing verifies. `web/public/data/*.json` is checked
+# by both test suites on every run, so a wrong number in it fails something; a committed parquet
+# would be read by nobody until the next build, and a corrupted partition would sit in the history
+# looking authoritative. The event log makes the store auditable where it matters (what changed,
+# when, and how the vendor's series moved), and that is what `--skip-fetch` and a local store are
+# for. Revisit only if a run ever needs to be reproduced against prices the vendor has since
+# restated -- that is the one thing refetching genuinely cannot do.
 #
 # web/public/data/*.json is the opposite case and IS committed on purpose: it is 432 KB of text,
 # it is what the SPA loads, and GitHub Pages has no other way to serve it. That asymmetry is the
@@ -22,5 +30,10 @@ __pycache__/
 node_modules/
 web/dist/
 *.tsbuildinfo
+
+# The mutation harness's staged copy of `web/`. Recreated per run and removed on exit, but
+# ignored anyway: if the run is interrupted it survives, and a stray tree of half-mutated
+# sources is the one thing that must never look like a change somebody meant.
+web/.mutate/
 
 .DS_Store

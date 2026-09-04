@@ -24,6 +24,9 @@ web/                      Vite + React 19 + TS, no chart library
   src/portfolio.ts        the browser's own maths -- interpolation, tangency, growth
   src/export.ts           the portfolio download: CSV + JSON, serialised in the browser
   src/config.ts           the view state: URL fragment, localStorage, a file on disk
+  src/*.test.ts           vitest, reading public/data -- the SHIPPED artifacts, not fixtures
+  tests/_mutate.mjs       the web mutation harness; stages web/ into web/.mutate/
+  tools/shoot.mjs         headless-Chrome screenshotter, for the render-and-look step
 ```
 
 ## Constraints that are decisions, not accidents
@@ -129,7 +132,29 @@ dividend adjustment outright). Run it after touching `frontier.py`, `fetch.py` o
 
 ```bash
 python -u pipeline/tests/_mutate.py     # 32 mutants, ~4.5 min; exits 1 if any survives
+node web/tests/_mutate.mjs              # 38 mutants, ~40 s; --only <substring>, --list, --keep
 ```
+
+`web/tests/_mutate.mjs` is the same instrument over `config.ts`, `export.ts`, `data.ts` and
+`viz.ts` — run it after touching any of those four. Same four-part contract, and each part exists
+to stop the harness reporting success while measuring nothing: a needle that no longer matches
+**exactly once** exits 2, a mutant that does not parse exits 3 (it fails every test in its file,
+which looks exactly like a kill), the expected test's *name* has to appear among the failures or it
+is reported MISKILLED, and it mutates a staged copy at `web/.mutate/` rather than the working tree.
+The last one is not paranoia about `finally`: an interrupted in-place run leaves a source file
+broken in a way that looks like something someone meant. All four are themselves checked — break
+one deliberately and confirm the exit code, the same way the tests are.
+
+Neither harness is in `.github/workflows/`, on purpose. They are slow, they are tests *of* the
+tests rather than of the code, and a green CI run is not what they are evidence for.
+
+Two mutants in the web set guard rules that no *behavioural* test can reach, and they are the
+reason the source scans exist: `group-labels-hardcoded-again` puts a hardcoded
+`{<group>: '<Label>', …}` map back into `viz.ts`, which renders **correctly** for this universe and
+is caught only by `viz.test.ts`'s scan of `src/`. The harness builds that map from
+`manifest.group_labels` rather than writing the literal out, because a harness containing the
+literal would be one more copy of the thing the scan forbids — in the file whose job is to prove
+the scan works.
 
 It also found a claim the shipped data **cannot** exercise: all 116 survivors trade on exactly the
 same 3,941 days, so `ffill().dropna()` and `dropna()` return the identical panel and the loudest
@@ -187,19 +212,32 @@ Built to the `dataviz` skill; the non-obvious consequences:
   "annualised Σ", the summation operator.
 
 After any chart change, render it and look at it, then screenshot both themes. The palette
-validator checks colour, not layout.
-
-**`npx vite preview` cannot serve this build to a browser** under Vite 7.3.6: `/assets/*.js`
-returns 404 when the request carries `Sec-Fetch-Dest: script`, which every real
-`<script type="module">` request has. The CSS loads, React never mounts, and the page is a blank
-white `<div id="root">` — which looks like a chart bug and is not one. Verified by curl: same URL,
-`Sec-Fetch-Dest: empty` → 200, `script` → 404. Pages deployment is unaffected. Serve `web/dist`
-with anything else instead, remembering the `/markowitz/` base the absolute asset paths assume:
+validator checks colour, not layout. `web/tools/shoot.mjs` is that step — headless Chrome over the
+DevTools protocol, no dependencies, and it **exits nonzero if the page complained**, which is the
+reason it is a committed tool rather than a snippet: a chart that fails to mount and a chart that
+mounts wrong produce the same blank PNG, and the difference is only ever in the console.
 
 ```bash
 npm run build && mkdir -p /tmp/serve && ln -sfn "$PWD/dist" /tmp/serve/markowitz
-(cd /tmp/serve && python3 -m http.server 4455)   # then http://localhost:4455/markowitz/#theme=dark
+(cd /tmp/serve && python3 -m http.server 4455) &
+node tools/shoot.mjs http://localhost:4455/markowitz/ /tmp/light.png '' light
+node tools/shoot.mjs http://localhost:4455/markowitz/ /tmp/dark.png  '.chart' dark
 ```
+
+Serve under the `/markowitz/` prefix rather than at the root, so a base-path mistake fails here
+instead of after a deploy. Two things in the tool that look like slack and are not: the viewport is
+emulated at a *realistic* 1200px and the full-page height is measured from `scrollHeight`
+afterwards, because emulating a 4200px-tall window makes `scrollHeight` report 4200 whatever the
+content is; and `/favicon.ico` 404s are the one HTTP failure it ignores, because Chrome requests
+that at the origin root on its own whether the page asks or not.
+
+A blank white `<div id="root">` with the CSS loaded has happened here and looks exactly like a
+chart bug. It was diagnosed on 2026-09-04 as `npx vite preview` returning 404 for `/assets/*.js`
+when the request carries `Sec-Fetch-Dest: script`; **that diagnosis did not reproduce on re-test**
+the same day (Vite 7.3.6, all three `Sec-Fetch-Dest` values → 200, and headless Chrome renders the
+preview build in full). So do not trust the cause, only the symptom: an empty `#root` is JS that
+never ran, and a wrong base path is the likelier reason. The `http.server` recipe above stands on
+its own merits.
 
 ## Reporting numbers
 
