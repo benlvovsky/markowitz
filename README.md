@@ -15,7 +15,7 @@ web/       React + TypeScript SPA  <---- web/public/data/*.json <------+
 ## Why there is no server
 
 The frontier is expensive to solve and cheap to *read*: three solved frontiers, 116 assets and
-15.6 years of monthly history come to 432 KB of JSON. So the pipeline runs on a schedule, commits
+15+ years of monthly history come to 432 KB of JSON. So the pipeline runs on a schedule, commits
 its output, and the SPA fetches static files. **The repo is the database.** No AWS, no Lambda, no
 S3, no DynamoDB, and nothing to keep running or pay for.
 
@@ -120,11 +120,11 @@ included and excluded) — a typo fails the build instead of quietly shipping an
 
 Expected returns are the sample **geometric** mean, annualised at 252 trading days. Risk is a
 Ledoit-Wolf shrunk covariance matrix from daily returns; the measured shrinkage intensity is
-0.0058 — nearly inactive, because at 3,938 daily returns the sample covariance needs little
-help. Long-only with a box constraint, solved as a QP through PyPortfolioOpt/cvxpy.
+≈0.006 — nearly inactive, because at ~3,900 daily returns for 116 assets the sample covariance
+needs little help. Long-only with a box constraint, solved as a QP through PyPortfolioOpt/cvxpy.
 
 The weak link is the expected returns, and no amount of covariance care fixes it: the standard
-error on a 15.6-year annualised mean for a 20%-volatility asset is about 5 percentage points, the
+error on a 15-year annualised mean for a 20%-volatility asset is about 5 percentage points, the
 same order as the equity risk premium being estimated. **That is what the three weight caps are
 for** — how far the portfolio moves between 100% and 10% is a direct read on how much of the
 "optimal" answer was estimation error.

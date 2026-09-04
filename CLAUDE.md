@@ -154,7 +154,13 @@ screenshot both themes. The palette validator checks colour, not layout.
 ## Reporting numbers
 
 The universe is 132 symbols; **116** survive the common-window filter, and the 16 dropped funds
-are named in the manifest with the reason. Window: 2011-01-03 → 2026-09-02, 3,939 trading days,
-15.6 years. Measured shrinkage intensity 0.0058 — quote it, do not claim shrinkage is what makes
-the answer trustworthy. It is not: the expected returns are the weak link, and the three weight
-caps are the honest read on that.
+are named in the manifest with the reason. Measured shrinkage intensity ≈0.006 — quote it, do not
+claim shrinkage is what makes the answer trustworthy. It is not: the expected returns are the weak
+link, and the three weight caps are the honest read on that.
+
+**Read the window off `web/public/data/manifest.json`, do not restate it here.** `update-data`
+runs every Saturday, so the end date, the trading-day count and the year count all move weekly;
+a number written into prose is stale by the next cron and there is nothing that fails when it
+drifts. This section said "2026-09-02, 3,939 trading days" one day after the first scheduled run
+made it 2026-09-03 and 3,941. `manifest.window` carries `start`, `end`, `trading_days` and
+`years`, and both test suites read it.
