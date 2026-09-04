@@ -18,7 +18,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import type { Manifest } from './types'
-import { groupLabel, yearsText } from './viz'
+import { groupLabel, paragraphs, yearsText } from './viz'
 
 const SRC = dirname(fileURLToPath(import.meta.url))
 const DATA = join(SRC, '..', 'public', 'data')
@@ -78,6 +78,39 @@ describe('group labels', () => {
       .filter(({ text }) => needle.test(text))
       .map(({ path }) => path)
     expect(offenders).toEqual([])
+  })
+})
+
+describe('prose out of the universe file', () => {
+  it('keeps the paragraph breaks and drops the file wrapping, on the shipped strings', () => {
+    // The real ones, not a fixture: the defect this fixes was invisible in the JSON and only
+    // appeared once the description was rendered, so the test has to run on what is rendered.
+    const texts = [manifest.universe.description, ...Object.values(manifest.excluded.deliberate)]
+    for (const text of texts) {
+      const ps = paragraphs(text)
+      expect(ps.length, text.slice(0, 40)).toBeGreaterThan(0)
+      for (const p of ps) {
+        // No newline survives INSIDE a paragraph, or the file's column limit becomes the layout.
+        expect(p, p.slice(0, 40)).not.toMatch(/\n/)
+        expect(p, p.slice(0, 40)).not.toMatch(/\s{2,}/)
+        expect(p.trim(), p.slice(0, 40)).toBe(p)
+      }
+      // And the words are all still there, in order -- a split that dropped one would pass
+      // everything above.
+      expect(ps.join(' ').split(/\s+/)).toEqual(text.trim().split(/\s+/))
+    }
+    // The description is the case that motivated it: three paragraphs rendered as one block.
+    expect(paragraphs(manifest.universe.description).length).toBeGreaterThan(1)
+  })
+
+  it('is written in the page’s own typography, not the source comments’', () => {
+    // These strings are the only ones shipped VERBATIM out of a `.toml` into the page, and that
+    // file's comments use `--` for an em dash like the rest of the source. The page cannot fix it
+    // at render time -- a transform of `--` would also rewrite `--start` and `-33%/+50%`, both of
+    // which appear in that file's prose deliberately -- so the file has to be written correctly
+    // and this is what says so.
+    const texts = [manifest.universe.description, ...Object.values(manifest.excluded.deliberate)]
+    for (const text of texts) expect(text, text.slice(0, 40)).not.toMatch(/\s--\s/)
   })
 })
 

@@ -28,7 +28,7 @@ import { GrowthChart } from './components/GrowthChart'
 import { SettingsBar } from './components/SettingsBar'
 import { StatTiles, tile } from './components/StatTiles'
 import { WeightTable } from './components/WeightTable'
-import { mult, pct, yearsText } from './viz'
+import { mult, paragraphs, pct, yearsText } from './viz'
 
 export default function App() {
   const [bundle, setBundle] = useState<Bundle | null>(null)
@@ -429,7 +429,11 @@ function Excluded({ manifest }: { manifest: Bundle['manifest'] }) {
         <strong>How this universe was chosen</strong>, and the {deliberate.length} instrument
         {deliberate.length === 1 ? '' : 's'} deliberately left out of it
       </summary>
-      <p style={{ marginTop: 10 }}>{manifest.universe.description}</p>
+      {paragraphs(manifest.universe.description).map((text, i) => (
+        <p key={i} style={{ marginTop: 10 }}>
+          {text}
+        </p>
+      ))}
       {deliberate.length > 0 && (
         <dl style={{ marginTop: 10 }}>
           {deliberate.map(([symbol, why]) => (
@@ -437,7 +441,14 @@ function Excluded({ manifest }: { manifest: Bundle['manifest'] }) {
               <dt className="sym" style={{ fontWeight: 600 }}>
                 {symbol}
               </dt>
-              <dd style={{ margin: '2px 0 0' }}>{why}</dd>
+              {/* The gap after the symbol is tight and the gap between paragraphs is not: the
+                  first line belongs to its `dt`, the later ones are a continuation of the same
+                  argument and need to read as one. */}
+              {paragraphs(why).map((text, i) => (
+                <dd key={i} style={{ margin: `${i === 0 ? 2 : 10}px 0 0` }}>
+                  {text}
+                </dd>
+              ))}
             </div>
           ))}
         </dl>

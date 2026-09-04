@@ -79,6 +79,26 @@ export const groupLabel = (labels: Record<string, string>, g: string) => labels[
  */
 export const yearsText = (years: number) => years.toFixed(1)
 
+/** Prose out of a universe file -> paragraphs, with the wrapping its author's editor put in
+ *  taken back out.
+ *
+ * The strings in `pipeline/universes/*.toml` are hard-wrapped at the file's column limit AND
+ * split into paragraphs by blank lines. Rendered as one text node both disappear: the wraps
+ * collapse to spaces, which is right, and the paragraph breaks collapse too, which turned a
+ * three-paragraph argument into one 300-word block -- readable in the file, a wall on the page.
+ *
+ * `white-space: pre-wrap` is the other obvious fix and is the wrong one: it would freeze the
+ * file's column limit into the layout, so the argument would not reflow for a narrow window or a
+ * phone, and the line breaks a reader saw would be an artifact of somebody else's editor.
+ */
+export function paragraphs(text: string): string[] {
+  return text
+    .trim()
+    .split(/\n\s*\n/)
+    .map((p) => p.replace(/\s*\n\s*/g, ' ').trim())
+    .filter(Boolean)
+}
+
 export const pct = (v: number, digits = 1) => `${(v * 100).toFixed(digits)}%`
 export const pctSigned = (v: number, digits = 1) =>
   `${v >= 0 ? '+' : '−'}${(Math.abs(v) * 100).toFixed(digits)}%`

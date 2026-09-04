@@ -8,6 +8,12 @@
 #
 # Symbol order is the order the file is written in, and it is preserved through to the manifest,
 # so the sections below are also the reading order of the asset table in the SPA.
+#
+# `description` and the `[excluded]` reasons are the two things in here that are RENDERED TO A
+# READER, verbatim, in the SPA's own typography -- so they are written with real em dashes and
+# real paragraph breaks, unlike these comments, which use `--` like the rest of the source. The
+# page cannot fix this for them: a display transform of `--` would also rewrite `--start` and
+# `-33%/+50%`, both of which appear in this file's prose on purpose.
 
 key = "etf_global"
 name = "Global cross-asset ETFs"
@@ -43,14 +49,14 @@ Why ETFs rather than single stocks.
 Markowitz needs a covariance matrix, and a covariance matrix estimated from a sample is the
 weakest part of the whole construction: with N assets it has N(N+1)/2 free parameters estimated
 from N*T numbers, so at N=120 and T=3,800 daily bars the ratio of observations to parameters is
-about 63 -- which sounds comfortable and is not, because the errors land in the smallest
+about 63 — which sounds comfortable and is not, because the errors land in the smallest
 eigenvalues, and the optimiser's job is precisely to lever the smallest eigenvalues. That is the
 "error maximisation" property: mean-variance optimisation is an estimation-error amplifier.
 
 120 mega-cap US stocks correlate at 0.4-0.6 with each other and 0.7+ with the index; their
 covariance matrix is near-singular in the directions that matter, and the frontier that comes out
-is a thin sliver with 6-8 nonzero weights. That is a real and instructive result -- it is the
-error-maximisation demo -- but it is a demo about estimation failure, not about diversification. A
+is a thin sliver with 6-8 nonzero weights. That is a real and instructive result — it is the
+error-maximisation demo — but it is a demo about estimation failure, not about diversification. A
 cross-asset ETF universe has genuinely different return generators (nominal bonds, TIPS, gold,
 currencies, energy) whose pairwise correlations run negative to mildly positive, so the frontier
 actually bends and the tangency portfolio holds something you would recognise as a portfolio.
@@ -241,7 +247,7 @@ FXA = { name = "Australian dollar", asset_class = "fx", group = "real_asset_fx" 
 CPER = """
 Excluded for a DATA reason, not a portfolio one. Yahoo's CPER series carries bad prints:
 2014-12-03 closes at 19.52, 2014-12-04 at 13.05, 2014-12-05 back at 19.56, with copper itself
-flat -- a fabricated -33%/+50% round trip, and the same pattern again on 2015-02-02/03. Those two
+flat — a fabricated -33%/+50% round trip, and the same pattern again on 2015-02-02/03. Those two
 pairs alone would make CPER the highest-variance asset in the universe and would corrupt its
 whole covariance ROW, not just its own column.
 
@@ -256,8 +262,8 @@ present via DBB.
 """
 
 RSX = """
-Halted in 2022 after the invasion of Ukraine and delisted. Its last print is not a price -- it is
-the last quote before trading stopped, with the underlying market closed -- so the final return is
+Halted in 2022 after the invasion of Ukraine and delisted. Its last print is not a price — it is
+the last quote before trading stopped, with the underlying market closed — so the final return is
 a fiction of unknown size and the series cannot be windowed around.
 """
 
