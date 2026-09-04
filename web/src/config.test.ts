@@ -25,6 +25,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import {
   CONFIG_VERSION,
   RF_MAX,
+  RF_MIN,
+  RF_STEP,
   STORAGE_KEY,
   clearStored,
   coerce,
@@ -179,6 +181,10 @@ describe('coerce', () => {
     expect(said).toContain('3.74')
     expect(said).toContain('crypto')
     expect(said).toContain('sepia')
+    // The position too, which used to clamp in silence. `#pos=12` in a hand-edited link moves the
+    // reader's selection to the frontier's far end, and a load that relocated it without saying
+    // so is a load that lied about honouring the link.
+    expect(said).toContain('position 12')
   })
 
   it('never leaves the page with nothing to draw', () => {
@@ -206,6 +212,24 @@ describe('coerce', () => {
     expect(coerce({ rf: -1 }, manifest).config.rf).toBe(0)
     expect(coerce({ rf: 99 }, manifest).config.rf).toBe(RF_MAX)
     expect(coerce({ rf: 0.037 }, manifest).config.rf).toBe(0.037)
+  })
+
+  it('opens on a risk-free rate the slider can actually return to', () => {
+    // A CROSS-LAYER assertion, and the only place the two halves meet. `build.fetch_rf` rounds
+    // the T-bill yield to 4 dp precisely because the slider steps in basis points; at 5 dp the
+    // default lands between two positions, so a reader who nudges the slider can never get back
+    // to the page's own default and the URL then carries an `rf=` forever. Nothing else fails if
+    // either side changes its precision, because both values are individually reasonable.
+    const rf = defaults(manifest).rf
+    expect(rf).toBe(manifest.rf_default)
+    expect(rf).toBeGreaterThanOrEqual(RF_MIN)
+    expect(rf).toBeLessThanOrEqual(RF_MAX)
+    expect(Math.abs(Math.round(rf / RF_STEP) * RF_STEP - rf)).toBeLessThan(RF_STEP / 100)
+    // And the slider's own domain has to be an exact number of steps, or its top end is a
+    // position the reader can approach and not reach.
+    expect(Number.isInteger(Math.round((RF_MAX - RF_MIN) / RF_STEP))).toBe(true)
+    expect(Math.abs((RF_MAX - RF_MIN) / RF_STEP - Math.round((RF_MAX - RF_MIN) / RF_STEP)))
+      .toBeLessThan(1e-6)
   })
 })
 

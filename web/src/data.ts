@@ -32,6 +32,7 @@ export async function loadBundle(): Promise<Bundle> {
     frontiers[c.slug] = docs[i]
   })
 
+  assertOneRun(manifest, stats, history, frontiers)
   if (stats.symbols.length !== manifest.assets.length) {
     throw new Error(
       `stats.json has ${stats.symbols.length} symbols, manifest has ${manifest.assets.length}: ` +
@@ -39,4 +40,45 @@ export async function loadBundle(): Promise<Bundle> {
     )
   }
   return { manifest, stats, history, frontiers }
+}
+
+/** Refuse a MIXED BUNDLE: files from two different pipeline runs, loaded together.
+ *
+ * The counts above cannot see it. `update-data` runs weekly over a universe whose symbol set
+ * rarely changes, so last week's cached `stats.json` against this week's frontier has exactly
+ * the right number of symbols in exactly the right order, and every calculation on this page
+ * succeeds while silently pricing today's weights with last week's covariance. Six files
+ * fetched separately from a CDN with per-file cache lifetimes is precisely the situation that
+ * produces it, and `no-cache` on the request is a request, not a guarantee.
+ *
+ * `generated_at` is one stamp taken once per run, so equality is the whole test. Throwing is
+ * the right answer rather than picking the newest: there is nothing to fall back to -- the app
+ * has no second source -- and a reload is what fixes it, which the error message says.
+ */
+function assertOneRun(
+  manifest: Manifest,
+  stats: Stats,
+  history: History,
+  frontiers: Record<string, FrontierDoc>,
+): void {
+  const stamps: Record<string, string> = {
+    'manifest.json': manifest.generated_at,
+    'stats.json': stats.generated_at,
+    'history.json': history.generated_at,
+  }
+  for (const [slug, doc] of Object.entries(frontiers)) stamps[`frontier_${slug}.json`] = doc.generated_at
+
+  const missing = Object.entries(stamps).filter(([, s]) => !s).map(([n]) => n)
+  if (missing.length) throw new Error(`no generated_at in ${missing.join(', ')}`)
+
+  const distinct = [...new Set(Object.values(stamps))]
+  if (distinct.length > 1) {
+    const detail = Object.entries(stamps)
+      .map(([name, s]) => `${name} ${s}`)
+      .join('; ')
+    throw new Error(
+      `these files are from ${distinct.length} different pipeline runs, so the numbers on the ` +
+        `page would mix them: ${detail}. Reload to pick up one consistent set.`,
+    )
+  }
 }

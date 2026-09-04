@@ -52,6 +52,33 @@ export function pad(
   return [opts.pinLow !== undefined ? opts.pinLow : lo - p, hi + p]
 }
 
+/** A group's display name, read from the build that shipped it. THE ONLY GROUP NAMING IN THE APP.
+ *
+ * There were four copies of a hardcoded `{equity: 'Equity', ...}` map -- one each in the filter
+ * row, the chart tooltip, the weight table and the CSV export -- and two of them disagreed about
+ * capitalisation, so the same asset was "fixed income" in the download and "Fixed income" in the
+ * table. Worse, they made "a universe is a file" false everywhere the reader could see: a second
+ * universe with different groups would have rendered four blank labels with no error. The labels
+ * now come from `manifest.group_labels`, which the pipeline fills for every declared group.
+ *
+ * The fallback is for a bundle written by an older pipeline than this build expects, which is a
+ * real state on a Pages deploy: the raw key is ugly and legible, which is the right failure. `||`
+ * rather than `??`, because an empty-string label is the same failure as a missing one and a
+ * blank filter button is the one outcome with no clue in it.
+ */
+export const groupLabel = (labels: Record<string, string>, g: string) => labels[g] || g
+
+/** The window's length in years, with ONE rounding wherever the page says it.
+ *
+ * It was `.toFixed(1)` in the subtitle and `.toFixed(0)` in the caveat five screens down, so the
+ * same window read as "15.7 years" in one paragraph and a "16-year annualised mean return" in
+ * the other, and a reader comparing them cannot tell which is the window they are looking at.
+ * Worse, the JSON export's caveat had the number written into the string as "15-year", so it was
+ * wrong the moment the cron rolled the window past 15.5. One decimal at every site: the subtitle
+ * and the caveat then make the same claim, and neither can go stale.
+ */
+export const yearsText = (years: number) => years.toFixed(1)
+
 export const pct = (v: number, digits = 1) => `${(v * 100).toFixed(digits)}%`
 export const pctSigned = (v: number, digits = 1) =>
   `${v >= 0 ? '+' : '−'}${(Math.abs(v) * 100).toFixed(digits)}%`

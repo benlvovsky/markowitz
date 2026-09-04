@@ -28,7 +28,7 @@ import { GrowthChart } from './components/GrowthChart'
 import { SettingsBar } from './components/SettingsBar'
 import { StatTiles, tile } from './components/StatTiles'
 import { WeightTable } from './components/WeightTable'
-import { mult, pct } from './viz'
+import { mult, pct, yearsText } from './viz'
 
 export default function App() {
   const [bundle, setBundle] = useState<Bundle | null>(null)
@@ -213,7 +213,7 @@ function Frontier({ bundle }: { bundle: Bundle }) {
       <p className="subtitle">
         Mean-variance optimisation over {manifest.window.start} → {manifest.window.end} (
         {manifest.window.trading_days.toLocaleString()} trading days,{' '}
-        {manifest.window.years.toFixed(1)} years). Expected returns are the sample geometric
+        {yearsText(manifest.window.years)} years). Expected returns are the sample geometric
         mean; risk is a Ledoit-Wolf shrunk covariance matrix, both annualised at 252 trading
         days. Drag the handle to choose a portfolio.
       </p>
@@ -226,6 +226,7 @@ function Frontier({ bundle }: { bundle: Bundle }) {
         rfDefault={manifest.rf_default}
         onRf={setRf}
         groups={manifest.groups}
+        groupLabels={manifest.group_labels}
         visibleGroups={visibleGroups}
         onToggleGroup={toggleGroup}
         counts={counts}
@@ -247,11 +248,12 @@ function Frontier({ bundle }: { bundle: Bundle }) {
       <FrontierChart
         assets={manifest.assets}
         path={path}
-        model={model}
         rf={rf}
         t={t}
         onT={(next) => setFrac(last > 0 ? next / last : 0)}
         tangency={tangency}
+        held={held}
+        groupLabels={manifest.group_labels}
         visibleGroups={visibleGroups}
         fitFrontier={fitFrontier}
         benchmark={manifest.benchmark}
@@ -310,7 +312,12 @@ function Frontier({ bundle }: { bundle: Bundle }) {
             </button>
           </div>
         </div>
-        <WeightTable weights={weights} bySymbol={bySymbol} cap={capValue} />
+        <WeightTable
+          weights={weights}
+          bySymbol={bySymbol}
+          cap={capValue}
+          groupLabels={manifest.group_labels}
+        />
       </div>
 
       <div className="section">
@@ -351,7 +358,7 @@ function Frontier({ bundle }: { bundle: Bundle }) {
         <p className="note">
           <strong>Expected returns are the weak link, and no amount of covariance care fixes
           it.</strong>{' '}
-          The standard error on a {manifest.window.years.toFixed(0)}-year annualised mean return
+          The standard error on a {yearsText(manifest.window.years)}-year annualised mean return
           for a 20%-volatility asset is about 5 percentage points — the same order as the equity
           risk premium being estimated. So the tangency portfolio is a statement about which
           assets happened to do well since {manifest.window.start.slice(0, 4)}, and over that
@@ -381,7 +388,21 @@ function Frontier({ bundle }: { bundle: Bundle }) {
           needs one common window, so a 2015 launch either truncates every other asset's history
           or leaves:{' '}
           {Object.keys(manifest.excluded.window_or_coverage).sort().join(', ') || 'none'}.
+          {Object.keys(manifest.excluded.fetch_failed).length > 0 && (
+            <>
+              {' '}
+              A further {Object.keys(manifest.excluded.fetch_failed).length} could not be fetched
+              at all this run: {Object.keys(manifest.excluded.fetch_failed).sort().join(', ')}.
+            </>
+          )}
         </p>
+
+        {/* The two things the universe file records that nothing on the page used to show: the
+            argument for the selection, and the instruments deliberately kept out of it with
+            their evidence. Both were validated by the pipeline and then dropped, which is the
+            worst of the three options -- the reader could see 116 assets and 16 drops and had no
+            way to learn that anything had been excluded on purpose, let alone why. */}
+        <Excluded manifest={manifest} />
         <p className="note" style={{ marginTop: 14, color: 'var(--ink-muted)' }}>
           Prices are dividend-adjusted daily closes. Data generated {manifest.generated_at}, rf
           from {manifest.rf_source}. No transaction costs, no taxes, no slippage; monthly
@@ -389,5 +410,43 @@ function Frontier({ bundle }: { bundle: Bundle }) {
         </p>
       </div>
     </div>
+  )
+}
+
+/** Why this universe, and what was kept out of it on purpose.
+ *
+ * Collapsed, because the evidence is long -- a paragraph per exclusion, which is what makes it
+ * evidence rather than an assertion -- and a reader who does not open it has still been told the
+ * exclusions exist and how many there are. That is the part that cannot be left implicit: a
+ * selected universe with no statement of its selection rule is the oldest way to make a
+ * backtest look better than it is.
+ */
+function Excluded({ manifest }: { manifest: Bundle['manifest'] }) {
+  const deliberate = Object.entries(manifest.excluded.deliberate).sort()
+  return (
+    <details className="note" style={{ marginTop: 10 }}>
+      <summary style={{ cursor: 'pointer' }}>
+        <strong>How this universe was chosen</strong>, and the {deliberate.length} instrument
+        {deliberate.length === 1 ? '' : 's'} deliberately left out of it
+      </summary>
+      <p style={{ marginTop: 10 }}>{manifest.universe.description}</p>
+      {deliberate.length > 0 && (
+        <dl style={{ marginTop: 10 }}>
+          {deliberate.map(([symbol, why]) => (
+            <div key={symbol} style={{ marginTop: 8 }}>
+              <dt className="sym" style={{ fontWeight: 600 }}>
+                {symbol}
+              </dt>
+              <dd style={{ margin: '2px 0 0' }}>{why}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      <p style={{ marginTop: 10, color: 'var(--ink-muted)' }}>
+        From <code>{manifest.universe.file}</code> ({manifest.universe.name}). These are not
+        counted in the {manifest.n_universe} symbols the run asked for, unlike the funds dropped
+        above — those the universe did ask for, and this window could not use.
+      </p>
+    </details>
   )
 }

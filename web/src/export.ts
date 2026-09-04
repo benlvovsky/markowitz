@@ -24,6 +24,7 @@
  */
 import type { Asset, Manifest } from './types'
 import type { Position } from './portfolio'
+import { groupLabel, yearsText } from './viz'
 
 const W_DP = 6
 const RV_DP = 8
@@ -52,12 +53,6 @@ export interface Selection {
   inSample: { growthOf1: number; maxDrawdown: number; realisedVol: number }
 }
 
-const GROUP_LABEL: Record<string, string> = {
-  equity: 'equity',
-  fixed_income: 'fixed income',
-  real_asset_fx: 'real assets & FX',
-}
-
 const round = (v: number, dp: number) => Number(v.toFixed(dp))
 const pctStr = (v: number, dp = 2) => `${(v * 100).toFixed(dp)}%`
 
@@ -74,7 +69,8 @@ function provenance(s: Selection): string[] {
     `efficient frontier of ${m.n_assets} cross-asset ETFs -- portfolio export`,
     `exported_at=${new Date().toISOString()}`,
     `data_generated_at=${m.generated_at}`,
-    `window=${w.start}..${w.end} (${w.trading_days} trading days, ${w.years.toFixed(1)} years)`,
+    `window=${w.start}..${w.end} (${w.trading_days} trading days, ${yearsText(w.years)} years)`,
+    `universe=${m.universe.key} (${m.universe.name}, from ${m.universe.file})`,
     `weight_cap=${pctStr(s.cap, 0)}`,
     `risk_free_rate=${pctStr(s.rf)} (${m.rf_source})`,
     `position=${s.atTangency ? 'tangency portfolio, max Sharpe at this rf' : `t=${s.position.t.toFixed(3)} of 0..${s.nPoints - 1}`}`,
@@ -95,7 +91,7 @@ export function portfolioCsv(s: Selection): string {
       [
         field(h.symbol),
         field(a?.name ?? ''),
-        field(a ? (GROUP_LABEL[a.group] ?? a.group) : ''),
+        field(a ? groupLabel(s.manifest.group_labels, a.group) : ''),
         h.weight.toFixed(W_DP),
       ].join(','),
     )
@@ -121,6 +117,9 @@ export function portfolioJson(s: Selection): string {
     exported_at: new Date().toISOString(),
     data_generated_at: m.generated_at,
     universe: {
+      key: m.universe.key,
+      name: m.universe.name,
+      file: m.universe.file,
       n_universe: m.n_universe,
       n_assets: m.n_assets,
       benchmark: m.benchmark,
@@ -156,11 +155,16 @@ export function portfolioJson(s: Selection): string {
     ),
     weights_precision_dp: W_DP,
     weights: holdings,
+    // The window length and the cap count are READ, not written into the string. Both were
+    // literals ("15-year", "the three weight caps") describing the shipped build on the day it
+    // was written, in the one artifact a reader keeps after the page is gone -- and the weekly
+    // cron moves the window, so the sentence was going to become false with nothing to catch it.
     caveat:
       'IN SAMPLE. The weights were chosen using the returns and covariances of this exact ' +
-      'window, so the optimiser knew the answer. Expected returns are the weak input: the ' +
-      'standard error on a 15-year annualised mean for a 20%-volatility asset is about 5 ' +
-      'percentage points. Compare the three weight caps before believing any single row. ' +
+      `window, so the optimiser knew the answer. Expected returns are the weak input: the ` +
+      `standard error on a ${yearsText(m.window.years)}-year annualised mean for a ` +
+      '20%-volatility asset is about 5 percentage points. Compare the ' +
+      `${m.caps.length} weight caps before believing any single row. ` +
       'No transaction costs, taxes or slippage. Not investment advice.',
   }
   return `${JSON.stringify(doc, null, 2)}\n`

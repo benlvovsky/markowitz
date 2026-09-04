@@ -1,16 +1,12 @@
 import type { Asset } from '../types'
-import { pct } from '../viz'
+import { groupLabel, pct } from '../viz'
 
 interface Props {
   weights: { symbol: string; weight: number }[]
   bySymbol: Map<string, Asset>
   cap: number
-}
-
-const GROUP_LABEL: Record<string, string> = {
-  equity: 'Equity',
-  fixed_income: 'Fixed income',
-  real_asset_fx: 'Real assets & FX',
+  /** `manifest.group_labels`; see `groupLabel`. */
+  groupLabels: Record<string, string>
 }
 
 /** What you actually hold at the handle's position.
@@ -22,7 +18,7 @@ const GROUP_LABEL: Record<string, string> = {
  * portfolio whose weights are mostly determined by the cap rather than by the data is one a
  * reader should discount, and that is not visible from the numbers alone.
  */
-export function WeightTable({ weights, bySymbol, cap }: Props) {
+export function WeightTable({ weights, bySymbol, cap, groupLabels }: Props) {
   const total = weights.reduce((s, w) => s + w.weight, 0)
   const pinned = weights.filter((w) => w.weight >= cap - 5e-4).length
   return (
@@ -59,7 +55,7 @@ export function WeightTable({ weights, bySymbol, cap }: Props) {
                   <td className="sym">{w.symbol}</td>
                   <td className="left">{a?.name ?? '—'}</td>
                   <td className="left" style={{ color: 'var(--ink-muted)' }}>
-                    {a ? (GROUP_LABEL[a.group] ?? a.group) : '—'}
+                    {a ? groupLabel(groupLabels, a.group) : '—'}
                   </td>
                   <td>
                     {pct(w.weight, 2)}

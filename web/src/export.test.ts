@@ -238,11 +238,19 @@ describe('the exported JSON reproduces the row without the page', () => {
     expect(doc.window).toEqual(manifest.window)
     expect(doc.estimation).toEqual(manifest.estimation)
     expect(doc.universe).toEqual({
+      key: manifest.universe.key,
+      name: manifest.universe.name,
+      file: manifest.universe.file,
       n_universe: manifest.n_universe,
       n_assets: manifest.n_assets,
       benchmark: manifest.benchmark,
     })
     expect(doc.caveat.toLowerCase()).toContain('in sample')
+    // The caveat's two quantities are READ from the manifest, not written into the string: it
+    // said "15-year" and "the three weight caps", and the weekly cron moves the window past
+    // 15.5 with nothing to notice. Assert against the manifest so a reintroduced literal fails.
+    expect(doc.caveat).toContain(`${manifest.window.years.toFixed(1)}-year`)
+    expect(doc.caveat).toContain(`the ${manifest.caps.length} weight caps`)
     // A bare drawdown number is ambiguous in sign, so the convention is asserted here AND
     // stated in the file: positive fraction, matching `maxDrawdown`.
     expect(doc.in_sample.max_drawdown).toBeGreaterThan(0)

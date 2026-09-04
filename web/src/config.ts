@@ -40,8 +40,19 @@ export interface Config {
   theme?: 'light' | 'dark'
 }
 
+/** The rf slider's domain and grid. DECLARED HERE, where `coerce` clamps to them, and imported
+ *  by the slider -- the two were separate literals, so `Controls` offered `min=0 max=0.08
+ *  step=0.0005` while this file clamped to its own copy of the bounds, and moving one would have
+ *  left a slider position `coerce` silently rewrote on the next reload.
+ *
+ *  The step is ONE BASIS POINT, which is also what `pct(rf, 2)` prints beside the slider and the
+ *  precision `build.fetch_rf` rounds the seeded default to. All three have to agree: at a 5bp
+ *  step the T-bill default lands between two positions, so a reader who nudges the slider can
+ *  never get back to it and the URL then carries an `rf=` forever. `config.test.ts` asserts the
+ *  shipped `rf_default` is on this grid. */
 export const RF_MIN = 0
 export const RF_MAX = 0.08
+export const RF_STEP = 0.0001
 
 export function defaults(manifest: Manifest): Config {
   return {
@@ -86,8 +97,13 @@ export function coerce(
     if (r.pos === null) out.pos = null
     else {
       const p = Number(r.pos)
-      if (Number.isFinite(p)) out.pos = clamp(p, 0, 1)
-      else complaints.push('position was not a number')
+      if (Number.isFinite(p)) {
+        out.pos = clamp(p, 0, 1)
+        // Says so, for the same reason `rf` does. A hand-edited `#pos=1.5` is the likeliest
+        // source, and it moves the portfolio to the frontier's high-return end -- a load that
+        // silently relocated the reader's selection would be a load that lied about honouring it.
+        if (out.pos !== p) complaints.push(`position ${p} clamped to ${out.pos}`)
+      } else complaints.push('position was not a number')
     }
   }
   if (r.groups !== undefined) {

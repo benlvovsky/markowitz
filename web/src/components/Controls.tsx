@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
+import { RF_MAX, RF_MIN, RF_STEP } from '../config'
 import type { CapEntry, Group } from '../types'
-import { pct } from '../viz'
+import { groupLabel, pct } from '../viz'
 
 interface Props {
   caps: CapEntry[]
@@ -10,6 +11,9 @@ interface Props {
   rfDefault: number
   onRf: (rf: number) => void
   groups: Group[]
+  /** `manifest.group_labels`. Passed in rather than looked up here: this component renders
+   *  whatever groups the build shipped and holds no opinion about what they are called. */
+  groupLabels: Record<string, string>
   visibleGroups: Set<Group>
   onToggleGroup: (g: Group) => void
   counts: Record<string, number>
@@ -18,12 +22,6 @@ interface Props {
   /** Rendered as the last cell of the same row, so the settings buttons live with the knobs
    *  they save rather than in a bar of their own. */
   extra?: ReactNode
-}
-
-const GROUP_LABEL: Record<Group, string> = {
-  equity: 'Equity',
-  fixed_income: 'Fixed income',
-  real_asset_fx: 'Real assets & FX',
 }
 
 /** All the controls in ONE row above the charts, which is where a reader looks for them.
@@ -46,6 +44,7 @@ export function Controls({
   rfDefault,
   onRf,
   groups,
+  groupLabels,
   visibleGroups,
   onToggleGroup,
   counts,
@@ -80,9 +79,9 @@ export function Controls({
         <input
           id="rf"
           type="range"
-          min={0}
-          max={0.08}
-          step={0.0005}
+          min={RF_MIN}
+          max={RF_MAX}
+          step={RF_STEP}
           value={rf}
           onChange={(e) => onRf(Number(e.target.value))}
         />
@@ -103,7 +102,8 @@ export function Controls({
               aria-pressed={visibleGroups.has(g)}
               onClick={() => onToggleGroup(g)}
             >
-              {GROUP_LABEL[g]} <span style={{ color: 'var(--ink-muted)' }}>{counts[g] ?? 0}</span>
+              {groupLabel(groupLabels, g)}{' '}
+              <span style={{ color: 'var(--ink-muted)' }}>{counts[g] ?? 0}</span>
             </button>
           ))}
         </div>

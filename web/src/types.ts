@@ -18,7 +18,16 @@ export interface Asset {
   last_date: string
 }
 
-export type Group = 'equity' | 'fixed_income' | 'real_asset_fx'
+/** A group NAME, not an enumeration of the ones that exist.
+ *
+ * It was a union of the three literals in `etf_global.toml`, which made the compiler enforce
+ * the opposite of the pipeline's rule that a universe is a file: a second universe partitions
+ * the world differently, and `--universe sp500` would have needed this line edited before its
+ * artifacts could be read at all. The groups a build ships are in `manifest.groups`, their
+ * labels in `manifest.group_labels`, and `config.coerce` validates a stored filter against
+ * that list at runtime -- which is where the check belongs, since the data arrives over HTTP.
+ */
+export type Group = string
 
 export interface CapEntry {
   cap: number
@@ -44,14 +53,28 @@ export interface Manifest {
   }
   rf_default: number
   rf_source: string
+  /** Which universe file this bundle is a statement about, and the argument for its selection. */
+  universe: {
+    key: string
+    name: string
+    file: string
+    description: string
+  }
   benchmark: string | null
   groups: Group[]
+  /** Complete: the pipeline derives a label for every declared group, so there is no fallback
+   * here and nothing in this app holds a group map of its own. See `groupLabel`. */
+  group_labels: Record<Group, string>
   n_universe: number
   n_assets: number
   caps: CapEntry[]
+  /** Three separate claims, kept apart. `deliberate` is a judgement recorded in the universe
+   * file with its evidence and is not counted in `n_universe`; the other two are this run's
+   * measured failures of a symbol the universe did ask for. */
   excluded: {
     fetch_failed: Record<string, string>
     window_or_coverage: Record<string, string>
+    deliberate: Record<string, string>
   }
   assets: Asset[]
 }
@@ -86,6 +109,9 @@ export interface FrontierPoint {
 }
 
 export interface FrontierDoc {
+  /** The run that produced it. Every file in a bundle carries the same stamp, and `loadBundle`
+   * refuses a bundle where they disagree -- see there for why a weekly cron needs this. */
+  generated_at: string
   weight_cap: number
   risk_free_rate: number
   n_requested: number

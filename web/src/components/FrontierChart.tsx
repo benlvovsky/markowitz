@@ -1,8 +1,8 @@
 import { useMemo, useRef, useState } from 'react'
 import type { Asset, Group } from '../types'
-import type { Model, Path, Position } from '../portfolio'
+import type { Path, Position } from '../portfolio'
 import { at } from '../portfolio'
-import { clampLabel, cmlEnd, declutter, linear, nearestOnPolyline, pad, pct, ticks } from '../viz'
+import { clampLabel, cmlEnd, declutter, groupLabel, linear, nearestOnPolyline, pad, pct, ticks } from '../viz'
 import { Tooltip } from './Tooltip'
 
 /** The efficient frontier, the capital market line, every asset as a dot, and a handle you drag.
@@ -36,30 +36,32 @@ const PLOT = { x0: M.left, x1: W - M.right, y0: M.top, y1: H - M.bottom }
 interface Props {
   assets: Asset[]
   path: Path
-  model: Model
   rf: number
   t: number
   onT: (t: number) => void
   tangency: Position
+  /** The interpolated portfolio at `t`, as symbol -> weight. THE SAME MAP the weight table
+   *  renders, passed in rather than recomputed: the tooltip's "In portfolio" row used to
+   *  re-derive the interpolation from `path` and `model` with its own copy of the segment split,
+   *  and that copy clamped only the upper end -- so the two readouts of one number were two
+   *  code paths that could disagree, and only one of them was tested. */
+  held: Map<string, number>
+  /** `manifest.group_labels`; see `groupLabel`. */
+  groupLabels: Record<string, string>
   visibleGroups: Set<Group>
   fitFrontier: boolean
   benchmark: string | null
 }
 
-const GROUP_LABEL: Record<Group, string> = {
-  equity: 'Equity',
-  fixed_income: 'Fixed income',
-  real_asset_fx: 'Real assets & FX',
-}
-
 export function FrontierChart({
   assets,
   path,
-  model,
   rf,
   t,
   onT,
   tangency,
+  held,
+  groupLabels,
   visibleGroups,
   fitFrontier,
   benchmark,
@@ -194,16 +196,21 @@ export function FrontierChart({
   return (
     <div className={`chart-wrap${dragging ? ' dragging' : ''}`}>
       <div style={{ position: 'relative' }}>
+        {/* `role="group"` on the root, NOT `role="img"`, and the description sits on an inner
+            non-interactive group instead.
+
+            WAI-ARIA makes every descendant of a `role="img"` PRESENTATIONAL -- the subtree is
+            replaced by the label -- so the handle's `role="slider"` below was inside a node that
+            told assistive technology to ignore its children. The only interactive control on the
+            page could be pruned from the accessibility tree entirely, which is the one thing this
+            chart cannot afford: the frontier is a picture, but choosing a point on it is the
+            whole interaction. A group exposes both -- the marks' description, and the slider. */}
         <svg
           ref={svgRef}
           className="chart"
           viewBox={`0 0 ${W} ${H}`}
-          role="img"
-          aria-label={
-            `Efficient frontier of ${assets.length} assets. Risk on the horizontal axis, ` +
-            `expected return on the vertical. The selected portfolio has volatility ` +
-            `${pct(here.vol)} and expected return ${pct(here.ret)}.`
-          }
+          role="group"
+          aria-label={`Efficient frontier of ${assets.length} assets, with a draggable portfolio position`}
           onPointerMove={(e) => dragging && seek(e)}
           onPointerUp={() => setDragging(false)}
           onPointerCancel={() => setDragging(false)}
@@ -214,6 +221,18 @@ export function FrontierChart({
             </clipPath>
           </defs>
 
+          {/* Every mark EXCEPT the handle, described as one image. The handle is a sibling of
+              this group rather than a child, which is the whole point of the split above. */}
+          <g
+            role="img"
+            aria-label={
+              `Risk on the horizontal axis, expected return on the vertical. ` +
+              `${assets.length} individual assets as gray dots, the efficient frontier as a ` +
+              `curve, and the capital market line from a risk-free rate of ${pct(rf, 2)} ` +
+              `through the tangency portfolio at volatility ${pct(tangency.vol)} and expected ` +
+              `return ${pct(tangency.ret)}.`
+            }
+          >
           {/* Recessive grid: it is a reading aid, not data. */}
           {ticks(sy.domain, 6).map((v) => (
             <g key={`gy${v}`}>
@@ -383,6 +402,7 @@ export function FrontierChart({
               {l.text}
             </text>
           ))}
+          </g>
 
           {/* The handle. A real slider as far as assistive technology is concerned: it has a
               role, a range, and a value expressed in the units on the axes. */}
@@ -418,12 +438,12 @@ export function FrontierChart({
             x={(sx(hover.vol) / W) * 100}
             y={(sy(hover.ret) / H) * 100}
             title={hover.symbol}
-            sub={`${hover.name} · ${GROUP_LABEL[hover.group]}`}
+            sub={`${hover.name} · ${groupLabel(groupLabels, hover.group)}`}
             rows={[
               ['Return', pct(hover.ret, 2)],
               ['Volatility', pct(hover.vol, 2)],
               ['Sharpe', hover.sharpe.toFixed(2)],
-              ['In portfolio', weightOf(hover.symbol, path, t, model)],
+              ['In portfolio', held.has(hover.symbol) ? pct(held.get(hover.symbol)!, 2) : 'not held'],
             ]}
           />
         )}
@@ -438,15 +458,4 @@ export function FrontierChart({
       </p>
     </div>
   )
-}
-
-function weightOf(symbol: string, path: Path, t: number, model: Model): string {
-  const i = Math.min(Math.floor(t), path.points.length - 2)
-  const u = t - i
-  const j = model.index.get(symbol)
-  if (j === undefined || path.points.length < 2) return '—'
-  const a = path.points[i].w[symbol] ?? 0
-  const b = path.points[i + 1].w[symbol] ?? 0
-  const w = (1 - u) * a + u * b
-  return w >= 1e-4 ? pct(w, 2) : 'not held'
 }
