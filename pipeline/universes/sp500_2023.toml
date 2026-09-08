@@ -1,0 +1,590 @@
+key = "sp500_2023"
+name = "S&P 500 constituents as of 2023-08-30"
+
+# DELIBERATELY NONE. The benchmark for this universe is SPY, and SPY must NOT be a candidate:
+# an index fund sitting among its own constituents has lower variance than almost any single
+# one of them, so the minimum-variance solve buys it on sight and "did mean-variance beat the
+# index" would be asked of a portfolio that is allowed to BE the index. `backtest.py
+# --benchmark SPY` prices it without making it investable.
+benchmark = ""
+
+groups = ["us_large_cap"]
+
+# An INLINE table, not a `[group_labels]` section -- a section header captures every top-level
+# key after it, so `description` would silently become `group_labels.description`.
+group_labels = { us_large_cap = "US large cap" }
+
+description = """
+The 503 lines that made up the S&P 500 on 2023-08-30, as the index stood that day -- not as
+it stands now. That is the whole point of the file. A constituent list downloaded today knows
+which companies went on to do well enough to still be in the index, and a backtest over such a
+list measures the selection, not the method. This one is the list an investor actually chose
+from at the cutoff.
+
+It is still not free of survivorship bias, and the residue has now been MEASURED rather than
+bounded. 17 of the 503 have no price from this vendor at any date -- it serves nothing at all
+for a ticker that stopped trading, rather than a series that ends -- so they are excluded
+below. A second vendor (stockanalysis.com) does serve 12 of the 17, and `pipeline/delisted.py`
+fetches them, states what happened to each, and runs the whole backtest again with them
+restored. The result contradicts the argument this paragraph used to make. From the cutoff to
+each name's own last traded bar the twelve returned +21.8% against SPY's +46.4% over the same
+sub-spans, and only 4 of the 12 beat the index; deletion from the S&P 500 is not a synonym for
+a takeover premium, and several of these left while badly underperforming (WBA -90.5pp,
+IPG -69.9pp, CDAY -64.9pp; CMA is the one large winner at +57.2pp). Restoring them moves an
+equal-weighted basket by -0.17 to -0.02 pp/yr depending on the continuation treatment, and it
+moves the optimised result not at all: no tangency or matched-risk portfolio held any of the
+twelve in any period, under either treatment. The five nobody prices (DFS, HES, MRO, PXD, WRK)
+are bounded instead, in `pipeline/results/*_stress.json`. The old claim here -- "+0.18 to
++0.47 pp/yr, most likely UNDERSTATES the result" -- was an argument from the premium and it had
+the sign wrong.
+
+Six tickers changed between the cutoff and today and are held under the new one, with the old
+spelling in the name. Each was verified by price level years before the change, not by the
+rename: a merger that adopts the partner's ticker looks identical in a symbol lookup and is a
+splice of two companies. One such case (WestRock) was rejected on exactly that test.
+
+One ticker was RECYCLED, which is the trap none of the above catches: PARA fetches a clean full
+series and it is Banzai International, not Paramount. So the constituent is held as PSKY, whose
+series IS Paramount's own, and the ticker PARA appears nowhere in this file -- neither as an
+asset nor as an exclusion, because nothing about the 2023 constituent is recorded by a symbol
+that now belongs to someone else. There is no automatic screen for this -- the check is the
+vendor's current company name against the constituent the ticker is supposed to be, and this one
+surfaced only because the store's split test failed on the new occupant's reverse splits.
+
+Single group and ticker-as-name, both because the price endpoint carries neither a sector nor a
+company name and this file records only what was read. This universe is for `backtest.py`; it
+is not built for the page, where the group is the filter row and the name is the tooltip.
+"""
+
+[excluded]
+# NOT window-filter drops. Those are measured from the prices and reported in the run (ten
+# constituents start after the training window opens and stay in [assets] for that reason).
+# These are tickers THE PRIMARY VENDOR has no series for at any date, so no window built from the
+# store can contain them. "17 of 503 constituents are not in the store" is a fact about the
+# result and the reason the bias in the description above is not zero.
+#
+# Excluded from the STORE, which is not the same as unmeasurable, and the two groups below are
+# the difference. The store's contract is one vendor shipping `close`, an event log and an
+# `adjclose` to check the reconstruction against; a second vendor that ships a level and nothing
+# else cannot go in it (see `pipeline/delisted.py`, which is where these prices live instead).
+# So a name stays excluded here even when its outcome is known -- and each row now states the
+# outcome rather than asserting the company "left the market".
+#
+# Twelve are priced by a second vendor. Each row gives the last traded bar it serves and that
+# bar's total-return level; the return from the 2023-09-01 cutoff to that date, against SPY over
+# the same sub-span; and how it ended. The FINAL bar of each series is dropped before any of
+# this is computed -- a delisted series' last print is an index-deletion auction or a stub -- so
+# the date and level here are the penultimate bar, and `provenance_*.json` states the size of
+# the bar that was dropped.
+#
+# The date, the level and the two returns are MEASURED. The acquirer and the consideration in
+# brackets are from the public record and are here because they are checkable against the level:
+# for a cash deal the terminal bar has to sit at the offer (ATVI 94.42 against $95, CTLT 63.48
+# against $63.50, JNPR 39.95 against $40, K 83.45 against $83.50), which is also what makes the
+# dropped final bar readable rather than mysterious -- CDAY's dropped bar is +1.36% and lands on
+# Dayforce's $70.00. Three rows name no acquirer because none was checked this way.
+ANSS = "no series from the primary vendor; second vendor to 2025-07-15 at 392.72 (Synopsys, all-stock+cash): +23.1% from the cutoff against SPY's +41.6%"
+ATVI = "no series from the primary vendor; second vendor to 2023-10-12 at 94.42 (Microsoft, $95 cash): +2.6% from the cutoff against SPY's -3.6% -- the only name here whose window is six weeks long"
+CDAY = "no series from the primary vendor; second vendor to 2026-02-02 at 68.92 (renamed DAY, then taken private by Thoma Bravo): -5.7% from the cutoff against SPY's +59.1%"
+CMA = "no series from the primary vendor; second vendor to 2026-01-29 at 92.86 (Fifth Third, all-stock): +116.0% from the cutoff against SPY's +58.8% -- the one large winner among the twelve, and the name whose last bar broke its acquirer ratio by 5.34% and forced the drop-the-final-bar rule"
+CTLT = "no series from the primary vendor; second vendor to 2024-12-17 at 63.48 (Novo Holdings, $63.50 cash): +26.5% from the cutoff against SPY's +36.2%"
+CTRA = "no series from the primary vendor; second vendor to 2026-05-05 at 35.63: +35.9% from the cutoff against SPY's +66.1%"
+DFS = "no series from either vendor at any date, and no US successor ticker -- outcome unpriceable, bounded in pipeline/results/*_stress.json rather than measured"
+HES = "no series from either vendor at any date, and no US successor ticker -- outcome unpriceable, bounded in pipeline/results/*_stress.json rather than measured"
+HOLX = "no series from the primary vendor; second vendor to 2026-04-02 at 75.65: +0.7% from the cutoff against SPY's +50.5%"
+IPG = "no series from the primary vendor; second vendor to 2025-11-25 at 25.06 (Omnicom, all-stock): -15.8% from the cutoff against SPY's +54.0%. Its last bar held 0.35386 x OMC to +-0.21%, so a clean auction print exists and the uniform rule costs 2.0% here"
+JNPR = "no series from the primary vendor; second vendor to 2025-07-01 at 39.95 (Hewlett Packard Enterprise, $40 cash): +42.4% from the cutoff against SPY's +40.5%"
+K = "no series from the primary vendor; second vendor to 2025-12-09 at 83.45 (Ferrero, $83.50 cash): +59.7% from the cutoff against SPY's +55.9%. Carries the 2023 WK Kellogg spinoff, which the two vendors credit differently -- recorded as a provenance caveat, since there is no second series to resolve it against"
+MRO = "no series from either vendor at any date, and no US successor ticker -- outcome unpriceable, bounded in pipeline/results/*_stress.json rather than measured"
+PXD = "no series from either vendor at any date, and no US successor ticker -- outcome unpriceable, bounded in pipeline/results/*_stress.json rather than measured"
+SEE = "no series from the primary vendor; second vendor to 2026-04-07 at 42.14: +20.3% from the cutoff against SPY's +51.3%"
+WBA = "no series from the primary vendor; second vendor to 2025-08-26 at 11.92 (Sycamore Partners, $11.45 cash + rights): -43.7% from the cutoff against SPY's +46.8% -- the worst of the twelve by 20pp"
+WRK = "no series from either vendor; the successor SW (Smurfit WestRock) carries Smurfit Kappa's history from 2008, not WestRock's, so there is no continuation to hold and the outcome is bounded rather than measured"
+
+[assets]
+A = { name = "A", asset_class = "equity", group = "us_large_cap" }
+AAL = { name = "AAL", asset_class = "equity", group = "us_large_cap" }
+AAPL = { name = "AAPL", asset_class = "equity", group = "us_large_cap" }
+ABBV = { name = "ABBV", asset_class = "equity", group = "us_large_cap" }
+ABT = { name = "ABT", asset_class = "equity", group = "us_large_cap" }
+ACGL = { name = "ACGL", asset_class = "equity", group = "us_large_cap" }
+ACN = { name = "ACN", asset_class = "equity", group = "us_large_cap" }
+ADBE = { name = "ADBE", asset_class = "equity", group = "us_large_cap" }
+ADI = { name = "ADI", asset_class = "equity", group = "us_large_cap" }
+ADM = { name = "ADM", asset_class = "equity", group = "us_large_cap" }
+ADP = { name = "ADP", asset_class = "equity", group = "us_large_cap" }
+ADSK = { name = "ADSK", asset_class = "equity", group = "us_large_cap" }
+AEE = { name = "AEE", asset_class = "equity", group = "us_large_cap" }
+AEP = { name = "AEP", asset_class = "equity", group = "us_large_cap" }
+AES = { name = "AES", asset_class = "equity", group = "us_large_cap" }
+AFL = { name = "AFL", asset_class = "equity", group = "us_large_cap" }
+AIG = { name = "AIG", asset_class = "equity", group = "us_large_cap" }
+AIZ = { name = "AIZ", asset_class = "equity", group = "us_large_cap" }
+AJG = { name = "AJG", asset_class = "equity", group = "us_large_cap" }
+AKAM = { name = "AKAM", asset_class = "equity", group = "us_large_cap" }
+ALB = { name = "ALB", asset_class = "equity", group = "us_large_cap" }
+ALGN = { name = "ALGN", asset_class = "equity", group = "us_large_cap" }
+ALK = { name = "ALK", asset_class = "equity", group = "us_large_cap" }
+ALL = { name = "ALL", asset_class = "equity", group = "us_large_cap" }
+ALLE = { name = "ALLE", asset_class = "equity", group = "us_large_cap" }
+AMAT = { name = "AMAT", asset_class = "equity", group = "us_large_cap" }
+AMCR = { name = "AMCR", asset_class = "equity", group = "us_large_cap" }
+AMD = { name = "AMD", asset_class = "equity", group = "us_large_cap" }
+AME = { name = "AME", asset_class = "equity", group = "us_large_cap" }
+AMGN = { name = "AMGN", asset_class = "equity", group = "us_large_cap" }
+AMP = { name = "AMP", asset_class = "equity", group = "us_large_cap" }
+AMT = { name = "AMT", asset_class = "equity", group = "us_large_cap" }
+AMZN = { name = "AMZN", asset_class = "equity", group = "us_large_cap" }
+ANET = { name = "ANET", asset_class = "equity", group = "us_large_cap" }
+AON = { name = "AON", asset_class = "equity", group = "us_large_cap" }
+AOS = { name = "AOS", asset_class = "equity", group = "us_large_cap" }
+APA = { name = "APA", asset_class = "equity", group = "us_large_cap" }
+APD = { name = "APD", asset_class = "equity", group = "us_large_cap" }
+APH = { name = "APH", asset_class = "equity", group = "us_large_cap" }
+APTV = { name = "APTV", asset_class = "equity", group = "us_large_cap" }
+ARE = { name = "ARE", asset_class = "equity", group = "us_large_cap" }
+ATO = { name = "ATO", asset_class = "equity", group = "us_large_cap" }
+AVB = { name = "AVB", asset_class = "equity", group = "us_large_cap" }
+AVGO = { name = "AVGO", asset_class = "equity", group = "us_large_cap" }
+AVY = { name = "AVY", asset_class = "equity", group = "us_large_cap" }
+AWK = { name = "AWK", asset_class = "equity", group = "us_large_cap" }
+AXON = { name = "AXON", asset_class = "equity", group = "us_large_cap" }
+AXP = { name = "AXP", asset_class = "equity", group = "us_large_cap" }
+AZO = { name = "AZO", asset_class = "equity", group = "us_large_cap" }
+BA = { name = "BA", asset_class = "equity", group = "us_large_cap" }
+BAC = { name = "BAC", asset_class = "equity", group = "us_large_cap" }
+BALL = { name = "BALL", asset_class = "equity", group = "us_large_cap" }
+BAX = { name = "BAX", asset_class = "equity", group = "us_large_cap" }
+BBWI = { name = "BBWI", asset_class = "equity", group = "us_large_cap" }
+BBY = { name = "BBY", asset_class = "equity", group = "us_large_cap" }
+BDX = { name = "BDX", asset_class = "equity", group = "us_large_cap" }
+BEN = { name = "BEN", asset_class = "equity", group = "us_large_cap" }
+BF-B = { name = "BF-B", asset_class = "equity", group = "us_large_cap" }
+BG = { name = "BG", asset_class = "equity", group = "us_large_cap" }
+BIIB = { name = "BIIB", asset_class = "equity", group = "us_large_cap" }
+BIO = { name = "BIO", asset_class = "equity", group = "us_large_cap" }
+BNY = { name = "BK -> BNY 2025 (ticker change; series runs from 1973, $44.49 on 2023-08-30)", asset_class = "equity", group = "us_large_cap" }
+BKNG = { name = "BKNG", asset_class = "equity", group = "us_large_cap" }
+BKR = { name = "BKR", asset_class = "equity", group = "us_large_cap" }
+BLK = { name = "BLK", asset_class = "equity", group = "us_large_cap" }
+BMY = { name = "BMY", asset_class = "equity", group = "us_large_cap" }
+BR = { name = "BR", asset_class = "equity", group = "us_large_cap" }
+BRK-B = { name = "BRK-B", asset_class = "equity", group = "us_large_cap" }
+BRO = { name = "BRO", asset_class = "equity", group = "us_large_cap" }
+BSX = { name = "BSX", asset_class = "equity", group = "us_large_cap" }
+BWA = { name = "BWA", asset_class = "equity", group = "us_large_cap" }
+BXP = { name = "BXP", asset_class = "equity", group = "us_large_cap" }
+C = { name = "C", asset_class = "equity", group = "us_large_cap" }
+CAG = { name = "CAG", asset_class = "equity", group = "us_large_cap" }
+CAH = { name = "CAH", asset_class = "equity", group = "us_large_cap" }
+CARR = { name = "CARR", asset_class = "equity", group = "us_large_cap" }
+CAT = { name = "CAT", asset_class = "equity", group = "us_large_cap" }
+CB = { name = "CB", asset_class = "equity", group = "us_large_cap" }
+CBOE = { name = "CBOE", asset_class = "equity", group = "us_large_cap" }
+CBRE = { name = "CBRE", asset_class = "equity", group = "us_large_cap" }
+CCI = { name = "CCI", asset_class = "equity", group = "us_large_cap" }
+CCL = { name = "CCL", asset_class = "equity", group = "us_large_cap" }
+CDNS = { name = "CDNS", asset_class = "equity", group = "us_large_cap" }
+CDW = { name = "CDW", asset_class = "equity", group = "us_large_cap" }
+CE = { name = "CE", asset_class = "equity", group = "us_large_cap" }
+CEG = { name = "CEG", asset_class = "equity", group = "us_large_cap" }
+CF = { name = "CF", asset_class = "equity", group = "us_large_cap" }
+CFG = { name = "CFG", asset_class = "equity", group = "us_large_cap" }
+CHD = { name = "CHD", asset_class = "equity", group = "us_large_cap" }
+CHRW = { name = "CHRW", asset_class = "equity", group = "us_large_cap" }
+CHTR = { name = "CHTR", asset_class = "equity", group = "us_large_cap" }
+CI = { name = "CI", asset_class = "equity", group = "us_large_cap" }
+CINF = { name = "CINF", asset_class = "equity", group = "us_large_cap" }
+CL = { name = "CL", asset_class = "equity", group = "us_large_cap" }
+CLX = { name = "CLX", asset_class = "equity", group = "us_large_cap" }
+CMCSA = { name = "CMCSA", asset_class = "equity", group = "us_large_cap" }
+CME = { name = "CME", asset_class = "equity", group = "us_large_cap" }
+CMG = { name = "CMG", asset_class = "equity", group = "us_large_cap" }
+CMI = { name = "CMI", asset_class = "equity", group = "us_large_cap" }
+CMS = { name = "CMS", asset_class = "equity", group = "us_large_cap" }
+CNC = { name = "CNC", asset_class = "equity", group = "us_large_cap" }
+CNP = { name = "CNP", asset_class = "equity", group = "us_large_cap" }
+COF = { name = "COF", asset_class = "equity", group = "us_large_cap" }
+COO = { name = "COO", asset_class = "equity", group = "us_large_cap" }
+COP = { name = "COP", asset_class = "equity", group = "us_large_cap" }
+COR = { name = "COR", asset_class = "equity", group = "us_large_cap" }
+COST = { name = "COST", asset_class = "equity", group = "us_large_cap" }
+CPB = { name = "CPB", asset_class = "equity", group = "us_large_cap" }
+CPRT = { name = "CPRT", asset_class = "equity", group = "us_large_cap" }
+CPT = { name = "CPT", asset_class = "equity", group = "us_large_cap" }
+CRL = { name = "CRL", asset_class = "equity", group = "us_large_cap" }
+CRM = { name = "CRM", asset_class = "equity", group = "us_large_cap" }
+CSCO = { name = "CSCO", asset_class = "equity", group = "us_large_cap" }
+CSGP = { name = "CSGP", asset_class = "equity", group = "us_large_cap" }
+CSX = { name = "CSX", asset_class = "equity", group = "us_large_cap" }
+CTAS = { name = "CTAS", asset_class = "equity", group = "us_large_cap" }
+CTSH = { name = "CTSH", asset_class = "equity", group = "us_large_cap" }
+CTVA = { name = "CTVA", asset_class = "equity", group = "us_large_cap" }
+CVS = { name = "CVS", asset_class = "equity", group = "us_large_cap" }
+CVX = { name = "CVX", asset_class = "equity", group = "us_large_cap" }
+CZR = { name = "CZR", asset_class = "equity", group = "us_large_cap" }
+D = { name = "D", asset_class = "equity", group = "us_large_cap" }
+DAL = { name = "DAL", asset_class = "equity", group = "us_large_cap" }
+DD = { name = "DD", asset_class = "equity", group = "us_large_cap" }
+DE = { name = "DE", asset_class = "equity", group = "us_large_cap" }
+DG = { name = "DG", asset_class = "equity", group = "us_large_cap" }
+DGX = { name = "DGX", asset_class = "equity", group = "us_large_cap" }
+DHI = { name = "DHI", asset_class = "equity", group = "us_large_cap" }
+DHR = { name = "DHR", asset_class = "equity", group = "us_large_cap" }
+DIS = { name = "DIS", asset_class = "equity", group = "us_large_cap" }
+DLR = { name = "DLR", asset_class = "equity", group = "us_large_cap" }
+DLTR = { name = "DLTR", asset_class = "equity", group = "us_large_cap" }
+DOV = { name = "DOV", asset_class = "equity", group = "us_large_cap" }
+DOW = { name = "DOW", asset_class = "equity", group = "us_large_cap" }
+DPZ = { name = "DPZ", asset_class = "equity", group = "us_large_cap" }
+DRI = { name = "DRI", asset_class = "equity", group = "us_large_cap" }
+DTE = { name = "DTE", asset_class = "equity", group = "us_large_cap" }
+DUK = { name = "DUK", asset_class = "equity", group = "us_large_cap" }
+DVA = { name = "DVA", asset_class = "equity", group = "us_large_cap" }
+DVN = { name = "DVN", asset_class = "equity", group = "us_large_cap" }
+DXC = { name = "DXC", asset_class = "equity", group = "us_large_cap" }
+DXCM = { name = "DXCM", asset_class = "equity", group = "us_large_cap" }
+EA = { name = "EA", asset_class = "equity", group = "us_large_cap" }
+EBAY = { name = "EBAY", asset_class = "equity", group = "us_large_cap" }
+ECL = { name = "ECL", asset_class = "equity", group = "us_large_cap" }
+ED = { name = "ED", asset_class = "equity", group = "us_large_cap" }
+EFX = { name = "EFX", asset_class = "equity", group = "us_large_cap" }
+EG = { name = "EG", asset_class = "equity", group = "us_large_cap" }
+EIX = { name = "EIX", asset_class = "equity", group = "us_large_cap" }
+EL = { name = "EL", asset_class = "equity", group = "us_large_cap" }
+ELV = { name = "ELV", asset_class = "equity", group = "us_large_cap" }
+EMN = { name = "EMN", asset_class = "equity", group = "us_large_cap" }
+EMR = { name = "EMR", asset_class = "equity", group = "us_large_cap" }
+ENPH = { name = "ENPH", asset_class = "equity", group = "us_large_cap" }
+EOG = { name = "EOG", asset_class = "equity", group = "us_large_cap" }
+EPAM = { name = "EPAM", asset_class = "equity", group = "us_large_cap" }
+EQIX = { name = "EQIX", asset_class = "equity", group = "us_large_cap" }
+EQR = { name = "EQR", asset_class = "equity", group = "us_large_cap" }
+EQT = { name = "EQT", asset_class = "equity", group = "us_large_cap" }
+ES = { name = "ES", asset_class = "equity", group = "us_large_cap" }
+ESS = { name = "ESS", asset_class = "equity", group = "us_large_cap" }
+ETN = { name = "ETN", asset_class = "equity", group = "us_large_cap" }
+ETR = { name = "ETR", asset_class = "equity", group = "us_large_cap" }
+ETSY = { name = "ETSY", asset_class = "equity", group = "us_large_cap" }
+EVRG = { name = "EVRG", asset_class = "equity", group = "us_large_cap" }
+EW = { name = "EW", asset_class = "equity", group = "us_large_cap" }
+EXC = { name = "EXC", asset_class = "equity", group = "us_large_cap" }
+EXPD = { name = "EXPD", asset_class = "equity", group = "us_large_cap" }
+EXPE = { name = "EXPE", asset_class = "equity", group = "us_large_cap" }
+EXR = { name = "EXR", asset_class = "equity", group = "us_large_cap" }
+F = { name = "F", asset_class = "equity", group = "us_large_cap" }
+FANG = { name = "FANG", asset_class = "equity", group = "us_large_cap" }
+FAST = { name = "FAST", asset_class = "equity", group = "us_large_cap" }
+FCX = { name = "FCX", asset_class = "equity", group = "us_large_cap" }
+FDS = { name = "FDS", asset_class = "equity", group = "us_large_cap" }
+FDX = { name = "FDX", asset_class = "equity", group = "us_large_cap" }
+FE = { name = "FE", asset_class = "equity", group = "us_large_cap" }
+FFIV = { name = "FFIV", asset_class = "equity", group = "us_large_cap" }
+FISV = { name = "FI -> FISV (ticker change; series runs from 1986, $122.59 on 2023-08-30)", asset_class = "equity", group = "us_large_cap" }
+FICO = { name = "FICO", asset_class = "equity", group = "us_large_cap" }
+FIS = { name = "FIS", asset_class = "equity", group = "us_large_cap" }
+FITB = { name = "FITB", asset_class = "equity", group = "us_large_cap" }
+CPAY = { name = "FLT -> CPAY 2024 (ticker change; series is FLEETCOR's own from 2010, $281.60 on 2019-08-01 and $273.24 on 2023-08-30 -- the same close the delisted FLT prints at a second vendor)", asset_class = "equity", group = "us_large_cap" }
+FMC = { name = "FMC", asset_class = "equity", group = "us_large_cap" }
+FOX = { name = "FOX", asset_class = "equity", group = "us_large_cap" }
+FOXA = { name = "FOXA", asset_class = "equity", group = "us_large_cap" }
+FRT = { name = "FRT", asset_class = "equity", group = "us_large_cap" }
+FSLR = { name = "FSLR", asset_class = "equity", group = "us_large_cap" }
+FTNT = { name = "FTNT", asset_class = "equity", group = "us_large_cap" }
+FTV = { name = "FTV", asset_class = "equity", group = "us_large_cap" }
+GD = { name = "GD", asset_class = "equity", group = "us_large_cap" }
+GE = { name = "GE", asset_class = "equity", group = "us_large_cap" }
+GEHC = { name = "GEHC", asset_class = "equity", group = "us_large_cap" }
+GEN = { name = "GEN", asset_class = "equity", group = "us_large_cap" }
+GILD = { name = "GILD", asset_class = "equity", group = "us_large_cap" }
+GIS = { name = "GIS", asset_class = "equity", group = "us_large_cap" }
+GL = { name = "GL", asset_class = "equity", group = "us_large_cap" }
+GLW = { name = "GLW", asset_class = "equity", group = "us_large_cap" }
+GM = { name = "GM", asset_class = "equity", group = "us_large_cap" }
+GNRC = { name = "GNRC", asset_class = "equity", group = "us_large_cap" }
+GOOG = { name = "GOOG", asset_class = "equity", group = "us_large_cap" }
+GOOGL = { name = "GOOGL", asset_class = "equity", group = "us_large_cap" }
+GPC = { name = "GPC", asset_class = "equity", group = "us_large_cap" }
+GPN = { name = "GPN", asset_class = "equity", group = "us_large_cap" }
+GRMN = { name = "GRMN", asset_class = "equity", group = "us_large_cap" }
+GS = { name = "GS", asset_class = "equity", group = "us_large_cap" }
+GWW = { name = "GWW", asset_class = "equity", group = "us_large_cap" }
+HAL = { name = "HAL", asset_class = "equity", group = "us_large_cap" }
+HAS = { name = "HAS", asset_class = "equity", group = "us_large_cap" }
+HBAN = { name = "HBAN", asset_class = "equity", group = "us_large_cap" }
+HCA = { name = "HCA", asset_class = "equity", group = "us_large_cap" }
+HD = { name = "HD", asset_class = "equity", group = "us_large_cap" }
+HIG = { name = "HIG", asset_class = "equity", group = "us_large_cap" }
+HII = { name = "HII", asset_class = "equity", group = "us_large_cap" }
+HLT = { name = "HLT", asset_class = "equity", group = "us_large_cap" }
+HON = { name = "HON", asset_class = "equity", group = "us_large_cap" }
+HPE = { name = "HPE", asset_class = "equity", group = "us_large_cap" }
+HPQ = { name = "HPQ", asset_class = "equity", group = "us_large_cap" }
+HRL = { name = "HRL", asset_class = "equity", group = "us_large_cap" }
+HSIC = { name = "HSIC", asset_class = "equity", group = "us_large_cap" }
+HST = { name = "HST", asset_class = "equity", group = "us_large_cap" }
+HSY = { name = "HSY", asset_class = "equity", group = "us_large_cap" }
+HUM = { name = "HUM", asset_class = "equity", group = "us_large_cap" }
+HWM = { name = "HWM", asset_class = "equity", group = "us_large_cap" }
+IBM = { name = "IBM", asset_class = "equity", group = "us_large_cap" }
+ICE = { name = "ICE", asset_class = "equity", group = "us_large_cap" }
+IDXX = { name = "IDXX", asset_class = "equity", group = "us_large_cap" }
+IEX = { name = "IEX", asset_class = "equity", group = "us_large_cap" }
+IFF = { name = "IFF", asset_class = "equity", group = "us_large_cap" }
+ILMN = { name = "ILMN", asset_class = "equity", group = "us_large_cap" }
+INCY = { name = "INCY", asset_class = "equity", group = "us_large_cap" }
+INTC = { name = "INTC", asset_class = "equity", group = "us_large_cap" }
+INTU = { name = "INTU", asset_class = "equity", group = "us_large_cap" }
+INVH = { name = "INVH", asset_class = "equity", group = "us_large_cap" }
+IP = { name = "IP", asset_class = "equity", group = "us_large_cap" }
+IQV = { name = "IQV", asset_class = "equity", group = "us_large_cap" }
+IR = { name = "IR", asset_class = "equity", group = "us_large_cap" }
+IRM = { name = "IRM", asset_class = "equity", group = "us_large_cap" }
+ISRG = { name = "ISRG", asset_class = "equity", group = "us_large_cap" }
+IT = { name = "IT", asset_class = "equity", group = "us_large_cap" }
+ITW = { name = "ITW", asset_class = "equity", group = "us_large_cap" }
+IVZ = { name = "IVZ", asset_class = "equity", group = "us_large_cap" }
+J = { name = "J", asset_class = "equity", group = "us_large_cap" }
+JBHT = { name = "JBHT", asset_class = "equity", group = "us_large_cap" }
+JCI = { name = "JCI", asset_class = "equity", group = "us_large_cap" }
+JKHY = { name = "JKHY", asset_class = "equity", group = "us_large_cap" }
+JNJ = { name = "JNJ", asset_class = "equity", group = "us_large_cap" }
+JPM = { name = "JPM", asset_class = "equity", group = "us_large_cap" }
+KDP = { name = "KDP", asset_class = "equity", group = "us_large_cap" }
+KEY = { name = "KEY", asset_class = "equity", group = "us_large_cap" }
+KEYS = { name = "KEYS", asset_class = "equity", group = "us_large_cap" }
+KHC = { name = "KHC", asset_class = "equity", group = "us_large_cap" }
+KIM = { name = "KIM", asset_class = "equity", group = "us_large_cap" }
+KLAC = { name = "KLAC", asset_class = "equity", group = "us_large_cap" }
+KMB = { name = "KMB", asset_class = "equity", group = "us_large_cap" }
+KMI = { name = "KMI", asset_class = "equity", group = "us_large_cap" }
+KMX = { name = "KMX", asset_class = "equity", group = "us_large_cap" }
+KO = { name = "KO", asset_class = "equity", group = "us_large_cap" }
+KR = { name = "KR", asset_class = "equity", group = "us_large_cap" }
+KVUE = { name = "KVUE", asset_class = "equity", group = "us_large_cap" }
+L = { name = "L", asset_class = "equity", group = "us_large_cap" }
+LDOS = { name = "LDOS", asset_class = "equity", group = "us_large_cap" }
+LEN = { name = "LEN", asset_class = "equity", group = "us_large_cap" }
+LH = { name = "LH", asset_class = "equity", group = "us_large_cap" }
+LHX = { name = "LHX", asset_class = "equity", group = "us_large_cap" }
+LIN = { name = "LIN", asset_class = "equity", group = "us_large_cap" }
+LKQ = { name = "LKQ", asset_class = "equity", group = "us_large_cap" }
+LLY = { name = "LLY", asset_class = "equity", group = "us_large_cap" }
+LMT = { name = "LMT", asset_class = "equity", group = "us_large_cap" }
+LNC = { name = "LNC", asset_class = "equity", group = "us_large_cap" }
+LNT = { name = "LNT", asset_class = "equity", group = "us_large_cap" }
+LOW = { name = "LOW", asset_class = "equity", group = "us_large_cap" }
+LRCX = { name = "LRCX", asset_class = "equity", group = "us_large_cap" }
+LUV = { name = "LUV", asset_class = "equity", group = "us_large_cap" }
+LVS = { name = "LVS", asset_class = "equity", group = "us_large_cap" }
+LW = { name = "LW", asset_class = "equity", group = "us_large_cap" }
+LYB = { name = "LYB", asset_class = "equity", group = "us_large_cap" }
+LYV = { name = "LYV", asset_class = "equity", group = "us_large_cap" }
+MA = { name = "MA", asset_class = "equity", group = "us_large_cap" }
+MAA = { name = "MAA", asset_class = "equity", group = "us_large_cap" }
+MAR = { name = "MAR", asset_class = "equity", group = "us_large_cap" }
+MAS = { name = "MAS", asset_class = "equity", group = "us_large_cap" }
+MCD = { name = "MCD", asset_class = "equity", group = "us_large_cap" }
+MCHP = { name = "MCHP", asset_class = "equity", group = "us_large_cap" }
+MCK = { name = "MCK", asset_class = "equity", group = "us_large_cap" }
+MCO = { name = "MCO", asset_class = "equity", group = "us_large_cap" }
+MDLZ = { name = "MDLZ", asset_class = "equity", group = "us_large_cap" }
+MDT = { name = "MDT", asset_class = "equity", group = "us_large_cap" }
+MET = { name = "MET", asset_class = "equity", group = "us_large_cap" }
+META = { name = "META", asset_class = "equity", group = "us_large_cap" }
+MGM = { name = "MGM", asset_class = "equity", group = "us_large_cap" }
+MHK = { name = "MHK", asset_class = "equity", group = "us_large_cap" }
+MKC = { name = "MKC", asset_class = "equity", group = "us_large_cap" }
+MKTX = { name = "MKTX", asset_class = "equity", group = "us_large_cap" }
+MLM = { name = "MLM", asset_class = "equity", group = "us_large_cap" }
+MRSH = { name = "MMC -> MRSH (ticker change; series runs from 1973, $196.15 on 2023-08-30)", asset_class = "equity", group = "us_large_cap" }
+MMM = { name = "MMM", asset_class = "equity", group = "us_large_cap" }
+MNST = { name = "MNST", asset_class = "equity", group = "us_large_cap" }
+MO = { name = "MO", asset_class = "equity", group = "us_large_cap" }
+MOH = { name = "MOH", asset_class = "equity", group = "us_large_cap" }
+MOS = { name = "MOS", asset_class = "equity", group = "us_large_cap" }
+MPC = { name = "MPC", asset_class = "equity", group = "us_large_cap" }
+MPWR = { name = "MPWR", asset_class = "equity", group = "us_large_cap" }
+MRK = { name = "MRK", asset_class = "equity", group = "us_large_cap" }
+MRNA = { name = "MRNA", asset_class = "equity", group = "us_large_cap" }
+MS = { name = "MS", asset_class = "equity", group = "us_large_cap" }
+MSCI = { name = "MSCI", asset_class = "equity", group = "us_large_cap" }
+MSFT = { name = "MSFT", asset_class = "equity", group = "us_large_cap" }
+MSI = { name = "MSI", asset_class = "equity", group = "us_large_cap" }
+MTB = { name = "MTB", asset_class = "equity", group = "us_large_cap" }
+MTCH = { name = "MTCH", asset_class = "equity", group = "us_large_cap" }
+MTD = { name = "MTD", asset_class = "equity", group = "us_large_cap" }
+MU = { name = "MU", asset_class = "equity", group = "us_large_cap" }
+NCLH = { name = "NCLH", asset_class = "equity", group = "us_large_cap" }
+NDAQ = { name = "NDAQ", asset_class = "equity", group = "us_large_cap" }
+NDSN = { name = "NDSN", asset_class = "equity", group = "us_large_cap" }
+NEE = { name = "NEE", asset_class = "equity", group = "us_large_cap" }
+NEM = { name = "NEM", asset_class = "equity", group = "us_large_cap" }
+NFLX = { name = "NFLX", asset_class = "equity", group = "us_large_cap" }
+NI = { name = "NI", asset_class = "equity", group = "us_large_cap" }
+NKE = { name = "NKE", asset_class = "equity", group = "us_large_cap" }
+NOC = { name = "NOC", asset_class = "equity", group = "us_large_cap" }
+NOW = { name = "NOW", asset_class = "equity", group = "us_large_cap" }
+NRG = { name = "NRG", asset_class = "equity", group = "us_large_cap" }
+NSC = { name = "NSC", asset_class = "equity", group = "us_large_cap" }
+NTAP = { name = "NTAP", asset_class = "equity", group = "us_large_cap" }
+NTRS = { name = "NTRS", asset_class = "equity", group = "us_large_cap" }
+NUE = { name = "NUE", asset_class = "equity", group = "us_large_cap" }
+NVDA = { name = "NVDA", asset_class = "equity", group = "us_large_cap" }
+NVR = { name = "NVR", asset_class = "equity", group = "us_large_cap" }
+NWL = { name = "NWL", asset_class = "equity", group = "us_large_cap" }
+NWS = { name = "NWS", asset_class = "equity", group = "us_large_cap" }
+NWSA = { name = "NWSA", asset_class = "equity", group = "us_large_cap" }
+NXPI = { name = "NXPI", asset_class = "equity", group = "us_large_cap" }
+O = { name = "O", asset_class = "equity", group = "us_large_cap" }
+ODFL = { name = "ODFL", asset_class = "equity", group = "us_large_cap" }
+OGN = { name = "OGN", asset_class = "equity", group = "us_large_cap" }
+OKE = { name = "OKE", asset_class = "equity", group = "us_large_cap" }
+OMC = { name = "OMC", asset_class = "equity", group = "us_large_cap" }
+ON = { name = "ON", asset_class = "equity", group = "us_large_cap" }
+ORCL = { name = "ORCL", asset_class = "equity", group = "us_large_cap" }
+ORLY = { name = "ORLY", asset_class = "equity", group = "us_large_cap" }
+OTIS = { name = "OTIS", asset_class = "equity", group = "us_large_cap" }
+OXY = { name = "OXY", asset_class = "equity", group = "us_large_cap" }
+PANW = { name = "PANW", asset_class = "equity", group = "us_large_cap" }
+PSKY = { name = "PARA -> PSKY 2025 (Paramount Global merged into Paramount Skydance and the LISTING survived: the series is ViacomCBS/Paramount's own from 2005, $50.62 on 2019-08-01 and $15.10 on 2023-08-30, not Skydance's. Not to be confused with the ticker PARA, which was reissued to Banzai International)", asset_class = "equity", group = "us_large_cap" }
+PAYC = { name = "PAYC", asset_class = "equity", group = "us_large_cap" }
+PAYX = { name = "PAYX", asset_class = "equity", group = "us_large_cap" }
+PCAR = { name = "PCAR", asset_class = "equity", group = "us_large_cap" }
+PCG = { name = "PCG", asset_class = "equity", group = "us_large_cap" }
+DOC = { name = "PEAK -> DOC 2024 (ticker change on the surviving registrant; series is Healthpeak's own, $41.68 in 2013 and $20.69 on 2023-08-30, not Physicians Realty's)", asset_class = "equity", group = "us_large_cap" }
+PEG = { name = "PEG", asset_class = "equity", group = "us_large_cap" }
+PEP = { name = "PEP", asset_class = "equity", group = "us_large_cap" }
+PFE = { name = "PFE", asset_class = "equity", group = "us_large_cap" }
+PFG = { name = "PFG", asset_class = "equity", group = "us_large_cap" }
+PG = { name = "PG", asset_class = "equity", group = "us_large_cap" }
+PGR = { name = "PGR", asset_class = "equity", group = "us_large_cap" }
+PH = { name = "PH", asset_class = "equity", group = "us_large_cap" }
+PHM = { name = "PHM", asset_class = "equity", group = "us_large_cap" }
+PKG = { name = "PKG", asset_class = "equity", group = "us_large_cap" }
+PLD = { name = "PLD", asset_class = "equity", group = "us_large_cap" }
+PM = { name = "PM", asset_class = "equity", group = "us_large_cap" }
+PNC = { name = "PNC", asset_class = "equity", group = "us_large_cap" }
+PNR = { name = "PNR", asset_class = "equity", group = "us_large_cap" }
+PNW = { name = "PNW", asset_class = "equity", group = "us_large_cap" }
+PODD = { name = "PODD", asset_class = "equity", group = "us_large_cap" }
+POOL = { name = "POOL", asset_class = "equity", group = "us_large_cap" }
+PPG = { name = "PPG", asset_class = "equity", group = "us_large_cap" }
+PPL = { name = "PPL", asset_class = "equity", group = "us_large_cap" }
+PRU = { name = "PRU", asset_class = "equity", group = "us_large_cap" }
+PSA = { name = "PSA", asset_class = "equity", group = "us_large_cap" }
+PSX = { name = "PSX", asset_class = "equity", group = "us_large_cap" }
+PTC = { name = "PTC", asset_class = "equity", group = "us_large_cap" }
+PWR = { name = "PWR", asset_class = "equity", group = "us_large_cap" }
+PYPL = { name = "PYPL", asset_class = "equity", group = "us_large_cap" }
+QCOM = { name = "QCOM", asset_class = "equity", group = "us_large_cap" }
+QRVO = { name = "QRVO", asset_class = "equity", group = "us_large_cap" }
+RCL = { name = "RCL", asset_class = "equity", group = "us_large_cap" }
+REG = { name = "REG", asset_class = "equity", group = "us_large_cap" }
+REGN = { name = "REGN", asset_class = "equity", group = "us_large_cap" }
+RF = { name = "RF", asset_class = "equity", group = "us_large_cap" }
+RHI = { name = "RHI", asset_class = "equity", group = "us_large_cap" }
+RJF = { name = "RJF", asset_class = "equity", group = "us_large_cap" }
+RL = { name = "RL", asset_class = "equity", group = "us_large_cap" }
+RMD = { name = "RMD", asset_class = "equity", group = "us_large_cap" }
+ROK = { name = "ROK", asset_class = "equity", group = "us_large_cap" }
+ROL = { name = "ROL", asset_class = "equity", group = "us_large_cap" }
+ROP = { name = "ROP", asset_class = "equity", group = "us_large_cap" }
+ROST = { name = "ROST", asset_class = "equity", group = "us_large_cap" }
+RSG = { name = "RSG", asset_class = "equity", group = "us_large_cap" }
+RTX = { name = "RTX", asset_class = "equity", group = "us_large_cap" }
+RVTY = { name = "RVTY", asset_class = "equity", group = "us_large_cap" }
+SBAC = { name = "SBAC", asset_class = "equity", group = "us_large_cap" }
+SBUX = { name = "SBUX", asset_class = "equity", group = "us_large_cap" }
+SCHW = { name = "SCHW", asset_class = "equity", group = "us_large_cap" }
+SEDG = { name = "SEDG", asset_class = "equity", group = "us_large_cap" }
+SHW = { name = "SHW", asset_class = "equity", group = "us_large_cap" }
+SJM = { name = "SJM", asset_class = "equity", group = "us_large_cap" }
+SLB = { name = "SLB", asset_class = "equity", group = "us_large_cap" }
+SNA = { name = "SNA", asset_class = "equity", group = "us_large_cap" }
+SNPS = { name = "SNPS", asset_class = "equity", group = "us_large_cap" }
+SO = { name = "SO", asset_class = "equity", group = "us_large_cap" }
+SPG = { name = "SPG", asset_class = "equity", group = "us_large_cap" }
+SPGI = { name = "SPGI", asset_class = "equity", group = "us_large_cap" }
+SRE = { name = "SRE", asset_class = "equity", group = "us_large_cap" }
+STE = { name = "STE", asset_class = "equity", group = "us_large_cap" }
+STLD = { name = "STLD", asset_class = "equity", group = "us_large_cap" }
+STT = { name = "STT", asset_class = "equity", group = "us_large_cap" }
+STX = { name = "STX", asset_class = "equity", group = "us_large_cap" }
+STZ = { name = "STZ", asset_class = "equity", group = "us_large_cap" }
+SWK = { name = "SWK", asset_class = "equity", group = "us_large_cap" }
+SWKS = { name = "SWKS", asset_class = "equity", group = "us_large_cap" }
+SYF = { name = "SYF", asset_class = "equity", group = "us_large_cap" }
+SYK = { name = "SYK", asset_class = "equity", group = "us_large_cap" }
+SYY = { name = "SYY", asset_class = "equity", group = "us_large_cap" }
+T = { name = "T", asset_class = "equity", group = "us_large_cap" }
+TAP = { name = "TAP", asset_class = "equity", group = "us_large_cap" }
+TDG = { name = "TDG", asset_class = "equity", group = "us_large_cap" }
+TDY = { name = "TDY", asset_class = "equity", group = "us_large_cap" }
+TECH = { name = "TECH", asset_class = "equity", group = "us_large_cap" }
+TEL = { name = "TEL", asset_class = "equity", group = "us_large_cap" }
+TER = { name = "TER", asset_class = "equity", group = "us_large_cap" }
+TFC = { name = "TFC", asset_class = "equity", group = "us_large_cap" }
+TFX = { name = "TFX", asset_class = "equity", group = "us_large_cap" }
+TGT = { name = "TGT", asset_class = "equity", group = "us_large_cap" }
+TJX = { name = "TJX", asset_class = "equity", group = "us_large_cap" }
+TMO = { name = "TMO", asset_class = "equity", group = "us_large_cap" }
+TMUS = { name = "TMUS", asset_class = "equity", group = "us_large_cap" }
+TPR = { name = "TPR", asset_class = "equity", group = "us_large_cap" }
+TRGP = { name = "TRGP", asset_class = "equity", group = "us_large_cap" }
+TRMB = { name = "TRMB", asset_class = "equity", group = "us_large_cap" }
+TROW = { name = "TROW", asset_class = "equity", group = "us_large_cap" }
+TRV = { name = "TRV", asset_class = "equity", group = "us_large_cap" }
+TSCO = { name = "TSCO", asset_class = "equity", group = "us_large_cap" }
+TSLA = { name = "TSLA", asset_class = "equity", group = "us_large_cap" }
+TSN = { name = "TSN", asset_class = "equity", group = "us_large_cap" }
+TT = { name = "TT", asset_class = "equity", group = "us_large_cap" }
+TTWO = { name = "TTWO", asset_class = "equity", group = "us_large_cap" }
+TXN = { name = "TXN", asset_class = "equity", group = "us_large_cap" }
+TXT = { name = "TXT", asset_class = "equity", group = "us_large_cap" }
+TYL = { name = "TYL", asset_class = "equity", group = "us_large_cap" }
+UAL = { name = "UAL", asset_class = "equity", group = "us_large_cap" }
+UDR = { name = "UDR", asset_class = "equity", group = "us_large_cap" }
+UHS = { name = "UHS", asset_class = "equity", group = "us_large_cap" }
+ULTA = { name = "ULTA", asset_class = "equity", group = "us_large_cap" }
+UNH = { name = "UNH", asset_class = "equity", group = "us_large_cap" }
+UNP = { name = "UNP", asset_class = "equity", group = "us_large_cap" }
+UPS = { name = "UPS", asset_class = "equity", group = "us_large_cap" }
+URI = { name = "URI", asset_class = "equity", group = "us_large_cap" }
+USB = { name = "USB", asset_class = "equity", group = "us_large_cap" }
+V = { name = "V", asset_class = "equity", group = "us_large_cap" }
+VFC = { name = "VFC", asset_class = "equity", group = "us_large_cap" }
+VICI = { name = "VICI", asset_class = "equity", group = "us_large_cap" }
+VLO = { name = "VLO", asset_class = "equity", group = "us_large_cap" }
+VMC = { name = "VMC", asset_class = "equity", group = "us_large_cap" }
+VRSK = { name = "VRSK", asset_class = "equity", group = "us_large_cap" }
+VRSN = { name = "VRSN", asset_class = "equity", group = "us_large_cap" }
+VRTX = { name = "VRTX", asset_class = "equity", group = "us_large_cap" }
+VTR = { name = "VTR", asset_class = "equity", group = "us_large_cap" }
+VTRS = { name = "VTRS", asset_class = "equity", group = "us_large_cap" }
+VZ = { name = "VZ", asset_class = "equity", group = "us_large_cap" }
+WAB = { name = "WAB", asset_class = "equity", group = "us_large_cap" }
+WAT = { name = "WAT", asset_class = "equity", group = "us_large_cap" }
+WBD = { name = "WBD", asset_class = "equity", group = "us_large_cap" }
+WDC = { name = "WDC", asset_class = "equity", group = "us_large_cap" }
+WEC = { name = "WEC", asset_class = "equity", group = "us_large_cap" }
+WELL = { name = "WELL", asset_class = "equity", group = "us_large_cap" }
+WFC = { name = "WFC", asset_class = "equity", group = "us_large_cap" }
+WHR = { name = "WHR", asset_class = "equity", group = "us_large_cap" }
+WM = { name = "WM", asset_class = "equity", group = "us_large_cap" }
+WMB = { name = "WMB", asset_class = "equity", group = "us_large_cap" }
+WMT = { name = "WMT", asset_class = "equity", group = "us_large_cap" }
+WRB = { name = "WRB", asset_class = "equity", group = "us_large_cap" }
+WST = { name = "WST", asset_class = "equity", group = "us_large_cap" }
+WTW = { name = "WTW", asset_class = "equity", group = "us_large_cap" }
+WY = { name = "WY", asset_class = "equity", group = "us_large_cap" }
+WYNN = { name = "WYNN", asset_class = "equity", group = "us_large_cap" }
+XEL = { name = "XEL", asset_class = "equity", group = "us_large_cap" }
+XOM = { name = "XOM", asset_class = "equity", group = "us_large_cap" }
+XRAY = { name = "XRAY", asset_class = "equity", group = "us_large_cap" }
+XYL = { name = "XYL", asset_class = "equity", group = "us_large_cap" }
+YUM = { name = "YUM", asset_class = "equity", group = "us_large_cap" }
+ZBH = { name = "ZBH", asset_class = "equity", group = "us_large_cap" }
+ZBRA = { name = "ZBRA", asset_class = "equity", group = "us_large_cap" }
+ZION = { name = "ZION", asset_class = "equity", group = "us_large_cap" }
+ZTS = { name = "ZTS", asset_class = "equity", group = "us_large_cap" }

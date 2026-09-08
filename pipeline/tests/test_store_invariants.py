@@ -16,11 +16,15 @@ this test fails, the number the optimiser is estimated from is wrong -- not the 
 """
 from __future__ import annotations
 
+import tomllib
+
 import numpy as np
 import pandas as pd
 import pytest
 
+import pit
 import store
+import universe as uni
 from conftest import PRICES
 
 
@@ -254,12 +258,25 @@ def test_reconstruction_matches_the_vendors_adjclose(sampled):
 
     Checked at the SAMPLED bars, which include each symbol's first, because a reconstruction
     error is systematic: a wrong or missing factor propagates to every bar before it.
+
+    THE DECLARED-TRUNCATED SYMBOLS ARE EXCLUDED, AND THE EXCLUSION IS NOT A TOLERANCE. LEG is the
+    case: the vendor serves five bars for it, 2026-07-17 and then a jump to 2026-08-24, and the
+    0.05 dividend of 2026-08-10 falls in that hole. The store adjusts backwards across the gap --
+    which is what its contract says it does -- and the vendor's own `adjclose` for the 2026-07-17
+    bar equals its raw close, so the vendor contradicts its own event log on a series it truncated.
+    Nothing here can reconcile that and no threshold should absorb it: 4.5e-3 is the size of a real
+    missed dividend. The names come off `sp500_pit.toml`'s `[truncated]` table, so deleting a
+    declaration brings the failure straight back, and each one is asserted to actually BE truncated
+    below -- an entry cannot be used to excuse a full series.
     """
     close = store.read_close(PRICES)
     divs = store.dividends_by_symbol(PRICES)
+    truncated = set(pit.load_membership()["truncated"])
     worst = (0.0, None)
     for sym, chunk in sampled.groupby("symbol"):
         sym = str(sym)
+        if sym in truncated:
+            continue
         assert sym in close.columns, f"{sym} has an adjclose sample but no stored closes"
         recon = store.total_return(close[sym].dropna(), divs.get(sym))
         got = recon.reindex(pd.DatetimeIndex(chunk["date"]))
@@ -273,6 +290,73 @@ def test_reconstruction_matches_the_vendors_adjclose(sampled):
             "wrongly, not transport rounding"
         )
     print(f"\nworst reconstruction residual: {worst[0]:.2e} ({worst[1]})")
+
+
+def test_every_point_in_time_member_is_stored_back_to_the_snapshot_that_holds_it():
+    """THE SCREEN WHOSE ABSENCE LET FOUR LARGE CAPS OUT OF EVERY CANDIDATE SET WITHOUT A SOUND.
+
+    A membership snapshot dated 2016-09-01 is a claim that those companies could have been bought
+    that day, and the store has to be able to price them then. The primary vendor served AVB, EA,
+    LEG and BBBY under the RIGHT company names with 5 to 36 bars, all beginning on the same day,
+    2026-07-17 -- so it is one vendor defect and not four coincidences, and none of the four had
+    stopped trading. Nothing failed: `load_panel`'s coverage filter drops a 27-bar series from
+    every window and reports it under `dropped_history_starts_late`, in the same count as the
+    genuine post-window IPOs, so three S&P 100 members were simply absent from all ten windows and
+    the run looked healthy.
+
+    So the rule is stated the other way round, as a property of the store rather than of a run: a
+    symbol some snapshot holds must be stored back to the FIRST snapshot that holds it, or be
+    named in `[truncated]` with the measured reason. Not in the store at all is a different and
+    already-reported thing -- `vendor_two` and `unpriceable` cover those, and this test says so
+    rather than conflating "the vendor serves nothing" with "the vendor serves a stub".
+
+    IT THEN FOUND SIX MORE, of two kinds the four had not shown, and both are worse than a stub:
+    APC serves 142 bars from 2026-02-12 as ARKO Petroleum, which is the PARA case again (a
+    different company under a recycled ticker, every automatic check passing); DOW, FOX, FOXA and
+    Q serve the right company from a date years after the first snapshot that holds them, because
+    each ticker changed hands -- Dow Chemical to Dow Inc, Twenty-First Century Fox to Fox
+    Corporation, QuintilesIMS to Qnity. The remedy differs by kind, so the file has three tables
+    and this test names all three: `[recycled]` strips a ticker from every snapshot, `[reissued]`
+    from the ones before its date, `[truncated]` from none. The four reissued names then pass here
+    ON MERIT rather than by exemption, because the strip moves the first snapshot that holds them
+    to one their stored history reaches -- which is the point of separating the tables.
+    """
+    mem = pit.load_membership()
+    held = pit.held_between(mem)
+    close = store.read_close(PRICES)
+    declared = set(mem["truncated"]) | set(mem["vendor_two"]) | set(mem["unpriceable"])
+    stubs = {}
+    for sym, (first_snapshot, _) in sorted(held.items()):
+        if sym not in close.columns or sym in declared:
+            continue
+        s = close[sym].dropna()
+        if len(s) and s.index.min() > pd.Timestamp(first_snapshot):
+            stubs[sym] = (str(s.index.min().date()), len(s), first_snapshot)
+    assert not stubs, (
+        "stored history begins after the first snapshot that holds these -- symbol: "
+        f"(first stored bar, bars, snapshot needing it) {stubs}. Three remedies, and the right one "
+        "is a question about the company, not about the length of the series: the vendor truncated "
+        "it -> sp500_pit.toml's [truncated]; the ticker now belongs to someone else -> [recycled]; "
+        "it belonged to someone else BEFORE a date and to a current member after -> [reissued]. "
+        "Each with the measured reason."
+    )
+    raw = tomllib.load(open(pit.MEMBERSHIP, "rb"))["snapshots"]
+    for sym, spec in sorted(mem["reissued"].items()):
+        before = [d for d, syms in raw.items() if sym in syms and d < spec["from"]]
+        assert before, (
+            f"{sym} is declared reissued from {spec['from']} but no snapshot before that date "
+            "holds it, so the declaration strips nothing. An entry that does no work is one that "
+            "will not be noticed when a later snapshot needs it."
+        )
+    for sym in sorted(mem["truncated"]):
+        if sym not in close.columns:
+            continue
+        n = int(close[sym].dropna().shape[0])
+        assert n < 250, (
+            f"{sym} is declared truncated but has {n} stored bars. A declaration excuses a symbol "
+            "from the reconstruction check, so one covering a full series would hide a real "
+            "missed dividend."
+        )
 
 
 def test_every_dividend_payer_in_the_store_actually_moves_the_series(sampled):
@@ -292,27 +376,135 @@ def test_every_dividend_payer_in_the_store_actually_moves_the_series(sampled):
         assert recon.iloc[0] < c.iloc[0], f"{sym} has {len(d)} dividends but no adjustment at the first bar"
 
 
-def test_no_stored_split_left_a_split_sized_jump_in_the_close(sampled):
-    """The claim `close` arrives already split-adjusted, checked against the split log rather
-    than asserted. This is what makes storing splits worth it: an unadjusted 1:8 reverse split
-    is a +700% single-day return, and one such row dominates that asset's whole covariance row
-    -- but the same jump with no event log to point at is just an outlier of unknown cause."""
+# A SPLIT BAR THAT ALSO CARRIES A DISTRIBUTION IS A CORPORATE ACTION, NOT A SPLIT, and no
+# threshold on a price move can be applied to it. Yahoo records a spinoff as both: a split ratio
+# AND a large cash-equivalent dividend on the same date. Three in the store, all real --
+#
+#   JCI  2007-07-02  split 0.25   $10.69 on a $70 close   (the Tyco/Covidien separation)
+#   EXPE 2011-12-21  split 0.5    $15.13 on a $57 close   (the TripAdvisor spinoff)
+#   DHR  2016-07-05  split 1.319  $24.56 on a $71 close   (Fortive)
+#
+# -- and each one moves the close by 50-61% in a single bar, legitimately, because shareholders
+# received shares in another company. `store.total_return` reproduces the vendor's own adjusted
+# close across all three to better than 5e-7, which is the test that they were handled correctly
+# (`test_total_return_matches_the_vendors_adjusted_close`). It is a stronger check than any
+# threshold, so these bars are handed to it rather than waved through: excluded HERE, asserted
+# exactly THERE. Adding a same-day distribution to a bar to silence a failure below is therefore
+# not available -- the distribution is in the event log or it is not.
+def _held_symbols() -> set[str]:
+    """Every symbol some universe file lists in [assets] -- i.e. every symbol that can reach an
+    estimate. NOT every symbol in the store.
+
+    The store is keyed by symbol and append-only, so it accumulates series no universe holds:
+    an old candidate, a benchmark fetched for a comparison, and -- the case this exists for -- a
+    RECYCLED TICKER. `PARA` was Paramount Global, a 2023 S&P 500 constituent; the vendor now
+    serves Banzai International under it, a micro-cap that has done three reverse splits since,
+    and its stored closes really are discontinuous across them. That is a broken series and the
+    two tests below are right to say so, but the fix is not a threshold or an exception entry --
+    it is that `sp500_2023.toml` excludes the ticker, because the series is two companies and no
+    weight vector may contain it.
+
+    Scoping to held symbols is therefore narrowing the tests to exactly the claim they make. Their
+    rationale is that one unadjusted bar dominates an asset's covariance row, and a symbol no
+    universe holds has no covariance row. It is also self-maintaining rather than a list: add
+    `PARA` to any universe's [assets] and the failure comes straight back.
+
+    THE POINT-IN-TIME MEMBERSHIP IS A SECOND SOURCE OF HELD SYMBOLS AND IS READ THROUGH ITS OWN
+    LOADER. `uni.available()` globs `pipeline/universes/*.toml` and `sp500_pit.toml` lives there
+    while having no `[assets]` at all -- it is a set of symbols PER DATE -- so `uni.load` raises on
+    it, correctly, and `universe.py` must not learn to read it (CLAUDE.md). Its snapshots are
+    unioned in here instead, with the recycled tickers already stripped by `pit.load_membership`,
+    because every one of those symbols can reach an estimate in some window and the claim these
+    tests make is about exactly that set.
+    """
+    keys = [k for k in uni.available() if k != pit.MEMBERSHIP.stem]
+    held = {s for key in keys for s in uni.load(key).symbols}
+    mem = pit.load_membership()
+    return held | {s for syms in mem["snapshots"].values() for s in syms}
+
+
+def _split_bars_with_no_distribution():
+    """Every stored split bar that is a plain split on a HELD symbol: (symbol, pos, series, amount)."""
     splits = store.read_events(PRICES, kind="split")
     if splits.empty:
-        pytest.skip("no splits in the stored universe")
+        return []
+    divs = store.read_events(PRICES, kind="dividend")
+    paid = {(r.symbol, r.date) for r in divs.itertuples()}
+    held = _held_symbols()
     close = store.read_close(PRICES)
-    checked = 0
+    out = []
     for row in splits.itertuples():
-        if row.symbol not in close.columns:
+        if row.symbol not in held or row.symbol not in close.columns:
+            continue
+        if (row.symbol, row.date) in paid:
             continue
         c = close[row.symbol].dropna()
         pos = int(c.index.searchsorted(row.date, side="left"))
         if pos == 0 or pos >= len(c):
             continue
-        move = abs(float(c.iloc[pos] / c.iloc[pos - 1] - 1.0))
+        out.append((row.symbol, pos, c, row.amount, row.date))
+    return out
+
+
+# One vendor bar, listed rather than tolerated by a looser threshold. BRO's close is split-
+# adjusted either side of 1983-03-24 (the level across it moves 1.3%) and it pays no distribution
+# there, but the split-day bar ITSELF is unadjusted: 0.222222 where its neighbours print 0.148148
+# and 0.150000, exactly 1.5x, reverting the next day. That is a defect in one bar, not a failure of
+# the split adjustment, and the two assertions below are separated so it cannot hide one behind the
+# other. Listed with its date so a SECOND one fails loudly -- a threshold raised to 0.51 would have
+# absorbed it silently, and this whole file exists because silent absorption is how a covariance
+# row gets ruined. It is 1983, which is before the start date of every universe here; a bar inside
+# a window a build uses would have to be fixed rather than listed.
+KNOWN_UNADJUSTED_SPLIT_BARS = {("BRO", "1983-03-24")}
+
+
+def test_close_is_split_adjusted_across_every_stored_split(sampled):
+    """The claim `close` arrives already split-adjusted, checked against the split log rather
+    than asserted. This is what makes storing splits worth it: an unadjusted 1:8 reverse split
+    is a +700% single-day return, and one such row dominates that asset's whole covariance row
+    -- but the same jump with no event log to point at is just an outlier of unknown cause.
+
+    Measured across the split rather than INTO it -- the bar before against the bar after. Those
+    are two adjusted bars whatever the vendor did with the split-day bar between them, so this
+    assertion is about the adjustment and nothing else. The split-day bar is the next test's.
+    """
+    bars = _split_bars_with_no_distribution()
+    if not bars:
+        pytest.skip("no plain splits in the stored universe")
+    checked = 0
+    for symbol, pos, c, amount, date in bars:
+        if pos + 1 >= len(c):
+            continue
+        move = abs(float(c.iloc[pos + 1] / c.iloc[pos - 1] - 1.0))
         assert move < 0.50, (
-            f"{row.symbol}: {move:.1%} move across its {row.amount} split on "
-            f"{row.date.date()} -- `close` is NOT split-adjusted after all"
+            f"{symbol}: {move:.1%} across its {amount} split on {date.date()} (the bar before "
+            f"against the bar after, and no distribution on that bar to explain it) -- `close` "
+            f"is NOT split-adjusted after all"
         )
         checked += 1
-    assert checked > 0, "no split fell inside a stored history, so this checked nothing"
+    assert checked > 0, "no plain split fell inside a stored history, so this checked nothing"
+
+
+def test_no_split_day_bar_is_a_split_sized_spike(sampled):
+    """The other half: a single bar the vendor forgot to adjust, which reverts the next day.
+
+    Harmless to the *level* and just as damaging to an estimate -- one unadjusted bar is a pair of
+    huge equal-and-opposite daily returns, and a variance does not care that they cancel. Checked
+    separately from the adjustment itself because the failure, the cause and the fix are all
+    different: that one is the vendor's split handling, this one is a bad print.
+    """
+    bars = _split_bars_with_no_distribution()
+    if not bars:
+        pytest.skip("no plain splits in the stored universe")
+    spikes = []
+    for symbol, pos, c, amount, date in bars:
+        move = abs(float(c.iloc[pos] / c.iloc[pos - 1] - 1.0))
+        if move >= 0.50 and (symbol, str(date.date())) not in KNOWN_UNADJUSTED_SPLIT_BARS:
+            spikes.append(f"{symbol} {date.date()} ({amount} split): {move:.1%}")
+    assert not spikes, (
+        "split-day bars the vendor did not adjust, reverting the next day:\n  "
+        + "\n  ".join(spikes)
+        + "\nEach is two equal-and-opposite daily returns in one asset's estimate. Add it to "
+          "KNOWN_UNADJUSTED_SPLIT_BARS only after checking the level across it is continuous, "
+          "and only if it falls outside every window a build uses."
+    )

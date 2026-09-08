@@ -88,6 +88,16 @@ from fetch import TRADING_DAYS_PER_YEAR
 # Below this, a weight is noise from the solver rather than a position.
 WEIGHT_FLOOR = 1e-4
 
+# THE SOLVER IS NAMED, not left to PyPortfolioOpt's default, and the reason is a size-dependent
+# silent failure. Its default for a QP is OSQP, a first-order method: at 116 assets OSQP converges
+# and at 475 it returns `user_limit` (its iteration budget) on `max_sharpe` -- which `_solve`
+# below correctly reports as "not attainable", because that is what an exhausted solver is
+# indistinguishable from. On a frontier that shortens the curve; on a backtest it raises. CLARABEL
+# is an interior-point method and solves the same 475-asset problem in 0.1 s. Naming it here means
+# the answer does not depend on how many assets the universe happens to have, and a solver upgrade
+# in a dependency cannot change a published number without this line changing too.
+SOLVER = "CLARABEL"
+
 # Key under which a frontier point carries its own unrounded (ret, vol, sharpe) while `build`
 # is still working with it. Deleted before the point is written -- nothing downstream may see it.
 EXACT = "_exact"
@@ -119,29 +129,42 @@ def performance(w: np.ndarray, mu: np.ndarray, cov: np.ndarray, rf: float) -> tu
     return ret, vol, sharpe
 
 
-def max_feasible_return(mu: pd.Series, cap: float) -> float:
-    """The right-hand end of the frontier, solved exactly rather than searched for.
+def max_return_weights(mu: pd.Series, cap: float) -> np.ndarray:
+    """The frontier's right-hand endpoint AS A PORTFOLIO, constructed rather than solved.
 
     Maximising a linear objective over the simplex intersected with a box has a greedy
     solution: pour `cap` into the highest-mu asset, then the next, until the weights sum
-    to one. No solver needed, and getting it exactly right matters -- an approximate
-    upper end makes the last few `efficient_return` calls infeasible, and an infeasible
-    solve in PyPortfolioOpt surfaces as a generic OptimizationError that looks like a
-    numerical problem rather than a bad target.
+    to one. No solver needed, and that is not merely a shortcut -- see `build`, which
+    cannot get this point out of the QP at all.
+
+    Ties in `mu` are the one case this handles arbitrarily. With k assets sharing the
+    marginal expected return, the maximum-return set is a FACE rather than a vertex, and
+    the frontier's true end is the minimum-variance portfolio on that face; `argsort`
+    picks one corner of it instead. Estimated annualised returns from 3,900 daily
+    observations do not tie to float64, so this is a statement about the algorithm's
+    domain rather than about anything that happens here.
     """
     if not 0 < cap <= 1:
         raise ValueError(f"cap must be in (0, 1]: {cap}")
-    order = np.sort(mu.to_numpy())[::-1]
-    remaining, total = 1.0, 0.0
-    for m in order:
+    w = np.zeros(len(mu), dtype=float)
+    remaining = 1.0
+    for i in np.argsort(-mu.to_numpy(), kind="stable"):
         take = min(cap, remaining)
-        total += take * m
+        w[i] = take
         remaining -= take
         if remaining <= 1e-12:
             break
     if remaining > 1e-9:
         raise ValueError(f"cap {cap} too small for {len(mu)} assets to sum to 1")
-    return float(total)
+    return w
+
+
+def max_feasible_return(mu: pd.Series, cap: float) -> float:
+    """The return at that endpoint. Getting it exactly right matters -- an approximate
+    upper end makes the last few `efficient_return` calls infeasible, and an infeasible
+    solve in PyPortfolioOpt surfaces as a generic OptimizationError that looks like a
+    numerical problem rather than a bad target."""
+    return float(max_return_weights(mu, cap) @ mu.to_numpy())
 
 
 def _clean(weights: dict[str, float], symbols: list[str], cap: float) -> np.ndarray:
@@ -217,7 +240,7 @@ def _solve(mu: pd.Series, cov: pd.DataFrame, cap: float, objective, *args, **kwa
     singular matrix would make every target "infeasible" and produce a shorter frontier with no
     other symptom. The two are indistinguishable in the artifact and obvious in the log.
     """
-    ef = EfficientFrontier(mu, cov, weight_bounds=(0.0, cap))
+    ef = EfficientFrontier(mu, cov, weight_bounds=(0.0, cap), solver=SOLVER)
     try:
         getattr(ef, objective)(*args, **kwargs)
     except Exception as exc:
@@ -305,14 +328,32 @@ def build(
 
     points = [_point(w_minvol, symbols, mu_v, cov_v, rf)]
     failed_targets: list[float] = []
-    # Skip the exact endpoints: r_lo is already solved, and r_hi sits on the feasibility
-    # boundary where the QP is degenerate (it is an LP vertex, not a variance minimum).
+    # Skip the linspace endpoints: BOTH ends are supplied instead of asked for, because
+    # neither is a variance minimum the QP can be pointed at. `r_lo` is the min_volatility
+    # solve above. `r_hi` is an LP vertex -- the equality constraint `w'mu == r_hi` admits
+    # exactly one feasible point, so the QP is degenerate and cvxpy returns infeasible on
+    # the wrong side of a float64 rounding step as often as not.
     for target in np.linspace(r_lo, r_hi, n_points + 2)[1:-1]:
         w = _solve(est.mu, est.cov, cap, "efficient_return", target_return=float(target))
         if w is None:
             failed_targets.append(round(float(target), 6))
             continue
         points.append(_point(w, symbols, mu_v, cov_v, rf))
+
+    # AND THEN THE RIGHT-HAND END, CONSTRUCTED. Until 2026-09-05 the frontier simply stopped
+    # one grid step short of `r_hi`, which is a real defect in the picture and not a rounding
+    # detail: the curve ended BELOW AND LEFT of the highest-return assets, so the top few
+    # dots plotted past the end of the line and read as portfolios beating the frontier.
+    # Measured on the ETF universe at cap 0.2, the curve ended at ret 0.261524 against an
+    # `r_hi` of 0.265718 -- with SMH's own dot above and right of it.
+    #
+    # It is also the one point the browser genuinely needs an endpoint for. Interpolation
+    # takes convex combinations of SOLVED points, so the reachable path stops wherever the
+    # list stops; without this the maximum-return portfolio was not merely unlabelled, it
+    # was not selectable at all.
+    points.append(_point(_clean(
+        dict(zip(symbols, max_return_weights(est.mu, cap))), symbols, cap,
+    ), symbols, mu_v, cov_v, rf))
 
     w_tan = _solve(est.mu, est.cov, cap, "max_sharpe", risk_free_rate=rf)
     if w_tan is None:

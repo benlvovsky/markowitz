@@ -102,6 +102,32 @@ def test_a_benchmark_outside_the_assets_is_rejected(tmp_path, monkeypatch):
         _load_text(tmp_path, MINIMAL.replace('benchmark = "AAA"', 'benchmark = "ZZZ"'), monkeypatch)
 
 
+def test_an_empty_benchmark_declares_that_there_is_none_and_still_rejects_a_wrong_one(
+        tmp_path, monkeypatch):
+    """`benchmark = ""` is a DECLARATION, and the point of it is that it is not the same as
+    forgetting the key.
+
+    TOML has no null. A universe of single stocks has no benchmark among its own assets on
+    purpose -- an index fund in the candidate set would be bought by the min-variance solve, and
+    "did this beat the index" would then be asked of a portfolio allowed to BE the index -- so
+    without the empty string the only way to say so is to leave the key out, which reads as an
+    oversight in a file whose whole job is to record intent. `backtest.py --benchmark` supplies
+    one that is priced but not investable.
+
+    The second half is what stops this from being a hole: `or None` must turn "" into None
+    WITHOUT weakening the check on a non-empty benchmark, so the wrong-symbol case is asserted
+    again right here rather than trusted to the test above.
+    """
+    u = _load_text(tmp_path, MINIMAL.replace('benchmark = "AAA"', 'benchmark = ""'), monkeypatch)
+    assert u.benchmark is None
+
+    omitted = _load_text(tmp_path, MINIMAL.replace('benchmark = "AAA"\n', ""), monkeypatch)
+    assert omitted.benchmark is None
+
+    with pytest.raises(ValueError, match="benchmark"):
+        _load_text(tmp_path, MINIMAL.replace('benchmark = "AAA"', 'benchmark = "ZZZ"'), monkeypatch)
+
+
 def test_a_symbol_both_included_and_excluded_is_rejected(tmp_path, monkeypatch):
     """Contradictory intent. It would also make the drop accounting wrong in a way that reads
     as an off-by-one somewhere else entirely."""

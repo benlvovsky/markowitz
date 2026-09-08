@@ -103,6 +103,26 @@ def test_max_feasible_return_rejects_a_cap_that_cannot_reach_one(est):
         fr.max_feasible_return(est.mu, 0.0)
 
 
+@pytest.mark.parametrize("cap", [1.0, 0.5, 0.34, 0.25, 0.1])
+def test_max_return_weights_is_a_feasible_portfolio_attaining_that_return(est, cap):
+    """The scalar is checked against an LP above; this checks the VECTOR the scalar is now
+    derived from, since `build` ships it as the frontier's right endpoint.
+
+    Feasibility is the half an LP comparison cannot give you: `-lp.fun` would match a
+    weight vector that breached the cap or summed to 0.999, and the frontier would then end
+    at a portfolio the file's own `weight_cap` says is not allowed.
+    """
+    w = fr.max_return_weights(est.mu, cap)
+    assert w.sum() == pytest.approx(1.0, abs=1e-12)
+    assert (w >= 0).all() and w.max() <= cap + 1e-12
+    assert float(w @ est.mu.to_numpy()) == pytest.approx(fr.max_feasible_return(est.mu, cap), abs=1e-12)
+    # Greedy means the mass goes to the TOP-mu assets, in order. A vector that merely
+    # summed to one and hit the return would pass everything above by coincidence at
+    # cap=1.0 only; this is what fails if the sort direction flips.
+    holdings = est.mu.index[w > 0]
+    assert set(holdings) == set(est.mu.nlargest(len(holdings)).index)
+
+
 # ------------------------------------------------------------------------------- _clean
 
 
@@ -292,6 +312,26 @@ def test_build_produces_a_frontier_no_asset_can_beat(est, cap):
             assert float(np.interp(sigma[i], vols, rets)) >= est.mu.iloc[i] - 1e-6, sym
 
 
+@pytest.mark.parametrize("cap", [1.0, 0.25])
+def test_build_frontier_reaches_the_maximum_feasible_return(est, cap):
+    """The right endpoint is CONSTRUCTED rather than solved -- see `build`. Before 2026-09-05
+    the curve stopped one grid step short of `r_hi`, and the visible consequence was that the
+    highest-return assets plotted past the end of the line and read as beating the frontier.
+
+    Recompute-to-recompute: `return_range[1]` in the doc is rounded to 8 decimals for
+    transport, so comparing the endpoint against the FIELD would be comparing two roundings
+    and would pass on a frontier that stopped short by less than 5e-9 -- which is not the
+    failure mode. The grid step this guards against is 1/16th of the return range.
+    """
+    doc = fr.build(est, rf=0.03, cap=cap, n_points=15)
+    top = doc["frontier"][-1]
+    assert top["ret"] == pytest.approx(fr.max_feasible_return(est.mu, cap), abs=1e-8)
+    # And it survives pruning as a real, cap-honouring portfolio rather than as a bare
+    # coordinate: _prune_dominated could drop it, and nothing else here would notice.
+    assert sum(top["w"].values()) == pytest.approx(1.0, abs=1e-9)
+    assert max(top["w"].values()) <= cap + 1e-12
+
+
 def test_build_min_variance_end_is_the_global_minimum_variance_portfolio(est):
     """Independent check on the left endpoint: 200 random feasible portfolios must all be
     riskier. A frontier whose left end is not the minimum is the one error that makes every
@@ -331,3 +371,88 @@ def test_build_asset_table_uses_the_shrunk_diagonal(est, synthetic):
     sigma = np.sqrt(np.diag(est.cov.to_numpy()))
     for i, row in enumerate(rows):
         assert row["vol"] == pytest.approx(float(sigma[i]), abs=1e-6)
+
+
+# ------------------------------------------------------------------------------- the solver
+
+@pytest.fixture(scope="module")
+def wide_est():
+    """The same factor structure as `synthetic`, at 500 assets instead of 10.
+
+    DELIBERATELY SYNTHETIC, and by the rule in CLAUDE.md rather than for convenience: the
+    property below is a function of PROBLEM SIZE, and the shipped universe is 116 instruments,
+    so no artifact on disk can express it. The near-duplicate pairs are kept for the same reason
+    they are in the small fixture -- an ill-conditioned matrix is the case that fails first.
+    """
+    # The seed is load-bearing and that is the fixture's weakness, not a virtue: OSQP's failure is
+    # an ITERATION BUDGET, so it sits at a knife edge -- seed 1 exhausts it at cap 1.0 and seed
+    # 20260906 does not, on the same shape. Which is why the deterministic guard for the solver
+    # choice is the NEXT test, and this one's job is the plainer claim that every objective solves
+    # at the size the S&P run needs. Do not re-seed this to "clean up" the numbers.
+    rng = np.random.default_rng(1)
+    n_obs, n = 1500, 500
+    market = rng.normal(4e-4, 9e-3, n_obs)
+    betas = np.linspace(0.3, 1.6, n)
+    drifts = np.linspace(-2e-4, 6e-4, n)
+    rets = drifts + np.outer(market, betas) + rng.normal(0, 6e-3, (n_obs, n))
+    for i in range(0, n, 50):                       # ten near-duplicate pairs
+        rets[:, i] = 0.99 * rets[:, i + 1] + 0.01 * rets[:, i]
+    prices = 100 * np.exp(np.cumsum(np.log1p(rets), axis=0))
+    idx = pd.bdate_range("2018-01-01", periods=n_obs)
+    return fr.estimate(pd.DataFrame(prices, index=idx, columns=[f"A{i}" for i in range(n)]))
+
+
+@pytest.mark.parametrize("cap", [1.0, 0.2, 0.1])
+def test_every_objective_solves_on_a_universe_of_five_hundred_assets(wide_est, cap):
+    """`_solve` returns None for a target that is genuinely unattainable, which is a normal
+    answer -- and it returns None for a solver that ran out of iterations, which is not. The
+    two are indistinguishable in the artifact: on a frontier the curve is one point shorter,
+    and in a backtest a strategy quietly vanishes from a period.
+
+    That is not hypothetical and it is not about a hard problem. PyPortfolioOpt's default QP
+    solver is OSQP, a first-order method; on THIS problem at 500 assets `max_sharpe` returns
+    status `user_limit` and `_solve` reports it as unattainable, while the same problem at 116
+    assets converges. `frontier.SOLVER` names an interior-point solver for exactly that reason,
+    so drop it and this test fails at cap 1.0 while every artifact test still passes.
+    """
+    mu, cov = wide_est.mu, wide_est.cov
+    assert fr._solve(mu, cov, cap, "min_volatility") is not None, "min_volatility"
+    w = fr._solve(mu, cov, cap, "max_sharpe", risk_free_rate=0.03)
+    assert w is not None, "max_sharpe -- an exhausted solver, not an unattainable target"
+    assert w.sum() == pytest.approx(1.0, abs=1e-9)
+    assert w.max() <= cap + 1e-12
+    # A volatility target the long-only set certainly contains, so None here can only be the
+    # solver: it is above the minimum-variance portfolio's own risk by construction.
+    mv = fr._solve(mu, cov, cap, "min_volatility")
+    target = float(np.sqrt(mv @ cov.to_numpy() @ mv)) * 1.2
+    assert fr._solve(mu, cov, cap, "efficient_risk", target_volatility=target) is not None, \
+        "efficient_risk"
+
+
+def test_solve_names_its_solver_rather_than_taking_the_default(est, monkeypatch):
+    """The deterministic half of the pair above, and the one that actually guards `SOLVER`.
+
+    Behavioural rather than a source scan, but the behaviour it asserts is the CONTRACT and not
+    the answer: `_solve` must hand `EfficientFrontier` an explicit solver. It has to be checked
+    this way round because the answer is the same either way on any problem small enough to be a
+    fast test -- OSQP and CLARABEL agree to ~5e-4 on the 116-instrument universe that ships, and
+    they agree exactly here. What differs is only whether a LARGE problem gets an answer at all,
+    and that difference is an iteration budget, so it moves with the dependency's version.
+
+    So: the numbers cannot detect the regression and the size test above can only detect it on one
+    seed. This can, always, and it is the reason `SOLVER` may be renamed but not removed.
+    """
+    seen = {}
+    real = fr.EfficientFrontier
+
+    def spy(*args, **kwargs):
+        seen.update(kwargs)
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(fr, "EfficientFrontier", spy)
+    assert fr._solve(est.mu, est.cov, 0.5, "min_volatility") is not None
+    assert seen.get("solver") == fr.SOLVER, (
+        f"_solve passed solver={seen.get('solver')!r}; PyPortfolioOpt's default for a QP is a "
+        "first-order method that returns `user_limit` on a few-hundred-asset problem, which "
+        "`_solve` then reports as an unattainable target"
+    )

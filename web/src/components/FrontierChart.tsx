@@ -122,6 +122,19 @@ export function FrontierChart({
     onT(nearestOnPolyline(line, x, y))
   }
 
+  /** Pointer-down on anything that starts a drag. One function because there are now four such
+   *  targets -- the plot background, the fat band over the curve, the asset dots and the handle
+   *  itself -- and they were three copies of the same three lines.
+   *
+   *  `snap` is false for the HANDLE ALONE. The handle is already the thing under the cursor, so
+   *  seeking on its own pointer-down would move it by however far the cursor sits from the exact
+   *  point it represents: grabbing it would nudge the portfolio before the drag began. */
+  const beginDrag = (e: React.PointerEvent<SVGElement>, snap: boolean) => {
+    e.currentTarget.setPointerCapture(e.pointerId)
+    setDragging(true)
+    if (snap) seek(e)
+  }
+
   const last = path.points.length - 1
   const step = Math.max(last / 120, 1e-6)
   const onKey = (e: React.KeyboardEvent) => {
@@ -221,6 +234,32 @@ export function FrontierChart({
             </clipPath>
           </defs>
 
+          {/* THE WHOLE PLOT IS A HIT TARGET, and `seek` already does the only hard part: it
+              takes the nearest point on the frontier POLYLINE, so a click in open space lands on
+              a real solved-and-interpolated portfolio rather than wherever the cursor was.
+              Before this, only the 26px band over the curve responded, and a click a centimetre
+              away from a thin line did nothing at all -- which reads as a broken chart, not as a
+              target missed. There is no visual change, so nothing but this comment says why the
+              rect is here.
+
+              FIRST PAINTED CHILD -- `<defs>` above draws nothing -- so every mark sits ON TOP of
+              it and keeps its own pointer handlers: the asset dots keep their hover, the 26px
+              band over the curve keeps its `cursor: grab`, and the handle keeps its grab. This
+              rect only ever receives what nothing else claimed, which is exactly the open space
+              it was added for. It is placed outside the `role="img"` group for tidiness, not for
+              access: it carries no role and no `tabIndex`, so presentational or not changes
+              nothing about it. Keyboard users reach the same positions through the handle's
+              `role="slider"`, which is why this rect claims nothing and needs to. */}
+          <rect
+            x={PLOT.x0}
+            y={PLOT.y0}
+            width={PLOT.x1 - PLOT.x0}
+            height={PLOT.y1 - PLOT.y0}
+            fill="transparent"
+            style={{ cursor: 'crosshair' }}
+            onPointerDown={(e) => beginDrag(e, true)}
+          />
+
           {/* Every mark EXCEPT the handle, described as one image. The handle is a sibling of
               this group rather than a child, which is the whole point of the split above. */}
           <g
@@ -293,9 +332,15 @@ export function FrontierChart({
                   fillOpacity={on ? (isHover ? 0.95 : 0.5) : 0.1}
                   stroke={isHover ? 'var(--surface-raised)' : 'none'}
                   strokeWidth={2}
-                  style={{ cursor: on ? 'pointer' : 'default' }}
+                  style={{ cursor: on ? 'crosshair' : 'default' }}
                   onPointerEnter={() => on && setHover(a)}
                   onPointerLeave={() => setHover(null)}
+                  // A DOT IS NOT A DEAD SPOT. The dots sit above the plot-background rect and
+                  // are not its descendants, so a pointer-down on one does not reach it -- and
+                  // 116 dots over the middle of the plot is a lot of pixels where "click to
+                  // move the handle" would quietly not work. Same target as the background:
+                  // nearest point on the frontier. The tooltip is on ENTER, so it still shows.
+                  onPointerDown={(e) => beginDrag(e, true)}
                 />
               )
             })}
@@ -318,11 +363,7 @@ export function FrontierChart({
               strokeWidth={26}
               strokeLinecap="round"
               style={{ cursor: 'grab' }}
-              onPointerDown={(e) => {
-                e.currentTarget.setPointerCapture(e.pointerId)
-                setDragging(true)
-                seek(e)
-              }}
+              onPointerDown={(e) => beginDrag(e, true)}
             />
 
             {/* Minimum-variance portfolio: the frontier's left end. Square, so it is not
@@ -416,10 +457,7 @@ export function FrontierChart({
             aria-valuenow={Number(t.toFixed(3))}
             aria-valuetext={`volatility ${pct(here.vol)}, expected return ${pct(here.ret)}, Sharpe ${here.sharpe.toFixed(2)}`}
             onKeyDown={onKey}
-            onPointerDown={(e) => {
-              e.currentTarget.setPointerCapture(e.pointerId)
-              setDragging(true)
-            }}
+            onPointerDown={(e) => beginDrag(e, false)}
           >
             <circle cx={hx} cy={hy} r={dragging ? 11 : 9} fill="var(--ink)" fillOpacity={0.12} />
             <circle

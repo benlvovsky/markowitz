@@ -1,0 +1,173 @@
+# THE MATCHED-SPAN CONTROL FOR `asset_mix.toml`, AND IT EXISTS FOR ONE REASON ONLY.
+#
+# `asset_mix` run from 2004-11-18 has no commodities (they begin in 2006, and `load_panel`'s
+# measured filter drops them) and sixteen holding periods; run from 2006-10-30 it has commodities
+# and fourteen. Comparing those two runs changes the instrument set AND the span at once, so a
+# difference between them is not attributable -- the same confound `backtest.py --mu` is documented
+# to avoid. This file is `asset_mix` minus the five commodity lines (SLV, DBC, GSG, DJP, USO), so
+# it can be run from 2006-10-30 over the IDENTICAL span and the only difference is the commodities.
+#
+# THE ASSET LINES BELOW MUST STAY IDENTICAL TO `asset_mix.toml`'s, minus those five. Nothing
+# enforces that -- it is two files with one list, which is the cost of making the comparison
+# attributable, and it is stated here rather than hidden. Change one, change both.
+#
+# The long-history asset-class mix: what an Australian investor could ACTUALLY have held for two
+# decades, one line per exposure, deliberately small.
+#
+# WHY THIS UNIVERSE EXISTS, AND WHY IT IS NOT `etf_global` WITH A DIFFERENT START DATE
+# -----------------------------------------------------------------------------------
+# `etf_global` is 132 instruments chosen for breadth, and its common window opens in 2011 because
+# that is where the youngest fund in it begins. That is the right trade for drawing a frontier --
+# more dots, more recent data -- and it is the wrong trade for the question here, which is whether
+# a mean-variance mix of ASSET CLASSES beats buy-and-hold over a span long enough to contain more
+# than one regime. Two decades containing 2008 and 2020 is worth more than 116 instruments sharing
+# fifteen years, so this file trades instrument count for history and keeps only exposures whose
+# real fund existed in 2004.
+#
+# The consequence to state plainly: twenty lines cannot express a factor tilt or a sector view,
+# and they are not meant to. The claim being tested is the one the two-asset IVV+gold blend raised
+# by hand -- that the diversification half of Markowitz is worth something across asset classes
+# even where the return-forecast half is not.
+#
+# COMMODITIES ARE MEASURED THROUGH THE FUNDS, NEVER THROUGH AN INDEX OR A FUTURES SERIES
+# -------------------------------------------------------------------------------------
+# This is the one trap in the file and it is worth more than the instruments it excludes.
+# `^BCOM` reaches 1991 and `CL=F` reaches the 1980s, and both would extend this universe by
+# fifteen years. Neither is what an investor earns. A commodity futures position pays the spot
+# move MINUS the cost of rolling each expiring contract forward, and in contango that roll is the
+# dominant term: USO is the standing demonstration -- crude oil ended 2006-2026 well above where
+# it started while USO lost most of its value, because it rolled front-month futures for twenty
+# years. An index or a futures chain therefore reports a commodity return no fund could deliver,
+# in the direction that flatters diversification. So DBC, GSG, DJP, SLV and USO are the
+# commodity evidence here, they begin in 2006, and the cost of that is a shorter window rather
+# than an overstated one.
+#
+# Gold is the single exception and it does not need one: bullion has no roll and no carry, so
+# GLD's own series is the asset. The gold-futures splice used elsewhere in this repo was
+# validated against GLD at +0.43%/yr drift on GLD's 0.40% fee, which is the check that made it
+# usable there and is not needed here.
+#
+# WHAT THE START DATE SELECTS
+# ---------------------------
+# Start dates are measured, not declared -- `fetch.load_panel` drops the late arrivals and says
+# so. Two runs are intended over this one file:
+#   --start 2004-11-18   GLD's first bar. ~21.8 years, no commodities but gold.
+#   --start 2006-10-30   DJP's first bar. ~19.9 years, the whole file.
+# The pair is the point: if adding commodities helps, the second run beats the first out of
+# sample, and if it does not, the shorter window cost something for nothing.
+
+key = "asset_mix_nocomm"
+name = "Long-history asset classes, no commodities"
+
+# SPY is the benchmark AND a candidate, which is the documented ETF case: the question is whether
+# an optimised mix beats buy-and-hold SPY, and a mix that simply holds SPY is a legitimate answer
+# to that. IVV is deliberately absent -- it is the same index, and two lines for one exposure
+# would let the cap be evaded by holding both.
+benchmark = "SPY"
+
+groups = ["equity", "fixed_income", "real_asset"]
+
+description = """
+Twenty exposures, one per asset class, chosen so that every one of them had a real tradeable
+fund behind it before 2007 — a span containing the 2008 credit crisis, the 2011–2015 commodity
+bear market, the 2020 crash and the 2022 rate shock.
+
+This universe answers a narrower question than the global ETF one. Rather than drawing the widest
+frontier available, it asks whether allocating across asset classes by mean-variance beats simply
+holding the S&P 500, over a period long enough that the answer cannot be a single regime. The
+instrument count is small on purpose: twenty assets is roughly the number a person can hold and
+rebalance, and every additional instrument makes the covariance estimate a little more of a
+guess.
+
+Commodities enter through the exchange-traded funds that actually existed, not through a
+commodity index. The difference is the cost of rolling futures contracts forward, and it is not a
+detail — over this period crude oil rose while the largest crude fund lost most of its value.
+"""
+
+[group_labels]
+equity = "Equity"
+fixed_income = "Fixed income"
+real_asset = "Real assets and commodities"
+
+[assets]
+# ---- Equity: broad beta first, then the two dimensions that are genuinely distinct exposures
+# rather than relabelled US large cap (size, and non-US).
+SPY = { name = "S&P 500", asset_class = "us_large_cap", group = "equity" }
+QQQ = { name = "Nasdaq 100", asset_class = "us_large_growth", group = "equity" }
+VTV = { name = "US large value", asset_class = "us_large_value", group = "equity" }
+IWM = { name = "Russell 2000 small cap", asset_class = "us_small_cap", group = "equity" }
+EFA = { name = "Developed markets ex-US", asset_class = "developed_ex_us", group = "equity" }
+EEM = { name = "Emerging markets", asset_class = "emerging", group = "equity" }
+
+# ---- Fixed income: the duration ladder is three separate exposures, not one, because the whole
+# reason a bond helps a stock portfolio is duration and the three ends behave differently in a
+# rate shock. Credit (LQD, HYG) and inflation-linked (TIP) are distinct risks again.
+SHY = { name = "1-3 year Treasuries", asset_class = "short_treasury", group = "fixed_income" }
+IEF = { name = "7-10 year Treasuries", asset_class = "intermediate_treasury", group = "fixed_income" }
+TLT = { name = "20+ year Treasuries", asset_class = "long_treasury", group = "fixed_income" }
+AGG = { name = "US aggregate bond", asset_class = "aggregate_bond", group = "fixed_income" }
+LQD = { name = "Investment grade credit", asset_class = "corporate_credit", group = "fixed_income" }
+HYG = { name = "High yield credit", asset_class = "high_yield", group = "fixed_income" }
+TIP = { name = "Inflation-linked Treasuries", asset_class = "inflation_linked", group = "fixed_income" }
+
+# ---- Real assets. GLD is bullion and IYR is an equity that owns buildings; they are in one group
+# because both are claims on a real asset, and their `asset_class` is what keeps them apart.
+GLD = { name = "Gold bullion", asset_class = "precious_metal", group = "real_asset" }
+IYR = { name = "US real estate", asset_class = "reit", group = "real_asset" }
+
+[excluded]
+"^BCOM" = """
+The Bloomberg Commodity Index reaches 1991 and would extend this universe by fifteen years. It is
+an index, not a fund, and a commodity index return is not available to an investor: holding it
+requires rolling futures contracts, and the cost of that roll is the dominant term over long
+periods. Including it would report a diversification benefit no fund could have delivered.
+"""
+
+"CL=F" = """
+Front-month crude futures, reaching back to the 1980s. Excluded for the same reason as ^BCOM and
+with a sharper illustration: over 2006–2026 crude oil ended well above where it began while USO,
+which holds exactly this exposure through a real fund, lost most of its value to contango. The
+futures series and the investable return differ by more than the entire effect being measured.
+"""
+
+IVV = """
+The same index as SPY, from a different issuer. Two lines for one exposure would let the weight
+cap be evaded by splitting a position across both, and the frontier would report a concentration
+it does not have. SPY is kept because it has the longer history and is this universe's benchmark.
+"""
+
+BND = """
+Duplicates AGG's exposure (US aggregate bond) and begins four months later. Where two funds track
+the same index the longer history wins, because history depth is what this universe is trading
+instrument count for.
+"""
+
+VNQ = """
+Duplicates IYR's exposure (US real estate) and begins four years later.
+"""
+
+VEA = """
+Duplicates EFA's exposure (developed markets ex-US) and begins six years later.
+"""
+
+VWO = """
+Duplicates EEM's exposure (emerging markets) and begins two years later.
+"""
+
+PDBC = """
+An actively managed commodity fund that avoids some of the roll cost the passive commodity funds
+pay, which makes it a genuinely different and arguably better exposure. It begins in 2014, so
+including it would cut the window to eleven years — less than the span this universe exists to
+cover. It belongs in a universe built to test commodity implementation, not this one.
+"""
+
+MTUM = """
+Momentum factor equity, from 2013. Too short for this universe, and the momentum question is
+already answered directly by `backtest.py --mu momentum`, which measures the signal rather than
+buying a fund that implements it.
+"""
+
+BTAL = """
+Anti-beta long/short equity, from 2011. Too short, and a long/short fund's return depends on
+borrowing costs this repo does not model.
+"""

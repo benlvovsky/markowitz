@@ -1,0 +1,6543 @@
+{
+ "kind": "pit_backtest",
+ "generated_at": "2026-09-06T09:06:50+00:00",
+ "membership": {
+  "file": "sp500_pit.toml",
+  "retrieved": "2026-09-06",
+  "recycled_removed": [
+   "APC",
+   "CSRA",
+   "EMC",
+   "HOT",
+   "INFO",
+   "NFX",
+   "SE",
+   "SPLS",
+   "STI",
+   "TWX"
+  ],
+  "reissued_removed_before_their_dates": {
+   "DOW": "2019-03-20",
+   "FOX": "2019-03-13",
+   "FOXA": "2019-03-12",
+   "Q": "2025-10-27"
+  },
+  "unpriceable": [
+   "ABMD",
+   "ADS",
+   "AGN",
+   "ALXN",
+   "ARNC",
+   "BBBY",
+   "BCR",
+   "BHI",
+   "CDAY",
+   "CELG",
+   "CERN",
+   "CHK",
+   "CTXS",
+   "CXO",
+   "DFS",
+   "DISCA",
+   "DISCK",
+   "DISH",
+   "DO",
+   "DPS",
+   "DRE",
+   "DWDP",
+   "ENDP",
+   "ETFC",
+   "FBHS",
+   "FLIR",
+   "FLT",
+   "FRC",
+   "FTR",
+   "GGP",
+   "GPS",
+   "HAR",
+   "HES",
+   "HFC",
+   "KSU",
+   "LLL",
+   "LLTC",
+   "LM",
+   "LVLT",
+   "MJN",
+   "MNK",
+   "MRO",
+   "MXIM",
+   "NBL",
+   "NLSN",
+   "PBCT",
+   "PXD",
+   "RAI",
+   "RHT",
+   "RTN",
+   "SBNY",
+   "SNI",
+   "STJ",
+   "SWN",
+   "TIF",
+   "TSS",
+   "TYC",
+   "VAR",
+   "VIAB",
+   "WCG",
+   "WFM",
+   "WLTW",
+   "WYN",
+   "XEC",
+   "XL",
+   "XLNX",
+   "YHOO"
+  ],
+  "priced_by_vendor_two": [
+   "ANSS",
+   "ATVI",
+   "CA",
+   "CMA",
+   "CTLT",
+   "CTRA",
+   "DAY",
+   "DNB",
+   "FL",
+   "HBI",
+   "HOLX",
+   "IPG",
+   "JNPR",
+   "JWN",
+   "K",
+   "MON",
+   "PDCO",
+   "SEE",
+   "SIVB",
+   "SRCL",
+   "TGNA",
+   "TWTR",
+   "WBA"
+  ],
+  "note": "these four lists describe the FILE. What was missing from each window's candidate set is per period, under membership.unpriced_constituents, and it is the set a stress bound over this run has to cover."
+ },
+ "method": {
+  "train_years": 5.0,
+  "hold_years": 1.0,
+  "caps": [
+   1.0,
+   0.2,
+   0.1
+  ],
+  "benchmark": "SPY",
+  "rf": "^IRX as of each cutoff",
+  "estimator": "geometric mean + Ledoit-Wolf shrunk covariance, 252-day annualised",
+  "solver": "CLARABEL",
+  "costs": null,
+  "caveats": [
+   "the holds are non-overlapping, but consecutive TRAINING windows overlap by 4.0y, so a persistent regime is estimated the same way several times running",
+   "a member acquired during a hold fails the window's coverage filter and is dropped from that window's candidate set unless --extra-panel restores it: see dropped_midwindow per period",
+   "the membership is reconstructed from a change log, not from the index provider; it reproduces 498 of the 503 hand-verified 2023 names and the 5 misses are ticker spelling",
+   "no transaction costs, no taxes, no slippage; annual rebalancing only"
+  ]
+ },
+ "benchmark": "SPY",
+ "benchmark_investable": false,
+ "periods": [
+  {
+   "period": "2016-09-01 to 2017-08-31",
+   "cutoff": "2016-09-01",
+   "membership": {
+    "as_of": "2016-09-01",
+    "members": 507,
+    "in_the_candidate_pool": 495,
+    "investable": 397,
+    "removed_as_a_different_company": {
+     "APC": "recycled",
+     "CSRA": "recycled",
+     "DOW": "reissued to another company on 2019-03-20",
+     "EMC": "recycled",
+     "FOX": "reissued to another company on 2019-03-13",
+     "FOXA": "reissued to another company on 2019-03-12",
+     "HOT": "recycled",
+     "NFX": "recycled",
+     "SE": "recycled",
+     "SPLS": "recycled",
+     "STI": "recycled",
+     "TWX": "recycled"
+    },
+    "dropped_not_in_store": 72,
+    "dropped_history_starts_late": 26,
+    "dropped_midwindow": 0,
+    "n_unpriced_constituents": 84,
+    "unpriced_constituents": [
+     "ADS",
+     "AGN",
+     "ALXN",
+     "APC",
+     "ATVI",
+     "BCR",
+     "BHI",
+     "CA",
+     "CELG",
+     "CERN",
+     "CHK",
+     "CMA",
+     "CSRA",
+     "CTRA",
+     "CTXS",
+     "CXO",
+     "DFS",
+     "DISCA",
+     "DISCK",
+     "DNB",
+     "DO",
+     "DOW",
+     "DPS",
+     "EMC",
+     "ENDP",
+     "ETFC",
+     "FBHS",
+     "FL",
+     "FLIR",
+     "FOX",
+     "FOXA",
+     "FTR",
+     "GGP",
+     "GPS",
+     "HAR",
+     "HBI",
+     "HES",
+     "HOLX",
+     "HOT",
+     "IPG",
+     "JNPR",
+     "JWN",
+     "K",
+     "KSU",
+     "LLL",
+     "LLTC",
+     "LM",
+     "LVLT",
+     "MJN",
+     "MNK",
+     "MON",
+     "MRO",
+     "NBL",
+     "NFX",
+     "NLSN",
+     "PBCT",
+     "PDCO",
+     "PXD",
+     "RAI",
+     "RHT",
+     "RTN",
+     "SE",
+     "SEE",
+     "SNI",
+     "SPLS",
+     "SRCL",
+     "STI",
+     "STJ",
+     "SWN",
+     "TGNA",
+     "TIF",
+     "TSS",
+     "TWX",
+     "TYC",
+     "VAR",
+     "VIAB",
+     "WBA",
+     "WFM",
+     "WLTW",
+     "WYN",
+     "XEC",
+     "XL",
+     "XLNX",
+     "YHOO"
+    ]
+   },
+   "extra_panel": null,
+   "train": {
+    "start": "2011-09-01",
+    "bars": 1259,
+    "years": 4.992,
+    "shrinkage": 0.010192
+   },
+   "test": {
+    "end": "2017-08-31",
+    "bars": 252,
+    "years": 0.996
+   },
+   "rf_at_cutoff": 0.00315,
+   "rf_mean_over_test": 0.006656,
+   "mu_model": {
+    "kind": "history",
+    "lookback_months": 12,
+    "skip_months": 1,
+    "top_n": 10
+   },
+   "costs": null,
+   "n_investable": 397,
+   "mu_rank_correlation": 0.1163,
+   "momentum_rank_correlation": -0.0794,
+   "vol_rank_correlation": 0.7571,
+   "strategies": [
+    {
+     "strategy": "tangency@cap100",
+     "cap": 1.0,
+     "n_holdings": 20,
+     "top_holdings": {
+      "LMT": 0.175515,
+      "STZ": 0.109518,
+      "MO": 0.102248,
+      "SW": 0.098698,
+      "HD": 0.081208,
+      "AWK": 0.066249,
+      "TSN": 0.065959,
+      "ORLY": 0.065039,
+      "EXR": 0.055549,
+      "TDG": 0.047379
+     },
+     "predicted": {
+      "ret": 0.343146,
+      "vol": 0.122846,
+      "sharpe": 2.7677
+     },
+     "realized_linear_ret": 0.117142,
+     "realized_hold": {
+      "growth": 1.116589,
+      "ret": 0.11708,
+      "vol": 0.086812,
+      "sharpe": 1.272,
+      "max_drawdown": 0.069142
+     },
+     "realized_monthly": {
+      "growth": 1.119464,
+      "ret": 0.119967,
+      "vol": 0.087393,
+      "sharpe": 1.2966,
+      "max_drawdown": 0.066663
+     }
+    },
+    {
+     "strategy": "min_variance@cap100",
+     "cap": 1.0,
+     "n_holdings": 31,
+     "top_holdings": {
+      "SO": 0.156587,
+      "CLX": 0.095504,
+      "SW": 0.077133,
+      "PEP": 0.075883,
+      "MCD": 0.070693,
+      "AZO": 0.069623,
+      "T": 0.067423,
+      "COR": 0.051502,
+      "WMT": 0.041582,
+      "SYY": 0.037972
+     },
+     "predicted": {
+      "ret": 0.145145,
+      "vol": 0.091889,
+      "sharpe": 1.5453
+     },
+     "realized_linear_ret": 0.084392,
+     "realized_hold": {
+      "growth": 1.083981,
+      "ret": 0.084329,
+      "vol": 0.081301,
+      "sharpe": 0.9554,
+      "max_drawdown": 0.071517
+     },
+     "realized_monthly": {
+      "growth": 1.082546,
+      "ret": 0.082888,
+      "vol": 0.082135,
+      "sharpe": 0.9281,
+      "max_drawdown": 0.070247
+     }
+    },
+    {
+     "strategy": "matched_risk@cap100",
+     "cap": 1.0,
+     "n_holdings": 15,
+     "top_holdings": {
+      "STZ": 0.203173,
+      "LMT": 0.119231,
+      "HD": 0.098151,
+      "SW": 0.090941,
+      "TSN": 0.086291,
+      "EXR": 0.073761,
+      "ORLY": 0.058461,
+      "NOC": 0.051231,
+      "TDG": 0.04284,
+      "REGN": 0.04023
+     },
+     "predicted": {
+      "ret": 0.391187,
+      "vol": 0.145059,
+      "sharpe": 2.675
+     },
+     "realized_linear_ret": 0.140413,
+     "realized_hold": {
+      "growth": 1.139749,
+      "ret": 0.140343,
+      "vol": 0.091587,
+      "sharpe": 1.4597,
+      "max_drawdown": 0.064503
+     },
+     "realized_monthly": {
+      "growth": 1.142414,
+      "ret": 0.14302,
+      "vol": 0.092365,
+      "sharpe": 1.4764,
+      "max_drawdown": 0.062551
+     }
+    },
+    {
+     "strategy": "tangency@cap20",
+     "cap": 0.2,
+     "n_holdings": 20,
+     "top_holdings": {
+      "LMT": 0.175515,
+      "STZ": 0.109518,
+      "MO": 0.102248,
+      "SW": 0.098698,
+      "HD": 0.081208,
+      "AWK": 0.066249,
+      "TSN": 0.065959,
+      "ORLY": 0.065039,
+      "EXR": 0.055549,
+      "TDG": 0.047379
+     },
+     "predicted": {
+      "ret": 0.343146,
+      "vol": 0.122846,
+      "sharpe": 2.7677
+     },
+     "realized_linear_ret": 0.117142,
+     "realized_hold": {
+      "growth": 1.116589,
+      "ret": 0.11708,
+      "vol": 0.086812,
+      "sharpe": 1.272,
+      "max_drawdown": 0.069142
+     },
+     "realized_monthly": {
+      "growth": 1.119464,
+      "ret": 0.119967,
+      "vol": 0.087393,
+      "sharpe": 1.2966,
+      "max_drawdown": 0.066663
+     }
+    },
+    {
+     "strategy": "min_variance@cap20",
+     "cap": 0.2,
+     "n_holdings": 31,
+     "top_holdings": {
+      "SO": 0.156583,
+      "CLX": 0.095511,
+      "SW": 0.077131,
+      "PEP": 0.075881,
+      "MCD": 0.070691,
+      "AZO": 0.069621,
+      "T": 0.067421,
+      "COR": 0.051501,
+      "WMT": 0.04158,
+      "SYY": 0.03797
+     },
+     "predicted": {
+      "ret": 0.145146,
+      "vol": 0.091889,
+      "sharpe": 1.5453
+     },
+     "realized_linear_ret": 0.084392,
+     "realized_hold": {
+      "growth": 1.083981,
+      "ret": 0.084329,
+      "vol": 0.0813,
+      "sharpe": 0.9554,
+      "max_drawdown": 0.071517
+     },
+     "realized_monthly": {
+      "growth": 1.082547,
+      "ret": 0.082889,
+      "vol": 0.082135,
+      "sharpe": 0.9281,
+      "max_drawdown": 0.070248
+     }
+    },
+    {
+     "strategy": "matched_risk@cap20",
+     "cap": 0.2,
+     "n_holdings": 15,
+     "top_holdings": {
+      "STZ": 0.2,
+      "LMT": 0.11617,
+      "HD": 0.09886,
+      "SW": 0.09042,
+      "TSN": 0.08684,
+      "EXR": 0.07368,
+      "ORLY": 0.0581,
+      "NOC": 0.05328,
+      "TDG": 0.04265,
+      "REGN": 0.04125
+     },
+     "predicted": {
+      "ret": 0.391178,
+      "vol": 0.145059,
+      "sharpe": 2.675
+     },
+     "realized_linear_ret": 0.139652,
+     "realized_hold": {
+      "growth": 1.138991,
+      "ret": 0.139581,
+      "vol": 0.091587,
+      "sharpe": 1.4514,
+      "max_drawdown": 0.064524
+     },
+     "realized_monthly": {
+      "growth": 1.141584,
+      "ret": 0.142187,
+      "vol": 0.092359,
+      "sharpe": 1.4674,
+      "max_drawdown": 0.062588
+     }
+    },
+    {
+     "strategy": "tangency@cap10",
+     "cap": 0.1,
+     "n_holdings": 20,
+     "top_holdings": {
+      "LMT": 0.1,
+      "MO": 0.1,
+      "STZ": 0.1,
+      "SW": 0.1,
+      "HD": 0.08768,
+      "AWK": 0.07325,
+      "TSN": 0.07092,
+      "ORLY": 0.06695,
+      "EXR": 0.05605,
+      "TDG": 0.05261
+     },
+     "predicted": {
+      "ret": 0.342786,
+      "vol": 0.123049,
+      "sharpe": 2.7602
+     },
+     "realized_linear_ret": 0.110709,
+     "realized_hold": {
+      "growth": 1.110185,
+      "ret": 0.110647,
+      "vol": 0.087622,
+      "sharpe": 1.1868,
+      "max_drawdown": 0.068058
+     },
+     "realized_monthly": {
+      "growth": 1.113347,
+      "ret": 0.113823,
+      "vol": 0.08843,
+      "sharpe": 1.2119,
+      "max_drawdown": 0.065747
+     }
+    },
+    {
+     "strategy": "min_variance@cap10",
+     "cap": 0.1,
+     "n_holdings": 32,
+     "top_holdings": {
+      "SO": 0.099994,
+      "CLX": 0.098528,
+      "PEP": 0.079768,
+      "SW": 0.077418,
+      "MCD": 0.072329,
+      "AZO": 0.071919,
+      "T": 0.071009,
+      "ED": 0.066579,
+      "COR": 0.050309,
+      "WMT": 0.043889
+     },
+     "predicted": {
+      "ret": 0.146241,
+      "vol": 0.092,
+      "sharpe": 1.5553
+     },
+     "realized_linear_ret": 0.091564,
+     "realized_hold": {
+      "growth": 1.091121,
+      "ret": 0.0915,
+      "vol": 0.081519,
+      "sharpe": 1.0408,
+      "max_drawdown": 0.071925
+     },
+     "realized_monthly": {
+      "growth": 1.089477,
+      "ret": 0.089849,
+      "vol": 0.082386,
+      "sharpe": 1.0098,
+      "max_drawdown": 0.07067
+     }
+    },
+    {
+     "strategy": "matched_risk@cap10",
+     "cap": 0.1,
+     "n_holdings": 15,
+     "top_holdings": {
+      "HD": 0.099999,
+      "NOC": 0.099999,
+      "STZ": 0.099999,
+      "TSN": 0.099999,
+      "EXR": 0.081459,
+      "SW": 0.081269,
+      "LMT": 0.065059,
+      "REGN": 0.062289,
+      "ORLY": 0.059239,
+      "AYI": 0.052079
+     },
+     "predicted": {
+      "ret": 0.384174,
+      "vol": 0.145059,
+      "sharpe": 2.6267
+     },
+     "realized_linear_ret": 0.115678,
+     "realized_hold": {
+      "growth": 1.115101,
+      "ret": 0.115585,
+      "vol": 0.09358,
+      "sharpe": 1.164,
+      "max_drawdown": 0.066052
+     },
+     "realized_monthly": {
+      "growth": 1.115204,
+      "ret": 0.115689,
+      "vol": 0.094576,
+      "sharpe": 1.1529,
+      "max_drawdown": 0.064707
+     }
+    },
+    {
+     "strategy": "equal_weight",
+     "cap": null,
+     "n_holdings": 397,
+     "top_holdings": {
+      "A": 0.002519,
+      "AA": 0.002519,
+      "AAL": 0.002519,
+      "AAP": 0.002519,
+      "AAPL": 0.002519,
+      "ABT": 0.002519,
+      "ACN": 0.002519,
+      "ADBE": 0.002519,
+      "ADI": 0.002519,
+      "ADM": 0.002519
+     },
+     "predicted": {
+      "ret": 0.165797,
+      "vol": 0.152237,
+      "sharpe": 1.0684
+     },
+     "realized_linear_ret": 0.151413,
+     "realized_hold": {
+      "growth": 1.150658,
+      "ret": 0.151301,
+      "vol": 0.092774,
+      "sharpe": 1.5591,
+      "max_drawdown": 0.047792
+     },
+     "realized_monthly": {
+      "growth": 1.146381,
+      "ret": 0.147005,
+      "vol": 0.091587,
+      "sharpe": 1.5324,
+      "max_drawdown": 0.047476
+     }
+    },
+    {
+     "strategy": "momentum_top10",
+     "cap": null,
+     "n_holdings": 10,
+     "top_holdings": {
+      "ALB": 0.1,
+      "AMAT": 0.1,
+      "DHR": 0.1,
+      "DLR": 0.1,
+      "EW": 0.1,
+      "NEM": 0.1,
+      "NVDA": 0.1,
+      "O": 0.1,
+      "TSN": 0.1,
+      "ULTA": 0.1
+     },
+     "predicted": {
+      "ret": 0.230912,
+      "vol": 0.160357,
+      "sharpe": 1.4203
+     },
+     "realized_linear_ret": 0.255263,
+     "realized_hold": {
+      "growth": 1.253762,
+      "ret": 0.254892,
+      "vol": 0.153558,
+      "sharpe": 1.6166,
+      "max_drawdown": 0.087957
+     },
+     "realized_monthly": {
+      "growth": 1.20968,
+      "ret": 0.210597,
+      "vol": 0.140617,
+      "sharpe": 1.4503,
+      "max_drawdown": 0.087835
+     }
+    },
+    {
+     "strategy": "benchmark:SPY",
+     "cap": null,
+     "n_holdings": 1,
+     "top_holdings": {
+      "SPY": 1.0
+     },
+     "predicted": {
+      "ret": 0.148208,
+      "vol": 0.145059,
+      "sharpe": 1.0
+     },
+     "realized_linear_ret": 0.162294,
+     "realized_hold": {
+      "growth": 1.1616,
+      "ret": 0.162294,
+      "vol": 0.083606,
+      "sharpe": 1.8616,
+      "max_drawdown": 0.043038
+     },
+     "realized_monthly": {
+      "growth": 1.1616,
+      "ret": 0.162294,
+      "vol": 0.083606,
+      "sharpe": 1.8616,
+      "max_drawdown": 0.043038
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap100",
+     "cap": 1.0,
+     "n_holdings": 20,
+     "top_holdings": {
+      "LMT": 0.175515,
+      "STZ": 0.109518,
+      "MO": 0.102248,
+      "SW": 0.098698,
+      "HD": 0.081208,
+      "AWK": 0.066249,
+      "TSN": 0.065959,
+      "ORLY": 0.065039,
+      "EXR": 0.055549,
+      "TDG": 0.047379
+     },
+     "leverage": 1.1808,
+     "risk_target": 0.145059,
+     "predicted": {
+      "ret": 0.404624,
+      "vol": 0.145059,
+      "sharpe": 2.7677
+     },
+     "realized_linear_ret": 0.137754,
+     "realized_hold": {
+      "growth": 1.136798,
+      "ret": 0.137379,
+      "vol": 0.102509,
+      "sharpe": 1.2752,
+      "max_drawdown": 0.081502
+     },
+     "realized_monthly": {
+      "growth": 1.140243,
+      "ret": 0.140839,
+      "vol": 0.103195,
+      "sharpe": 1.3003,
+      "max_drawdown": 0.078602
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap20",
+     "cap": 0.2,
+     "n_holdings": 20,
+     "top_holdings": {
+      "LMT": 0.175515,
+      "STZ": 0.109518,
+      "MO": 0.102248,
+      "SW": 0.098698,
+      "HD": 0.081208,
+      "AWK": 0.066249,
+      "TSN": 0.065959,
+      "ORLY": 0.065039,
+      "EXR": 0.055549,
+      "TDG": 0.047379
+     },
+     "leverage": 1.1808,
+     "risk_target": 0.145059,
+     "predicted": {
+      "ret": 0.404624,
+      "vol": 0.145059,
+      "sharpe": 2.7677
+     },
+     "realized_linear_ret": 0.137754,
+     "realized_hold": {
+      "growth": 1.136798,
+      "ret": 0.137379,
+      "vol": 0.102509,
+      "sharpe": 1.2752,
+      "max_drawdown": 0.081502
+     },
+     "realized_monthly": {
+      "growth": 1.140243,
+      "ret": 0.140839,
+      "vol": 0.103195,
+      "sharpe": 1.3003,
+      "max_drawdown": 0.078602
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap10",
+     "cap": 0.1,
+     "n_holdings": 20,
+     "top_holdings": {
+      "LMT": 0.1,
+      "MO": 0.1,
+      "STZ": 0.1,
+      "SW": 0.1,
+      "HD": 0.08768,
+      "AWK": 0.07325,
+      "TSN": 0.07092,
+      "ORLY": 0.06695,
+      "EXR": 0.05605,
+      "TDG": 0.05261
+     },
+     "leverage": 1.1789,
+     "risk_target": 0.145059,
+     "predicted": {
+      "ret": 0.403538,
+      "vol": 0.145059,
+      "sharpe": 2.7602
+     },
+     "realized_linear_ret": 0.129949,
+     "realized_hold": {
+      "growth": 1.128882,
+      "ret": 0.129428,
+      "vol": 0.103294,
+      "sharpe": 1.1886,
+      "max_drawdown": 0.080112
+     },
+     "realized_monthly": {
+      "growth": 1.132658,
+      "ret": 0.13322,
+      "vol": 0.104248,
+      "sharpe": 1.2141,
+      "max_drawdown": 0.077411
+     }
+    }
+   ]
+  },
+  {
+   "period": "2017-08-31 to 2018-08-31",
+   "cutoff": "2017-08-31",
+   "membership": {
+    "as_of": "2017-09-01",
+    "members": 506,
+    "in_the_candidate_pool": 496,
+    "investable": 414,
+    "removed_as_a_different_company": {
+     "APC": "recycled",
+     "CSRA": "recycled",
+     "FOX": "reissued to another company on 2019-03-13",
+     "FOXA": "reissued to another company on 2019-03-12",
+     "INFO": "recycled",
+     "NFX": "recycled",
+     "Q": "reissued to another company on 2025-10-27",
+     "SPLS": "recycled",
+     "STI": "recycled",
+     "TWX": "recycled"
+    },
+    "dropped_not_in_store": 60,
+    "dropped_history_starts_late": 22,
+    "dropped_midwindow": 0,
+    "n_unpriced_constituents": 70,
+    "unpriced_constituents": [
+     "ADS",
+     "AGN",
+     "ALXN",
+     "ANSS",
+     "APC",
+     "ARNC",
+     "ATVI",
+     "BCR",
+     "CA",
+     "CELG",
+     "CERN",
+     "CHK",
+     "CMA",
+     "CSRA",
+     "CTRA",
+     "CTXS",
+     "CXO",
+     "DFS",
+     "DISCA",
+     "DISCK",
+     "DISH",
+     "DPS",
+     "DRE",
+     "DWDP",
+     "ETFC",
+     "FBHS",
+     "FL",
+     "FLIR",
+     "FOX",
+     "FOXA",
+     "GGP",
+     "GPS",
+     "HBI",
+     "HES",
+     "HOLX",
+     "INFO",
+     "IPG",
+     "JNPR",
+     "JWN",
+     "K",
+     "KSU",
+     "LLL",
+     "LVLT",
+     "MON",
+     "MRO",
+     "NBL",
+     "NFX",
+     "NLSN",
+     "PBCT",
+     "PDCO",
+     "PXD",
+     "Q",
+     "RHT",
+     "RTN",
+     "SEE",
+     "SNI",
+     "SPLS",
+     "SRCL",
+     "STI",
+     "TIF",
+     "TSS",
+     "TWX",
+     "VAR",
+     "VIAB",
+     "WBA",
+     "WLTW",
+     "WYN",
+     "XEC",
+     "XL",
+     "XLNX"
+    ]
+   },
+   "extra_panel": null,
+   "train": {
+    "start": "2012-09-04",
+    "bars": 1232,
+    "years": 4.885,
+    "shrinkage": 0.015556
+   },
+   "test": {
+    "end": "2018-08-31",
+    "bars": 246,
+    "years": 0.972
+   },
+   "rf_at_cutoff": 0.00978,
+   "rf_mean_over_test": 0.015604,
+   "mu_model": {
+    "kind": "history",
+    "lookback_months": 12,
+    "skip_months": 1,
+    "top_n": 10
+   },
+   "costs": null,
+   "n_investable": 414,
+   "mu_rank_correlation": 0.027,
+   "momentum_rank_correlation": 0.0138,
+   "vol_rank_correlation": 0.6972,
+   "strategies": [
+    {
+     "strategy": "tangency@cap100",
+     "cap": 1.0,
+     "n_holdings": 18,
+     "top_holdings": {
+      "LMT": 0.149903,
+      "CBOE": 0.111731,
+      "NVDA": 0.105861,
+      "SW": 0.103361,
+      "STZ": 0.075031,
+      "NFLX": 0.068361,
+      "TSN": 0.052481,
+      "META": 0.050431,
+      "CHTR": 0.04489,
+      "DXC": 0.04015
+     },
+     "predicted": {
+      "ret": 0.433251,
+      "vol": 0.12547,
+      "sharpe": 3.3751
+     },
+     "realized_linear_ret": 0.246393,
+     "realized_hold": {
+      "growth": 1.237668,
+      "ret": 0.245231,
+      "vol": 0.136687,
+      "sharpe": 1.6799,
+      "max_drawdown": 0.089932
+     },
+     "realized_monthly": {
+      "growth": 1.232833,
+      "ret": 0.240228,
+      "vol": 0.128991,
+      "sharpe": 1.7414,
+      "max_drawdown": 0.08736
+     }
+    },
+    {
+     "strategy": "min_variance@cap100",
+     "cap": 1.0,
+     "n_holdings": 45,
+     "top_holdings": {
+      "SO": 0.101135,
+      "SW": 0.075924,
+      "MCD": 0.071704,
+      "CBOE": 0.063203,
+      "WM": 0.058283,
+      "EG": 0.046442,
+      "ED": 0.046312,
+      "CLX": 0.042042,
+      "WMT": 0.036542,
+      "KO": 0.031332
+     },
+     "predicted": {
+      "ret": 0.149007,
+      "vol": 0.086192,
+      "sharpe": 1.6153
+     },
+     "realized_linear_ret": 0.144299,
+     "realized_hold": {
+      "growth": 1.139416,
+      "ret": 0.143673,
+      "vol": 0.094788,
+      "sharpe": 1.3511,
+      "max_drawdown": 0.090392
+     },
+     "realized_monthly": {
+      "growth": 1.13956,
+      "ret": 0.143822,
+      "vol": 0.092582,
+      "sharpe": 1.3849,
+      "max_drawdown": 0.087176
+     }
+    },
+    {
+     "strategy": "matched_risk@cap100",
+     "cap": 1.0,
+     "n_holdings": 18,
+     "top_holdings": {
+      "LMT": 0.149683,
+      "CBOE": 0.111191,
+      "NVDA": 0.106971,
+      "SW": 0.103311,
+      "STZ": 0.075581,
+      "NFLX": 0.069111,
+      "TSN": 0.052621,
+      "META": 0.051051,
+      "CHTR": 0.04501,
+      "DXC": 0.04046
+     },
+     "predicted": {
+      "ret": 0.434823,
+      "vol": 0.125938,
+      "sharpe": 3.375
+     },
+     "realized_linear_ret": 0.247741,
+     "realized_hold": {
+      "growth": 1.238963,
+      "ret": 0.246571,
+      "vol": 0.137265,
+      "sharpe": 1.6826,
+      "max_drawdown": 0.089914
+     },
+     "realized_monthly": {
+      "growth": 1.233984,
+      "ret": 0.241419,
+      "vol": 0.12952,
+      "sharpe": 1.7435,
+      "max_drawdown": 0.087344
+     }
+    },
+    {
+     "strategy": "tangency@cap20",
+     "cap": 0.2,
+     "n_holdings": 18,
+     "top_holdings": {
+      "LMT": 0.149903,
+      "CBOE": 0.111731,
+      "NVDA": 0.105861,
+      "SW": 0.103361,
+      "STZ": 0.075031,
+      "NFLX": 0.068361,
+      "TSN": 0.052481,
+      "META": 0.050431,
+      "CHTR": 0.04489,
+      "DXC": 0.04015
+     },
+     "predicted": {
+      "ret": 0.433251,
+      "vol": 0.12547,
+      "sharpe": 3.3751
+     },
+     "realized_linear_ret": 0.246393,
+     "realized_hold": {
+      "growth": 1.237668,
+      "ret": 0.245231,
+      "vol": 0.136687,
+      "sharpe": 1.6799,
+      "max_drawdown": 0.089932
+     },
+     "realized_monthly": {
+      "growth": 1.232833,
+      "ret": 0.240228,
+      "vol": 0.128991,
+      "sharpe": 1.7414,
+      "max_drawdown": 0.08736
+     }
+    },
+    {
+     "strategy": "min_variance@cap20",
+     "cap": 0.2,
+     "n_holdings": 45,
+     "top_holdings": {
+      "SO": 0.101136,
+      "SW": 0.075923,
+      "MCD": 0.071703,
+      "CBOE": 0.063203,
+      "WM": 0.058282,
+      "EG": 0.046442,
+      "ED": 0.046312,
+      "CLX": 0.042042,
+      "WMT": 0.036541,
+      "KO": 0.031331
+     },
+     "predicted": {
+      "ret": 0.149003,
+      "vol": 0.086192,
+      "sharpe": 1.6153
+     },
+     "realized_linear_ret": 0.144298,
+     "realized_hold": {
+      "growth": 1.139415,
+      "ret": 0.143672,
+      "vol": 0.094787,
+      "sharpe": 1.3511,
+      "max_drawdown": 0.090391
+     },
+     "realized_monthly": {
+      "growth": 1.139559,
+      "ret": 0.14382,
+      "vol": 0.092581,
+      "sharpe": 1.3849,
+      "max_drawdown": 0.087175
+     }
+    },
+    {
+     "strategy": "matched_risk@cap20",
+     "cap": 0.2,
+     "n_holdings": 18,
+     "top_holdings": {
+      "LMT": 0.149682,
+      "CBOE": 0.111192,
+      "NVDA": 0.106972,
+      "SW": 0.103302,
+      "STZ": 0.075582,
+      "NFLX": 0.069111,
+      "TSN": 0.052621,
+      "META": 0.051051,
+      "CHTR": 0.045011,
+      "DXC": 0.040461
+     },
+     "predicted": {
+      "ret": 0.434823,
+      "vol": 0.125938,
+      "sharpe": 3.375
+     },
+     "realized_linear_ret": 0.247739,
+     "realized_hold": {
+      "growth": 1.238961,
+      "ret": 0.246569,
+      "vol": 0.137265,
+      "sharpe": 1.6826,
+      "max_drawdown": 0.089915
+     },
+     "realized_monthly": {
+      "growth": 1.233982,
+      "ret": 0.241417,
+      "vol": 0.12952,
+      "sharpe": 1.7435,
+      "max_drawdown": 0.087344
+     }
+    },
+    {
+     "strategy": "tangency@cap10",
+     "cap": 0.1,
+     "n_holdings": 18,
+     "top_holdings": {
+      "CBOE": 0.1,
+      "LMT": 0.1,
+      "SW": 0.1,
+      "NVDA": 0.099996,
+      "STZ": 0.076201,
+      "NOC": 0.072081,
+      "NFLX": 0.068181,
+      "TSN": 0.054781,
+      "META": 0.052811,
+      "CHTR": 0.047611
+     },
+     "predicted": {
+      "ret": 0.432883,
+      "vol": 0.125555,
+      "sharpe": 3.3699
+     },
+     "realized_linear_ret": 0.24371,
+     "realized_hold": {
+      "growth": 1.235089,
+      "ret": 0.242562,
+      "vol": 0.133981,
+      "sharpe": 1.694,
+      "max_drawdown": 0.088808
+     },
+     "realized_monthly": {
+      "growth": 1.230537,
+      "ret": 0.237853,
+      "vol": 0.126296,
+      "sharpe": 1.7597,
+      "max_drawdown": 0.086477
+     }
+    },
+    {
+     "strategy": "min_variance@cap10",
+     "cap": 0.1,
+     "n_holdings": 45,
+     "top_holdings": {
+      "SO": 0.1,
+      "SW": 0.075946,
+      "MCD": 0.071716,
+      "CBOE": 0.063225,
+      "WM": 0.058265,
+      "ED": 0.047074,
+      "EG": 0.046484,
+      "CLX": 0.042083,
+      "WMT": 0.036603,
+      "KO": 0.031363
+     },
+     "predicted": {
+      "ret": 0.149072,
+      "vol": 0.086192,
+      "sharpe": 1.6161
+     },
+     "realized_linear_ret": 0.144338,
+     "realized_hold": {
+      "growth": 1.139454,
+      "ret": 0.143712,
+      "vol": 0.094807,
+      "sharpe": 1.3513,
+      "max_drawdown": 0.090441
+     },
+     "realized_monthly": {
+      "growth": 1.139601,
+      "ret": 0.143864,
+      "vol": 0.092601,
+      "sharpe": 1.3851,
+      "max_drawdown": 0.087232
+     }
+    },
+    {
+     "strategy": "matched_risk@cap10",
+     "cap": 0.1,
+     "n_holdings": 18,
+     "top_holdings": {
+      "CBOE": 0.1,
+      "LMT": 0.1,
+      "SW": 0.1,
+      "NVDA": 0.099996,
+      "STZ": 0.076831,
+      "NOC": 0.072431,
+      "NFLX": 0.069021,
+      "TSN": 0.054941,
+      "META": 0.053501,
+      "CHTR": 0.047791
+     },
+     "predicted": {
+      "ret": 0.434166,
+      "vol": 0.125937,
+      "sharpe": 3.3698
+     },
+     "realized_linear_ret": 0.24446,
+     "realized_hold": {
+      "growth": 1.235808,
+      "ret": 0.243306,
+      "vol": 0.13441,
+      "sharpe": 1.6941,
+      "max_drawdown": 0.088799
+     },
+     "realized_monthly": {
+      "growth": 1.231123,
+      "ret": 0.238458,
+      "vol": 0.126698,
+      "sharpe": 1.7589,
+      "max_drawdown": 0.086472
+     }
+    },
+    {
+     "strategy": "equal_weight",
+     "cap": null,
+     "n_holdings": 414,
+     "top_holdings": {
+      "A": 0.002415,
+      "AAL": 0.002415,
+      "AAP": 0.002415,
+      "AAPL": 0.002415,
+      "ABT": 0.002415,
+      "ACN": 0.002415,
+      "ADBE": 0.002415,
+      "ADI": 0.002415,
+      "ADM": 0.002415,
+      "ADP": 0.002415
+     },
+     "predicted": {
+      "ret": 0.164841,
+      "vol": 0.126304,
+      "sharpe": 1.2277
+     },
+     "realized_linear_ret": 0.189991,
+     "realized_hold": {
+      "growth": 1.183423,
+      "ret": 0.189132,
+      "vol": 0.117318,
+      "sharpe": 1.4791,
+      "max_drawdown": 0.100174
+     },
+     "realized_monthly": {
+      "growth": 1.180605,
+      "ret": 0.186218,
+      "vol": 0.114916,
+      "sharpe": 1.4847,
+      "max_drawdown": 0.09871
+     }
+    },
+    {
+     "strategy": "momentum_top10",
+     "cap": null,
+     "n_holdings": 10,
+     "top_holdings": {
+      "ALGN": 0.1,
+      "AMD": 0.1,
+      "BA": 0.1,
+      "CSX": 0.1,
+      "LRCX": 0.1,
+      "MU": 0.1,
+      "NFLX": 0.1,
+      "NRG": 0.1,
+      "NVDA": 0.1,
+      "WDC": 0.1
+     },
+     "predicted": {
+      "ret": 0.385719,
+      "vol": 0.211484,
+      "sharpe": 1.7776
+     },
+     "realized_linear_ret": 0.59284,
+     "realized_hold": {
+      "growth": 1.57061,
+      "ret": 0.591001,
+      "vol": 0.238848,
+      "sharpe": 2.4091,
+      "max_drawdown": 0.122668
+     },
+     "realized_monthly": {
+      "growth": 1.576195,
+      "ret": 0.59682,
+      "vol": 0.235004,
+      "sharpe": 2.4732,
+      "max_drawdown": 0.122001
+     }
+    },
+    {
+     "strategy": "benchmark:SPY",
+     "cap": null,
+     "n_holdings": 1,
+     "top_holdings": {
+      "SPY": 1.0
+     },
+     "predicted": {
+      "ret": 0.145837,
+      "vol": 0.125937,
+      "sharpe": 1.0804
+     },
+     "realized_linear_ret": 0.201047,
+     "realized_hold": {
+      "growth": 1.194951,
+      "ret": 0.201047,
+      "vol": 0.125912,
+      "sharpe": 1.4728,
+      "max_drawdown": 0.101019
+     },
+     "realized_monthly": {
+      "growth": 1.194951,
+      "ret": 0.201047,
+      "vol": 0.125912,
+      "sharpe": 1.4728,
+      "max_drawdown": 0.101019
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap100",
+     "cap": 1.0,
+     "n_holdings": 18,
+     "top_holdings": {
+      "LMT": 0.149903,
+      "CBOE": 0.111731,
+      "NVDA": 0.105861,
+      "SW": 0.103361,
+      "STZ": 0.075031,
+      "NFLX": 0.068361,
+      "TSN": 0.052481,
+      "META": 0.050431,
+      "CHTR": 0.04489,
+      "DXC": 0.04015
+     },
+     "leverage": 1.0037,
+     "risk_target": 0.125937,
+     "predicted": {
+      "ret": 0.434828,
+      "vol": 0.125937,
+      "sharpe": 3.3751
+     },
+     "realized_linear_ret": 0.247274,
+     "realized_hold": {
+      "growth": 1.238539,
+      "ret": 0.246133,
+      "vol": 0.137197,
+      "sharpe": 1.6803,
+      "max_drawdown": 0.090258
+     },
+     "realized_monthly": {
+      "growth": 1.233687,
+      "ret": 0.241112,
+      "vol": 0.129471,
+      "sharpe": 1.7418,
+      "max_drawdown": 0.087677
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap20",
+     "cap": 0.2,
+     "n_holdings": 18,
+     "top_holdings": {
+      "LMT": 0.149903,
+      "CBOE": 0.111731,
+      "NVDA": 0.105861,
+      "SW": 0.103361,
+      "STZ": 0.075031,
+      "NFLX": 0.068361,
+      "TSN": 0.052481,
+      "META": 0.050431,
+      "CHTR": 0.04489,
+      "DXC": 0.04015
+     },
+     "leverage": 1.0037,
+     "risk_target": 0.125937,
+     "predicted": {
+      "ret": 0.434828,
+      "vol": 0.125937,
+      "sharpe": 3.3751
+     },
+     "realized_linear_ret": 0.247274,
+     "realized_hold": {
+      "growth": 1.238539,
+      "ret": 0.246133,
+      "vol": 0.137197,
+      "sharpe": 1.6803,
+      "max_drawdown": 0.090258
+     },
+     "realized_monthly": {
+      "growth": 1.233687,
+      "ret": 0.241112,
+      "vol": 0.129471,
+      "sharpe": 1.7418,
+      "max_drawdown": 0.087677
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap10",
+     "cap": 0.1,
+     "n_holdings": 18,
+     "top_holdings": {
+      "CBOE": 0.1,
+      "LMT": 0.1,
+      "SW": 0.1,
+      "NVDA": 0.099996,
+      "STZ": 0.076201,
+      "NOC": 0.072081,
+      "NFLX": 0.068181,
+      "TSN": 0.054781,
+      "META": 0.052811,
+      "CHTR": 0.047611
+     },
+     "leverage": 1.003,
+     "risk_target": 0.125937,
+     "predicted": {
+      "ret": 0.434171,
+      "vol": 0.125937,
+      "sharpe": 3.3699
+     },
+     "realized_linear_ret": 0.244422,
+     "realized_hold": {
+      "growth": 1.235793,
+      "ret": 0.243291,
+      "vol": 0.134389,
+      "sharpe": 1.6942,
+      "max_drawdown": 0.089071
+     },
+     "realized_monthly": {
+      "growth": 1.231229,
+      "ret": 0.238568,
+      "vol": 0.126681,
+      "sharpe": 1.76,
+      "max_drawdown": 0.086734
+     }
+    }
+   ]
+  },
+  {
+   "period": "2018-08-31 to 2019-08-30",
+   "cutoff": "2018-08-31",
+   "membership": {
+    "as_of": "2018-09-01",
+    "members": 506,
+    "in_the_candidate_pool": 500,
+    "investable": 424,
+    "removed_as_a_different_company": {
+     "APC": "recycled",
+     "FOX": "reissued to another company on 2019-03-13",
+     "FOXA": "reissued to another company on 2019-03-12",
+     "INFO": "recycled",
+     "NFX": "recycled",
+     "STI": "recycled"
+    },
+    "dropped_not_in_store": 56,
+    "dropped_history_starts_late": 16,
+    "dropped_midwindow": 4,
+    "n_unpriced_constituents": 62,
+    "unpriced_constituents": [
+     "ABMD",
+     "ADS",
+     "AGN",
+     "ALXN",
+     "ANSS",
+     "APC",
+     "ARNC",
+     "ATVI",
+     "CA",
+     "CELG",
+     "CERN",
+     "CMA",
+     "CTRA",
+     "CTXS",
+     "CXO",
+     "DFS",
+     "DISCA",
+     "DISCK",
+     "DISH",
+     "DRE",
+     "DWDP",
+     "ETFC",
+     "FBHS",
+     "FL",
+     "FLIR",
+     "FLT",
+     "FOX",
+     "FOXA",
+     "GPS",
+     "HBI",
+     "HES",
+     "HFC",
+     "HOLX",
+     "INFO",
+     "IPG",
+     "JNPR",
+     "JWN",
+     "K",
+     "KSU",
+     "LLL",
+     "MRO",
+     "NBL",
+     "NFX",
+     "NLSN",
+     "PBCT",
+     "PXD",
+     "RHT",
+     "RTN",
+     "SEE",
+     "SIVB",
+     "SRCL",
+     "STI",
+     "TIF",
+     "TSS",
+     "TWTR",
+     "VAR",
+     "VIAB",
+     "WBA",
+     "WLTW",
+     "XEC",
+     "XL",
+     "XLNX"
+    ]
+   },
+   "extra_panel": null,
+   "train": {
+    "start": "2013-09-03",
+    "bars": 1235,
+    "years": 4.897,
+    "shrinkage": 0.016697
+   },
+   "test": {
+    "end": "2019-08-30",
+    "bars": 246,
+    "years": 0.972
+   },
+   "rf_at_cutoff": 0.02055,
+   "rf_mean_over_test": 0.022484,
+   "mu_model": {
+    "kind": "history",
+    "lookback_months": 12,
+    "skip_months": 1,
+    "top_n": 10
+   },
+   "costs": null,
+   "n_investable": 424,
+   "mu_rank_correlation": 0.2411,
+   "momentum_rank_correlation": -0.0813,
+   "vol_rank_correlation": 0.7861,
+   "strategies": [
+    {
+     "strategy": "tangency@cap100",
+     "cap": 1.0,
+     "n_holdings": 26,
+     "top_holdings": {
+      "NVDA": 0.163715,
+      "CTAS": 0.118989,
+      "BR": 0.068669,
+      "SW": 0.065039,
+      "STZ": 0.058419,
+      "HUM": 0.056429,
+      "DRI": 0.04616,
+      "IDXX": 0.04452,
+      "AWK": 0.04394,
+      "AMZN": 0.04155
+     },
+     "predicted": {
+      "ret": 0.423318,
+      "vol": 0.134912,
+      "sharpe": 2.9854
+     },
+     "realized_linear_ret": -0.035072,
+     "realized_hold": {
+      "growth": 0.964611,
+      "ret": -0.036382,
+      "vol": 0.194311,
+      "sharpe": -0.3029,
+      "max_drawdown": 0.302715
+     },
+     "realized_monthly": {
+      "growth": 0.954918,
+      "ret": -0.04634,
+      "vol": 0.207895,
+      "sharpe": -0.3311,
+      "max_drawdown": 0.308878
+     }
+    },
+    {
+     "strategy": "min_variance@cap100",
+     "cap": 1.0,
+     "n_holdings": 50,
+     "top_holdings": {
+      "SO": 0.130377,
+      "SW": 0.077012,
+      "CBOE": 0.069772,
+      "PG": 0.060352,
+      "MCD": 0.056242,
+      "KO": 0.051092,
+      "EG": 0.050512,
+      "T": 0.046091,
+      "EVRG": 0.036411,
+      "MSI": 0.028401
+     },
+     "predicted": {
+      "ret": 0.128527,
+      "vol": 0.085557,
+      "sharpe": 1.262
+     },
+     "realized_linear_ret": 0.197363,
+     "realized_hold": {
+      "growth": 1.190507,
+      "ret": 0.196453,
+      "vol": 0.11085,
+      "sharpe": 1.5694,
+      "max_drawdown": 0.112014
+     },
+     "realized_monthly": {
+      "growth": 1.183784,
+      "ret": 0.189504,
+      "vol": 0.111452,
+      "sharpe": 1.4986,
+      "max_drawdown": 0.115368
+     }
+    },
+    {
+     "strategy": "matched_risk@cap100",
+     "cap": 1.0,
+     "n_holdings": 27,
+     "top_holdings": {
+      "NVDA": 0.141935,
+      "CTAS": 0.106371,
+      "SW": 0.069551,
+      "BR": 0.061741,
+      "STZ": 0.059171,
+      "HUM": 0.056671,
+      "AWK": 0.04916,
+      "DRI": 0.04642,
+      "NEE": 0.04375,
+      "CPRT": 0.04045
+     },
+     "predicted": {
+      "ret": 0.399546,
+      "vol": 0.127232,
+      "sharpe": 2.9788
+     },
+     "realized_linear_ret": -0.012581,
+     "realized_hold": {
+      "growth": 0.986544,
+      "ret": -0.013837,
+      "vol": 0.181971,
+      "sharpe": -0.1996,
+      "max_drawdown": 0.284896
+     },
+     "realized_monthly": {
+      "growth": 0.977451,
+      "ret": -0.023186,
+      "vol": 0.194479,
+      "sharpe": -0.2348,
+      "max_drawdown": 0.291418
+     }
+    },
+    {
+     "strategy": "tangency@cap20",
+     "cap": 0.2,
+     "n_holdings": 26,
+     "top_holdings": {
+      "NVDA": 0.163715,
+      "CTAS": 0.118989,
+      "BR": 0.068669,
+      "SW": 0.065039,
+      "STZ": 0.058419,
+      "HUM": 0.056429,
+      "DRI": 0.04616,
+      "IDXX": 0.04452,
+      "AWK": 0.04394,
+      "AMZN": 0.04155
+     },
+     "predicted": {
+      "ret": 0.423318,
+      "vol": 0.134912,
+      "sharpe": 2.9854
+     },
+     "realized_linear_ret": -0.035072,
+     "realized_hold": {
+      "growth": 0.964611,
+      "ret": -0.036382,
+      "vol": 0.194311,
+      "sharpe": -0.3029,
+      "max_drawdown": 0.302715
+     },
+     "realized_monthly": {
+      "growth": 0.954918,
+      "ret": -0.04634,
+      "vol": 0.207895,
+      "sharpe": -0.3311,
+      "max_drawdown": 0.308878
+     }
+    },
+    {
+     "strategy": "min_variance@cap20",
+     "cap": 0.2,
+     "n_holdings": 50,
+     "top_holdings": {
+      "SO": 0.130374,
+      "SW": 0.077011,
+      "CBOE": 0.069771,
+      "PG": 0.060351,
+      "MCD": 0.056241,
+      "KO": 0.051091,
+      "EG": 0.050501,
+      "T": 0.04609,
+      "EVRG": 0.03641,
+      "MSI": 0.0284
+     },
+     "predicted": {
+      "ret": 0.128527,
+      "vol": 0.085557,
+      "sharpe": 1.2621
+     },
+     "realized_linear_ret": 0.19737,
+     "realized_hold": {
+      "growth": 1.190514,
+      "ret": 0.19646,
+      "vol": 0.11085,
+      "sharpe": 1.5695,
+      "max_drawdown": 0.112014
+     },
+     "realized_monthly": {
+      "growth": 1.18379,
+      "ret": 0.189511,
+      "vol": 0.111452,
+      "sharpe": 1.4986,
+      "max_drawdown": 0.115368
+     }
+    },
+    {
+     "strategy": "matched_risk@cap20",
+     "cap": 0.2,
+     "n_holdings": 27,
+     "top_holdings": {
+      "NVDA": 0.14193,
+      "CTAS": 0.10637,
+      "SW": 0.06955,
+      "BR": 0.06174,
+      "STZ": 0.05917,
+      "HUM": 0.05667,
+      "AWK": 0.04917,
+      "DRI": 0.04642,
+      "NEE": 0.04375,
+      "CPRT": 0.04045
+     },
+     "predicted": {
+      "ret": 0.399542,
+      "vol": 0.127231,
+      "sharpe": 2.9788
+     },
+     "realized_linear_ret": -0.012574,
+     "realized_hold": {
+      "growth": 0.986551,
+      "ret": -0.01383,
+      "vol": 0.181969,
+      "sharpe": -0.1996,
+      "max_drawdown": 0.284892
+     },
+     "realized_monthly": {
+      "growth": 0.977457,
+      "ret": -0.023179,
+      "vol": 0.194476,
+      "sharpe": -0.2348,
+      "max_drawdown": 0.291414
+     }
+    },
+    {
+     "strategy": "tangency@cap10",
+     "cap": 0.1,
+     "n_holdings": 27,
+     "top_holdings": {
+      "CTAS": 0.1,
+      "NVDA": 0.1,
+      "BR": 0.085982,
+      "SW": 0.067191,
+      "STZ": 0.063571,
+      "HUM": 0.056051,
+      "AWK": 0.046311,
+      "IDXX": 0.044231,
+      "DRI": 0.044131,
+      "CPRT": 0.043761
+     },
+     "predicted": {
+      "ret": 0.390545,
+      "vol": 0.125201,
+      "sharpe": 2.9552
+     },
+     "realized_linear_ret": -0.013178,
+     "realized_hold": {
+      "growth": 0.98601,
+      "ret": -0.014386,
+      "vol": 0.181895,
+      "sharpe": -0.2027,
+      "max_drawdown": 0.284241
+     },
+     "realized_monthly": {
+      "growth": 0.977812,
+      "ret": -0.022814,
+      "vol": 0.19154,
+      "sharpe": -0.2365,
+      "max_drawdown": 0.28835
+     }
+    },
+    {
+     "strategy": "min_variance@cap10",
+     "cap": 0.1,
+     "n_holdings": 51,
+     "top_holdings": {
+      "SO": 0.099996,
+      "SW": 0.077079,
+      "CBOE": 0.070649,
+      "PG": 0.061339,
+      "MCD": 0.056309,
+      "KO": 0.052459,
+      "EG": 0.050999,
+      "T": 0.04641,
+      "EVRG": 0.041,
+      "ED": 0.03887
+     },
+     "predicted": {
+      "ret": 0.130603,
+      "vol": 0.0856,
+      "sharpe": 1.2857
+     },
+     "realized_linear_ret": 0.192035,
+     "realized_hold": {
+      "growth": 1.185377,
+      "ret": 0.191151,
+      "vol": 0.11088,
+      "sharpe": 1.5212,
+      "max_drawdown": 0.110801
+     },
+     "realized_monthly": {
+      "growth": 1.179556,
+      "ret": 0.185135,
+      "vol": 0.111453,
+      "sharpe": 1.4594,
+      "max_drawdown": 0.114109
+     }
+    },
+    {
+     "strategy": "matched_risk@cap10",
+     "cap": 0.1,
+     "n_holdings": 27,
+     "top_holdings": {
+      "CTAS": 0.1,
+      "NVDA": 0.1,
+      "BR": 0.09252,
+      "SW": 0.06536,
+      "STZ": 0.06377,
+      "HUM": 0.05563,
+      "IDXX": 0.04637,
+      "AMZN": 0.04628,
+      "AWK": 0.04462,
+      "DRI": 0.04368
+     },
+     "predicted": {
+      "ret": 0.396431,
+      "vol": 0.127231,
+      "sharpe": 2.9543
+     },
+     "realized_linear_ret": -0.020962,
+     "realized_hold": {
+      "growth": 0.97843,
+      "ret": -0.02218,
+      "vol": 0.185668,
+      "sharpe": -0.2406,
+      "max_drawdown": 0.289541
+     },
+     "realized_monthly": {
+      "growth": 0.970228,
+      "ret": -0.03061,
+      "vol": 0.195209,
+      "sharpe": -0.272,
+      "max_drawdown": 0.293218
+     }
+    },
+    {
+     "strategy": "equal_weight",
+     "cap": null,
+     "n_holdings": 424,
+     "top_holdings": {
+      "A": 0.002358,
+      "AAL": 0.002358,
+      "AAP": 0.002358,
+      "AAPL": 0.002358,
+      "ABBV": 0.002358,
+      "ABT": 0.002358,
+      "ACN": 0.002358,
+      "ADBE": 0.002358,
+      "ADI": 0.002358,
+      "ADM": 0.002358
+     },
+     "predicted": {
+      "ret": 0.149688,
+      "vol": 0.124154,
+      "sharpe": 1.0401
+     },
+     "realized_linear_ret": 0.025158,
+     "realized_hold": {
+      "growth": 1.023432,
+      "ret": 0.024109,
+      "vol": 0.154683,
+      "sharpe": 0.0105,
+      "max_drawdown": 0.193196
+     },
+     "realized_monthly": {
+      "growth": 1.016886,
+      "ret": 0.017373,
+      "vol": 0.158598,
+      "sharpe": -0.0322,
+      "max_drawdown": 0.1945
+     }
+    },
+    {
+     "strategy": "momentum_top10",
+     "cap": null,
+     "n_holdings": 10,
+     "top_holdings": {
+      "ALGN": 0.1,
+      "AMZN": 0.1,
+      "GWW": 0.1,
+      "KSS": 0.1,
+      "M": 0.1,
+      "NFLX": 0.1,
+      "NKTR": 0.1,
+      "NTAP": 0.1,
+      "STX": 0.1,
+      "VLO": 0.1
+     },
+     "predicted": {
+      "ret": 0.286446,
+      "vol": 0.187459,
+      "sharpe": 1.4184
+     },
+     "realized_linear_ret": -0.358483,
+     "realized_hold": {
+      "growth": 0.648424,
+      "ret": -0.359552,
+      "vol": 0.260823,
+      "sharpe": -1.4647,
+      "max_drawdown": 0.376341
+     },
+     "realized_monthly": {
+      "growth": 0.644561,
+      "ret": -0.363476,
+      "vol": 0.265911,
+      "sharpe": -1.4515,
+      "max_drawdown": 0.380676
+     }
+    },
+    {
+     "strategy": "benchmark:SPY",
+     "cap": null,
+     "n_holdings": 1,
+     "top_holdings": {
+      "SPY": 1.0
+     },
+     "predicted": {
+      "ret": 0.146097,
+      "vol": 0.12723,
+      "sharpe": 0.9868
+     },
+     "realized_linear_ret": 0.028087,
+     "realized_hold": {
+      "growth": 1.027297,
+      "ret": 0.028087,
+      "vol": 0.167924,
+      "sharpe": 0.0334,
+      "max_drawdown": 0.193489
+     },
+     "realized_monthly": {
+      "growth": 1.027297,
+      "ret": 0.028087,
+      "vol": 0.167924,
+      "sharpe": 0.0334,
+      "max_drawdown": 0.193489
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap100",
+     "cap": 1.0,
+     "n_holdings": 26,
+     "top_holdings": {
+      "NVDA": 0.163715,
+      "CTAS": 0.118989,
+      "BR": 0.068669,
+      "SW": 0.065039,
+      "STZ": 0.058419,
+      "HUM": 0.056429,
+      "DRI": 0.04616,
+      "IDXX": 0.04452,
+      "AWK": 0.04394,
+      "AMZN": 0.04155
+     },
+     "leverage": 0.9431,
+     "risk_target": 0.12723,
+     "predicted": {
+      "ret": 0.400385,
+      "vol": 0.12723,
+      "sharpe": 2.9854
+     },
+     "realized_linear_ret": -0.031905,
+     "realized_hold": {
+      "growth": 0.968739,
+      "ret": -0.03214,
+      "vol": 0.183247,
+      "sharpe": -0.2981,
+      "max_drawdown": 0.287604
+     },
+     "realized_monthly": {
+      "growth": 0.959694,
+      "ret": -0.041434,
+      "vol": 0.196058,
+      "sharpe": -0.326,
+      "max_drawdown": 0.293516
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap20",
+     "cap": 0.2,
+     "n_holdings": 26,
+     "top_holdings": {
+      "NVDA": 0.163715,
+      "CTAS": 0.118989,
+      "BR": 0.068669,
+      "SW": 0.065039,
+      "STZ": 0.058419,
+      "HUM": 0.056429,
+      "DRI": 0.04616,
+      "IDXX": 0.04452,
+      "AWK": 0.04394,
+      "AMZN": 0.04155
+     },
+     "leverage": 0.9431,
+     "risk_target": 0.12723,
+     "predicted": {
+      "ret": 0.400385,
+      "vol": 0.12723,
+      "sharpe": 2.9854
+     },
+     "realized_linear_ret": -0.031905,
+     "realized_hold": {
+      "growth": 0.968739,
+      "ret": -0.03214,
+      "vol": 0.183247,
+      "sharpe": -0.2981,
+      "max_drawdown": 0.287604
+     },
+     "realized_monthly": {
+      "growth": 0.959694,
+      "ret": -0.041434,
+      "vol": 0.196058,
+      "sharpe": -0.326,
+      "max_drawdown": 0.293516
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap10",
+     "cap": 0.1,
+     "n_holdings": 27,
+     "top_holdings": {
+      "CTAS": 0.1,
+      "NVDA": 0.1,
+      "BR": 0.085982,
+      "SW": 0.067191,
+      "STZ": 0.063571,
+      "HUM": 0.056051,
+      "AWK": 0.046311,
+      "IDXX": 0.044231,
+      "DRI": 0.044131,
+      "CPRT": 0.043761
+     },
+     "leverage": 1.0162,
+     "risk_target": 0.12723,
+     "predicted": {
+      "ret": 0.396542,
+      "vol": 0.12723,
+      "sharpe": 2.9552
+     },
+     "realized_linear_ret": -0.013724,
+     "realized_hold": {
+      "growth": 0.985179,
+      "ret": -0.015241,
+      "vol": 0.184843,
+      "sharpe": -0.2041,
+      "max_drawdown": 0.288287
+     },
+     "realized_monthly": {
+      "growth": 0.976827,
+      "ret": -0.023827,
+      "vol": 0.194644,
+      "sharpe": -0.2379,
+      "max_drawdown": 0.292444
+     }
+    }
+   ]
+  },
+  {
+   "period": "2019-08-30 to 2020-09-01",
+   "cutoff": "2019-08-30",
+   "membership": {
+    "as_of": "2019-09-01",
+    "members": 506,
+    "in_the_candidate_pool": 504,
+    "investable": 436,
+    "removed_as_a_different_company": {
+     "INFO": "recycled",
+     "STI": "recycled"
+    },
+    "dropped_not_in_store": 52,
+    "dropped_history_starts_late": 16,
+    "dropped_midwindow": 0,
+    "n_unpriced_constituents": 54,
+    "unpriced_constituents": [
+     "ABMD",
+     "ADS",
+     "AGN",
+     "ALXN",
+     "ANSS",
+     "ARNC",
+     "ATVI",
+     "CELG",
+     "CERN",
+     "CMA",
+     "CTRA",
+     "CTXS",
+     "CXO",
+     "DFS",
+     "DISCA",
+     "DISCK",
+     "DISH",
+     "DRE",
+     "ETFC",
+     "FBHS",
+     "FLIR",
+     "FLT",
+     "FRC",
+     "GPS",
+     "HBI",
+     "HES",
+     "HFC",
+     "HOLX",
+     "INFO",
+     "IPG",
+     "JNPR",
+     "JWN",
+     "K",
+     "KSU",
+     "MRO",
+     "MXIM",
+     "NBL",
+     "NLSN",
+     "PBCT",
+     "PXD",
+     "RTN",
+     "SEE",
+     "SIVB",
+     "STI",
+     "TIF",
+     "TSS",
+     "TWTR",
+     "VAR",
+     "VIAB",
+     "WBA",
+     "WCG",
+     "WLTW",
+     "XEC",
+     "XLNX"
+    ]
+   },
+   "extra_panel": null,
+   "train": {
+    "start": "2014-09-02",
+    "bars": 1259,
+    "years": 4.992,
+    "shrinkage": 0.013781
+   },
+   "test": {
+    "end": "2020-09-01",
+    "bars": 254,
+    "years": 1.004
+   },
+   "rf_at_cutoff": 0.01933,
+   "rf_mean_over_test": 0.008547,
+   "mu_model": {
+    "kind": "history",
+    "lookback_months": 12,
+    "skip_months": 1,
+    "top_n": 10
+   },
+   "costs": null,
+   "n_investable": 436,
+   "mu_rank_correlation": 0.36,
+   "momentum_rank_correlation": 0.1414,
+   "vol_rank_correlation": 0.5007,
+   "strategies": [
+    {
+     "strategy": "tangency@cap100",
+     "cap": 1.0,
+     "n_holdings": 23,
+     "top_holdings": {
+      "MKTX": 0.205354,
+      "CPRT": 0.103958,
+      "NEE": 0.088428,
+      "MSCI": 0.077128,
+      "AWK": 0.060829,
+      "WM": 0.060299,
+      "CME": 0.058049,
+      "WEC": 0.054479,
+      "NVDA": 0.051299,
+      "DRI": 0.035899
+     },
+     "predicted": {
+      "ret": 0.33072,
+      "vol": 0.12482,
+      "sharpe": 2.4947
+     },
+     "realized_linear_ret": 0.323372,
+     "realized_hold": {
+      "growth": 1.325168,
+      "ret": 0.323694,
+      "vol": 0.344018,
+      "sharpe": 0.9161,
+      "max_drawdown": 0.320351
+     },
+     "realized_monthly": {
+      "growth": 1.303253,
+      "ret": 0.301889,
+      "vol": 0.341064,
+      "sharpe": 0.8601,
+      "max_drawdown": 0.316846
+     }
+    },
+    {
+     "strategy": "min_variance@cap100",
+     "cap": 1.0,
+     "n_holdings": 48,
+     "top_holdings": {
+      "AMCR": 0.16112,
+      "SO": 0.08868,
+      "CBOE": 0.08512,
+      "SW": 0.06343,
+      "MCD": 0.04649,
+      "EG": 0.04115,
+      "PG": 0.03828,
+      "EVRG": 0.03471,
+      "KO": 0.03118,
+      "NEM": 0.02582
+     },
+     "predicted": {
+      "ret": 0.107492,
+      "vol": 0.083442,
+      "sharpe": 1.0566
+     },
+     "realized_linear_ret": 0.062896,
+     "realized_hold": {
+      "growth": 1.063254,
+      "ret": 0.062996,
+      "vol": 0.304815,
+      "sharpe": 0.1786,
+      "max_drawdown": 0.339745
+     },
+     "realized_monthly": {
+      "growth": 1.064255,
+      "ret": 0.063993,
+      "vol": 0.308029,
+      "sharpe": 0.18,
+      "max_drawdown": 0.339335
+     }
+    },
+    {
+     "strategy": "matched_risk@cap100",
+     "cap": 1.0,
+     "n_holdings": 19,
+     "top_holdings": {
+      "MKTX": 0.2538,
+      "CPRT": 0.11866,
+      "MSCI": 0.10855,
+      "NEE": 0.07209,
+      "AWK": 0.06996,
+      "NVDA": 0.06833,
+      "WEC": 0.05095,
+      "CME": 0.04587,
+      "CTAS": 0.04005,
+      "DRI": 0.03583
+     },
+     "predicted": {
+      "ret": 0.36318,
+      "vol": 0.138797,
+      "sharpe": 2.4774
+     },
+     "realized_linear_ret": 0.396241,
+     "realized_hold": {
+      "growth": 1.398464,
+      "ret": 0.396611,
+      "vol": 0.358236,
+      "sharpe": 1.0833,
+      "max_drawdown": 0.314894
+     },
+     "realized_monthly": {
+      "growth": 1.371175,
+      "ret": 0.369465,
+      "vol": 0.353491,
+      "sharpe": 1.021,
+      "max_drawdown": 0.308499
+     }
+    },
+    {
+     "strategy": "tangency@cap20",
+     "cap": 0.2,
+     "n_holdings": 23,
+     "top_holdings": {
+      "MKTX": 0.199998,
+      "CPRT": 0.103549,
+      "NEE": 0.088389,
+      "MSCI": 0.077179,
+      "AWK": 0.061389,
+      "WM": 0.060019,
+      "CME": 0.059819,
+      "WEC": 0.054469,
+      "NVDA": 0.050959,
+      "DRI": 0.03614
+     },
+     "predicted": {
+      "ret": 0.329183,
+      "vol": 0.124209,
+      "sharpe": 2.4946
+     },
+     "realized_linear_ret": 0.321334,
+     "realized_hold": {
+      "growth": 1.323119,
+      "ret": 0.321656,
+      "vol": 0.343682,
+      "sharpe": 0.911,
+      "max_drawdown": 0.320947
+     },
+     "realized_monthly": {
+      "growth": 1.300914,
+      "ret": 0.299562,
+      "vol": 0.340755,
+      "sharpe": 0.854,
+      "max_drawdown": 0.317635
+     }
+    },
+    {
+     "strategy": "min_variance@cap20",
+     "cap": 0.2,
+     "n_holdings": 48,
+     "top_holdings": {
+      "AMCR": 0.16112,
+      "SO": 0.08868,
+      "CBOE": 0.08512,
+      "SW": 0.06343,
+      "MCD": 0.04649,
+      "EG": 0.04115,
+      "PG": 0.03828,
+      "EVRG": 0.03471,
+      "KO": 0.03118,
+      "NEM": 0.02582
+     },
+     "predicted": {
+      "ret": 0.107492,
+      "vol": 0.083442,
+      "sharpe": 1.0566
+     },
+     "realized_linear_ret": 0.062896,
+     "realized_hold": {
+      "growth": 1.063254,
+      "ret": 0.062996,
+      "vol": 0.304815,
+      "sharpe": 0.1786,
+      "max_drawdown": 0.339745
+     },
+     "realized_monthly": {
+      "growth": 1.064255,
+      "ret": 0.063993,
+      "vol": 0.308029,
+      "sharpe": 0.18,
+      "max_drawdown": 0.339335
+     }
+    },
+    {
+     "strategy": "matched_risk@cap20",
+     "cap": 0.2,
+     "n_holdings": 18,
+     "top_holdings": {
+      "MKTX": 0.199995,
+      "MSCI": 0.132627,
+      "CPRT": 0.121698,
+      "AWK": 0.085668,
+      "NVDA": 0.075918,
+      "CME": 0.067339,
+      "NEE": 0.060799,
+      "CTAS": 0.050369,
+      "WEC": 0.047239,
+      "DRI": 0.038649
+     },
+     "predicted": {
+      "ret": 0.361587,
+      "vol": 0.138796,
+      "sharpe": 2.4659
+     },
+     "realized_linear_ret": 0.420616,
+     "realized_hold": {
+      "growth": 1.423003,
+      "ret": 0.421021,
+      "vol": 0.361557,
+      "sharpe": 1.1408,
+      "max_drawdown": 0.321982
+     },
+     "realized_monthly": {
+      "growth": 1.387708,
+      "ret": 0.385912,
+      "vol": 0.355884,
+      "sharpe": 1.0604,
+      "max_drawdown": 0.317344
+     }
+    },
+    {
+     "strategy": "tangency@cap10",
+     "cap": 0.1,
+     "n_holdings": 24,
+     "top_holdings": {
+      "MKTX": 0.1,
+      "CPRT": 0.09876,
+      "CME": 0.09407,
+      "NEE": 0.08626,
+      "MSCI": 0.08401,
+      "AWK": 0.07587,
+      "WEC": 0.05395,
+      "WM": 0.04982,
+      "NVDA": 0.04718,
+      "MCD": 0.0427
+     },
+     "predicted": {
+      "ret": 0.305935,
+      "vol": 0.116994,
+      "sharpe": 2.4497
+     },
+     "realized_linear_ret": 0.290793,
+     "realized_hold": {
+      "growth": 1.292434,
+      "ret": 0.291124,
+      "vol": 0.341264,
+      "sharpe": 0.828,
+      "max_drawdown": 0.332587
+     },
+     "realized_monthly": {
+      "growth": 1.262174,
+      "ret": 0.261013,
+      "vol": 0.338824,
+      "sharpe": 0.7451,
+      "max_drawdown": 0.332335
+     }
+    },
+    {
+     "strategy": "min_variance@cap10",
+     "cap": 0.1,
+     "n_holdings": 48,
+     "top_holdings": {
+      "AMCR": 0.1,
+      "SO": 0.098836,
+      "CBOE": 0.088871,
+      "SW": 0.068321,
+      "EVRG": 0.051381,
+      "MCD": 0.050391,
+      "EG": 0.04418,
+      "KO": 0.03995,
+      "PG": 0.03552,
+      "NEM": 0.02809
+     },
+     "predicted": {
+      "ret": 0.113582,
+      "vol": 0.084457,
+      "sharpe": 1.116
+     },
+     "realized_linear_ret": 0.045253,
+     "realized_hold": {
+      "growth": 1.045541,
+      "ret": 0.045357,
+      "vol": 0.305654,
+      "sharpe": 0.1204,
+      "max_drawdown": 0.34412
+     },
+     "realized_monthly": {
+      "growth": 1.046798,
+      "ret": 0.046609,
+      "vol": 0.30905,
+      "sharpe": 0.1232,
+      "max_drawdown": 0.343814
+     }
+    },
+    {
+     "strategy": "matched_risk@cap10",
+     "cap": 0.1,
+     "n_holdings": 17,
+     "top_holdings": {
+      "AWK": 0.1,
+      "CME": 0.1,
+      "CPRT": 0.1,
+      "MKTX": 0.1,
+      "MSCI": 0.1,
+      "NVDA": 0.09254,
+      "CTAS": 0.08648,
+      "NEE": 0.04837,
+      "DRI": 0.04744,
+      "AMZN": 0.04541
+     },
+     "predicted": {
+      "ret": 0.350754,
+      "vol": 0.138797,
+      "sharpe": 2.3878
+     },
+     "realized_linear_ret": 0.440596,
+     "realized_hold": {
+      "growth": 1.443175,
+      "ret": 0.441084,
+      "vol": 0.355162,
+      "sharpe": 1.2179,
+      "max_drawdown": 0.330223
+     },
+     "realized_monthly": {
+      "growth": 1.389419,
+      "ret": 0.387614,
+      "vol": 0.34913,
+      "sharpe": 1.0857,
+      "max_drawdown": 0.328965
+     }
+    },
+    {
+     "strategy": "equal_weight",
+     "cap": null,
+     "n_holdings": 436,
+     "top_holdings": {
+      "A": 0.002294,
+      "AAL": 0.002294,
+      "AAP": 0.002294,
+      "AAPL": 0.002294,
+      "ABBV": 0.002294,
+      "ABT": 0.002294,
+      "ACN": 0.002294,
+      "ADBE": 0.002294,
+      "ADI": 0.002294,
+      "ADM": 0.002294
+     },
+     "predicted": {
+      "ret": 0.100977,
+      "vol": 0.134007,
+      "sharpe": 0.6093
+     },
+     "realized_linear_ret": 0.074662,
+     "realized_hold": {
+      "growth": 1.075184,
+      "ret": 0.074876,
+      "vol": 0.35589,
+      "sharpe": 0.1864,
+      "max_drawdown": 0.39293
+     },
+     "realized_monthly": {
+      "growth": 1.077144,
+      "ret": 0.076828,
+      "vol": 0.369225,
+      "sharpe": 0.1849,
+      "max_drawdown": 0.396943
+     }
+    },
+    {
+     "strategy": "momentum_top10",
+     "cap": null,
+     "n_holdings": 10,
+     "top_holdings": {
+      "AZO": 0.1,
+      "BALL": 0.1,
+      "CDNS": 0.1,
+      "CMG": 0.1,
+      "EW": 0.1,
+      "HSY": 0.1,
+      "MKTX": 0.1,
+      "PG": 0.1,
+      "SBAC": 0.1,
+      "SBUX": 0.1
+     },
+     "predicted": {
+      "ret": 0.221085,
+      "vol": 0.130751,
+      "sharpe": 1.543
+     },
+     "realized_linear_ret": 0.205178,
+     "realized_hold": {
+      "growth": 1.206164,
+      "ret": 0.205271,
+      "vol": 0.322672,
+      "sharpe": 0.6097,
+      "max_drawdown": 0.299022
+     },
+     "realized_monthly": {
+      "growth": 1.209032,
+      "ret": 0.208126,
+      "vol": 0.322945,
+      "sharpe": 0.618,
+      "max_drawdown": 0.298477
+     }
+    },
+    {
+     "strategy": "benchmark:SPY",
+     "cap": null,
+     "n_holdings": 1,
+     "top_holdings": {
+      "SPY": 1.0
+     },
+     "predicted": {
+      "ret": 0.100065,
+      "vol": 0.138798,
+      "sharpe": 0.5817
+     },
+     "realized_linear_ret": 0.22874,
+     "realized_hold": {
+      "growth": 1.229744,
+      "ret": 0.22874,
+      "vol": 0.320783,
+      "sharpe": 0.6864,
+      "max_drawdown": 0.337173
+     },
+     "realized_monthly": {
+      "growth": 1.229744,
+      "ret": 0.22874,
+      "vol": 0.320783,
+      "sharpe": 0.6864,
+      "max_drawdown": 0.337173
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap100",
+     "cap": 1.0,
+     "n_holdings": 23,
+     "top_holdings": {
+      "MKTX": 0.205354,
+      "CPRT": 0.103958,
+      "NEE": 0.088428,
+      "MSCI": 0.077128,
+      "AWK": 0.060829,
+      "WM": 0.060299,
+      "CME": 0.058049,
+      "WEC": 0.054479,
+      "NVDA": 0.051299,
+      "DRI": 0.035899
+     },
+     "leverage": 1.112,
+     "risk_target": 0.138798,
+     "predicted": {
+      "ret": 0.36559,
+      "vol": 0.138798,
+      "sharpe": 2.4947
+     },
+     "realized_linear_ret": 0.35742,
+     "realized_hold": {
+      "growth": 1.356275,
+      "ret": 0.354642,
+      "vol": 0.382544,
+      "sharpe": 0.9047,
+      "max_drawdown": 0.351563
+     },
+     "realized_monthly": {
+      "growth": 1.331526,
+      "ret": 0.330019,
+      "vol": 0.37926,
+      "sharpe": 0.8476,
+      "max_drawdown": 0.347812
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap20",
+     "cap": 0.2,
+     "n_holdings": 23,
+     "top_holdings": {
+      "MKTX": 0.199998,
+      "CPRT": 0.103549,
+      "NEE": 0.088389,
+      "MSCI": 0.077179,
+      "AWK": 0.061389,
+      "WM": 0.060019,
+      "CME": 0.059819,
+      "WEC": 0.054469,
+      "NVDA": 0.050959,
+      "DRI": 0.03614
+     },
+     "leverage": 1.1175,
+     "risk_target": 0.138798,
+     "predicted": {
+      "ret": 0.365576,
+      "vol": 0.138798,
+      "sharpe": 2.4946
+     },
+     "realized_linear_ret": 0.356805,
+     "realized_hold": {
+      "growth": 1.355432,
+      "ret": 0.353804,
+      "vol": 0.384051,
+      "sharpe": 0.899,
+      "max_drawdown": 0.353704
+     },
+     "realized_monthly": {
+      "growth": 1.330213,
+      "ret": 0.328714,
+      "vol": 0.38078,
+      "sharpe": 0.8408,
+      "max_drawdown": 0.350144
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap10",
+     "cap": 0.1,
+     "n_holdings": 24,
+     "top_holdings": {
+      "MKTX": 0.1,
+      "CPRT": 0.09876,
+      "CME": 0.09407,
+      "NEE": 0.08626,
+      "MSCI": 0.08401,
+      "AWK": 0.07587,
+      "WEC": 0.05395,
+      "WM": 0.04982,
+      "NVDA": 0.04718,
+      "MCD": 0.0427
+     },
+     "leverage": 1.1864,
+     "risk_target": 0.138798,
+     "predicted": {
+      "ret": 0.359348,
+      "vol": 0.138798,
+      "sharpe": 2.4497
+     },
+     "realized_linear_ret": 0.341384,
+     "realized_hold": {
+      "growth": 1.336125,
+      "ret": 0.334595,
+      "vol": 0.404867,
+      "sharpe": 0.8053,
+      "max_drawdown": 0.385305
+     },
+     "realized_monthly": {
+      "growth": 1.299316,
+      "ret": 0.297972,
+      "vol": 0.401973,
+      "sharpe": 0.72,
+      "max_drawdown": 0.38499
+     }
+    }
+   ]
+  },
+  {
+   "period": "2020-09-01 to 2021-09-01",
+   "cutoff": "2020-09-01",
+   "membership": {
+    "as_of": "2020-09-01",
+    "members": 506,
+    "in_the_candidate_pool": 505,
+    "investable": 448,
+    "removed_as_a_different_company": {
+     "INFO": "recycled"
+    },
+    "dropped_not_in_store": 42,
+    "dropped_history_starts_late": 15,
+    "dropped_midwindow": 0,
+    "n_unpriced_constituents": 43,
+    "unpriced_constituents": [
+     "ABMD",
+     "ALXN",
+     "ANSS",
+     "ATVI",
+     "CERN",
+     "CMA",
+     "CTRA",
+     "CTXS",
+     "CXO",
+     "DFS",
+     "DISCA",
+     "DISCK",
+     "DISH",
+     "DRE",
+     "ETFC",
+     "FBHS",
+     "FLIR",
+     "FLT",
+     "FRC",
+     "GPS",
+     "HBI",
+     "HES",
+     "HFC",
+     "HOLX",
+     "INFO",
+     "IPG",
+     "JNPR",
+     "K",
+     "KSU",
+     "MRO",
+     "MXIM",
+     "NBL",
+     "NLSN",
+     "PBCT",
+     "PXD",
+     "SEE",
+     "SIVB",
+     "TIF",
+     "TWTR",
+     "VAR",
+     "WBA",
+     "WLTW",
+     "XLNX"
+    ]
+   },
+   "extra_panel": null,
+   "train": {
+    "start": "2015-09-01",
+    "bars": 1260,
+    "years": 4.996,
+    "shrinkage": 0.033233
+   },
+   "test": {
+    "end": "2021-09-01",
+    "bars": 253,
+    "years": 1.0
+   },
+   "rf_at_cutoff": 0.001,
+   "rf_mean_over_test": 0.000491,
+   "mu_model": {
+    "kind": "history",
+    "lookback_months": 12,
+    "skip_months": 1,
+    "top_n": 10
+   },
+   "costs": null,
+   "n_investable": 448,
+   "mu_rank_correlation": -0.231,
+   "momentum_rank_correlation": -0.2955,
+   "vol_rank_correlation": 0.8469,
+   "strategies": [
+    {
+     "strategy": "tangency@cap100",
+     "cap": 1.0,
+     "n_holdings": 13,
+     "top_holdings": {
+      "NVDA": 0.13758,
+      "NEM": 0.126,
+      "AMD": 0.11869,
+      "MKTX": 0.11492,
+      "CPRT": 0.1051,
+      "AMZN": 0.09666,
+      "WST": 0.08226,
+      "DPZ": 0.07009,
+      "DHR": 0.04873,
+      "PGR": 0.03364
+     },
+     "predicted": {
+      "ret": 0.554273,
+      "vol": 0.214106,
+      "sharpe": 2.5841
+     },
+     "realized_linear_ret": 0.236497,
+     "realized_hold": {
+      "growth": 1.236497,
+      "ret": 0.236497,
+      "vol": 0.202701,
+      "sharpe": 1.1643,
+      "max_drawdown": 0.139168
+     },
+     "realized_monthly": {
+      "growth": 1.238204,
+      "ret": 0.238204,
+      "vol": 0.202389,
+      "sharpe": 1.1745,
+      "max_drawdown": 0.132701
+     }
+    },
+    {
+     "strategy": "min_variance@cap100",
+     "cap": 1.0,
+     "n_holdings": 29,
+     "top_holdings": {
+      "CLX": 0.106125,
+      "VZ": 0.093279,
+      "CHRW": 0.074849,
+      "AMCR": 0.065069,
+      "SW": 0.064549,
+      "NEM": 0.055549,
+      "KR": 0.04864,
+      "DPZ": 0.04693,
+      "SJM": 0.04172,
+      "CBOE": 0.0388
+     },
+     "predicted": {
+      "ret": 0.13072,
+      "vol": 0.125453,
+      "sharpe": 1.034
+     },
+     "realized_linear_ret": 0.139315,
+     "realized_hold": {
+      "growth": 1.139315,
+      "ret": 0.139315,
+      "vol": 0.107384,
+      "sharpe": 1.2928,
+      "max_drawdown": 0.06878
+     },
+     "realized_monthly": {
+      "growth": 1.133628,
+      "ret": 0.133628,
+      "vol": 0.106932,
+      "sharpe": 1.2451,
+      "max_drawdown": 0.068257
+     }
+    },
+    {
+     "strategy": "matched_risk@cap100",
+     "cap": 1.0,
+     "n_holdings": 14,
+     "top_holdings": {
+      "NEM": 0.1189,
+      "NVDA": 0.10285,
+      "MKTX": 0.09903,
+      "CPRT": 0.09853,
+      "AMZN": 0.09445,
+      "AMD": 0.09307,
+      "WST": 0.08293,
+      "DPZ": 0.07529,
+      "CLX": 0.06029,
+      "PGR": 0.04694
+     },
+     "predicted": {
+      "ret": 0.498672,
+      "vol": 0.1936,
+      "sharpe": 2.5706
+     },
+     "realized_linear_ret": 0.206408,
+     "realized_hold": {
+      "growth": 1.206408,
+      "ret": 0.206408,
+      "vol": 0.184171,
+      "sharpe": 1.1181,
+      "max_drawdown": 0.137741
+     },
+     "realized_monthly": {
+      "growth": 1.205625,
+      "ret": 0.205625,
+      "vol": 0.183319,
+      "sharpe": 1.119,
+      "max_drawdown": 0.131302
+     }
+    },
+    {
+     "strategy": "tangency@cap20",
+     "cap": 0.2,
+     "n_holdings": 13,
+     "top_holdings": {
+      "NVDA": 0.13758,
+      "NEM": 0.126,
+      "AMD": 0.11869,
+      "MKTX": 0.11492,
+      "CPRT": 0.1051,
+      "AMZN": 0.09666,
+      "WST": 0.08226,
+      "DPZ": 0.07009,
+      "DHR": 0.04873,
+      "PGR": 0.03364
+     },
+     "predicted": {
+      "ret": 0.554273,
+      "vol": 0.214106,
+      "sharpe": 2.5841
+     },
+     "realized_linear_ret": 0.236497,
+     "realized_hold": {
+      "growth": 1.236497,
+      "ret": 0.236497,
+      "vol": 0.202701,
+      "sharpe": 1.1643,
+      "max_drawdown": 0.139168
+     },
+     "realized_monthly": {
+      "growth": 1.238204,
+      "ret": 0.238204,
+      "vol": 0.202389,
+      "sharpe": 1.1745,
+      "max_drawdown": 0.132701
+     }
+    },
+    {
+     "strategy": "min_variance@cap20",
+     "cap": 0.2,
+     "n_holdings": 29,
+     "top_holdings": {
+      "CLX": 0.106125,
+      "VZ": 0.093279,
+      "CHRW": 0.074849,
+      "AMCR": 0.065069,
+      "SW": 0.064549,
+      "NEM": 0.055549,
+      "KR": 0.04864,
+      "DPZ": 0.04693,
+      "SJM": 0.04172,
+      "CBOE": 0.0388
+     },
+     "predicted": {
+      "ret": 0.13072,
+      "vol": 0.125453,
+      "sharpe": 1.034
+     },
+     "realized_linear_ret": 0.139315,
+     "realized_hold": {
+      "growth": 1.139315,
+      "ret": 0.139315,
+      "vol": 0.107384,
+      "sharpe": 1.2928,
+      "max_drawdown": 0.06878
+     },
+     "realized_monthly": {
+      "growth": 1.133628,
+      "ret": 0.133628,
+      "vol": 0.106932,
+      "sharpe": 1.2451,
+      "max_drawdown": 0.068257
+     }
+    },
+    {
+     "strategy": "matched_risk@cap20",
+     "cap": 0.2,
+     "n_holdings": 14,
+     "top_holdings": {
+      "NEM": 0.1189,
+      "NVDA": 0.10285,
+      "MKTX": 0.09903,
+      "CPRT": 0.09853,
+      "AMZN": 0.09445,
+      "AMD": 0.09307,
+      "WST": 0.08293,
+      "DPZ": 0.07529,
+      "CLX": 0.06029,
+      "PGR": 0.04694
+     },
+     "predicted": {
+      "ret": 0.498672,
+      "vol": 0.1936,
+      "sharpe": 2.5706
+     },
+     "realized_linear_ret": 0.206408,
+     "realized_hold": {
+      "growth": 1.206408,
+      "ret": 0.206408,
+      "vol": 0.184171,
+      "sharpe": 1.1181,
+      "max_drawdown": 0.137741
+     },
+     "realized_monthly": {
+      "growth": 1.205625,
+      "ret": 0.205625,
+      "vol": 0.183319,
+      "sharpe": 1.119,
+      "max_drawdown": 0.131302
+     }
+    },
+    {
+     "strategy": "tangency@cap10",
+     "cap": 0.1,
+     "n_holdings": 15,
+     "top_holdings": {
+      "AMD": 0.1,
+      "AMZN": 0.1,
+      "CPRT": 0.1,
+      "MKTX": 0.1,
+      "NEM": 0.1,
+      "NVDA": 0.1,
+      "WST": 0.09814,
+      "DPZ": 0.08127,
+      "DHR": 0.05294,
+      "NEE": 0.05015
+     },
+     "predicted": {
+      "ret": 0.509297,
+      "vol": 0.197589,
+      "sharpe": 2.5725
+     },
+     "realized_linear_ret": 0.230022,
+     "realized_hold": {
+      "growth": 1.230022,
+      "ret": 0.230022,
+      "vol": 0.187604,
+      "sharpe": 1.2235,
+      "max_drawdown": 0.134922
+     },
+     "realized_monthly": {
+      "growth": 1.230134,
+      "ret": 0.230134,
+      "vol": 0.187092,
+      "sharpe": 1.2274,
+      "max_drawdown": 0.128596
+     }
+    },
+    {
+     "strategy": "min_variance@cap10",
+     "cap": 0.1,
+     "n_holdings": 30,
+     "top_holdings": {
+      "CLX": 0.1,
+      "VZ": 0.094325,
+      "CHRW": 0.075211,
+      "AMCR": 0.065121,
+      "SW": 0.064451,
+      "NEM": 0.055791,
+      "KR": 0.049081,
+      "DPZ": 0.04704,
+      "SJM": 0.04228,
+      "CBOE": 0.03902
+     },
+     "predicted": {
+      "ret": 0.130361,
+      "vol": 0.125457,
+      "sharpe": 1.0311
+     },
+     "realized_linear_ret": 0.140799,
+     "realized_hold": {
+      "growth": 1.140799,
+      "ret": 0.140799,
+      "vol": 0.107317,
+      "sharpe": 1.3074,
+      "max_drawdown": 0.068628
+     },
+     "realized_monthly": {
+      "growth": 1.135333,
+      "ret": 0.135333,
+      "vol": 0.106839,
+      "sharpe": 1.2621,
+      "max_drawdown": 0.068118
+     }
+    },
+    {
+     "strategy": "matched_risk@cap10",
+     "cap": 0.1,
+     "n_holdings": 14,
+     "top_holdings": {
+      "CPRT": 0.1,
+      "MKTX": 0.1,
+      "NEM": 0.1,
+      "NVDA": 0.1,
+      "AMZN": 0.095971,
+      "AMD": 0.095101,
+      "WST": 0.084961,
+      "DPZ": 0.078101,
+      "CLX": 0.063221,
+      "NEE": 0.049231
+     },
+     "predicted": {
+      "ret": 0.49831,
+      "vol": 0.1936,
+      "sharpe": 2.5687
+     },
+     "realized_linear_ret": 0.211333,
+     "realized_hold": {
+      "growth": 1.211333,
+      "ret": 0.211333,
+      "vol": 0.183826,
+      "sharpe": 1.147,
+      "max_drawdown": 0.136518
+     },
+     "realized_monthly": {
+      "growth": 1.210514,
+      "ret": 0.210514,
+      "vol": 0.182993,
+      "sharpe": 1.1477,
+      "max_drawdown": 0.130162
+     }
+    },
+    {
+     "strategy": "equal_weight",
+     "cap": null,
+     "n_holdings": 448,
+     "top_holdings": {
+      "A": 0.002232,
+      "AAL": 0.002232,
+      "AAP": 0.002232,
+      "AAPL": 0.002232,
+      "ABBV": 0.002232,
+      "ABT": 0.002232,
+      "ACN": 0.002232,
+      "ADBE": 0.002232,
+      "ADI": 0.002232,
+      "ADM": 0.002232
+     },
+     "predicted": {
+      "ret": 0.120937,
+      "vol": 0.20121,
+      "sharpe": 0.5961
+     },
+     "realized_linear_ret": 0.419285,
+     "realized_hold": {
+      "growth": 1.419285,
+      "ret": 0.419285,
+      "vol": 0.166218,
+      "sharpe": 2.5195,
+      "max_drawdown": 0.075828
+     },
+     "realized_monthly": {
+      "growth": 1.424727,
+      "ret": 0.424727,
+      "vol": 0.16116,
+      "sharpe": 2.6324,
+      "max_drawdown": 0.075828
+     }
+    },
+    {
+     "strategy": "momentum_top10",
+     "cap": null,
+     "n_holdings": 10,
+     "top_holdings": {
+      "AAPL": 0.1,
+      "AMD": 0.1,
+      "DXCM": 0.1,
+      "LRCX": 0.1,
+      "NVDA": 0.1,
+      "PYPL": 0.1,
+      "QRVO": 0.1,
+      "REGN": 0.1,
+      "SWKS": 0.1,
+      "WST": 0.1
+     },
+     "predicted": {
+      "ret": 0.452263,
+      "vol": 0.277635,
+      "sharpe": 1.6254
+     },
+     "realized_linear_ret": 0.383749,
+     "realized_hold": {
+      "growth": 1.383749,
+      "ret": 0.383749,
+      "vol": 0.288244,
+      "sharpe": 1.3296,
+      "max_drawdown": 0.155477
+     },
+     "realized_monthly": {
+      "growth": 1.404218,
+      "ret": 0.404218,
+      "vol": 0.27927,
+      "sharpe": 1.4457,
+      "max_drawdown": 0.152476
+     }
+    },
+    {
+     "strategy": "benchmark:SPY",
+     "cap": null,
+     "n_holdings": 1,
+     "top_holdings": {
+      "SPY": 1.0
+     },
+     "predicted": {
+      "ret": 0.152358,
+      "vol": 0.1936,
+      "sharpe": 0.7818
+     },
+     "realized_linear_ret": 0.300424,
+     "realized_hold": {
+      "growth": 1.300424,
+      "ret": 0.300424,
+      "vol": 0.148091,
+      "sharpe": 2.0253,
+      "max_drawdown": 0.094404
+     },
+     "realized_monthly": {
+      "growth": 1.300424,
+      "ret": 0.300424,
+      "vol": 0.148091,
+      "sharpe": 2.0253,
+      "max_drawdown": 0.094404
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap100",
+     "cap": 1.0,
+     "n_holdings": 13,
+     "top_holdings": {
+      "NVDA": 0.13758,
+      "NEM": 0.126,
+      "AMD": 0.11869,
+      "MKTX": 0.11492,
+      "CPRT": 0.1051,
+      "AMZN": 0.09666,
+      "WST": 0.08226,
+      "DPZ": 0.07009,
+      "DHR": 0.04873,
+      "PGR": 0.03364
+     },
+     "leverage": 0.9042,
+     "risk_target": 0.1936,
+     "predicted": {
+      "ret": 0.501283,
+      "vol": 0.1936,
+      "sharpe": 2.5841
+     },
+     "realized_linear_ret": 0.213942,
+     "realized_hold": {
+      "growth": 1.213841,
+      "ret": 0.213841,
+      "vol": 0.183287,
+      "sharpe": 1.164,
+      "max_drawdown": 0.126166
+     },
+     "realized_monthly": {
+      "growth": 1.215348,
+      "ret": 0.215348,
+      "vol": 0.183005,
+      "sharpe": 1.1741,
+      "max_drawdown": 0.120237
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap20",
+     "cap": 0.2,
+     "n_holdings": 13,
+     "top_holdings": {
+      "NVDA": 0.13758,
+      "NEM": 0.126,
+      "AMD": 0.11869,
+      "MKTX": 0.11492,
+      "CPRT": 0.1051,
+      "AMZN": 0.09666,
+      "WST": 0.08226,
+      "DPZ": 0.07009,
+      "DHR": 0.04873,
+      "PGR": 0.03364
+     },
+     "leverage": 0.9042,
+     "risk_target": 0.1936,
+     "predicted": {
+      "ret": 0.501283,
+      "vol": 0.1936,
+      "sharpe": 2.5841
+     },
+     "realized_linear_ret": 0.213942,
+     "realized_hold": {
+      "growth": 1.213841,
+      "ret": 0.213841,
+      "vol": 0.183287,
+      "sharpe": 1.164,
+      "max_drawdown": 0.126166
+     },
+     "realized_monthly": {
+      "growth": 1.215348,
+      "ret": 0.215348,
+      "vol": 0.183005,
+      "sharpe": 1.1741,
+      "max_drawdown": 0.120237
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap10",
+     "cap": 0.1,
+     "n_holdings": 15,
+     "top_holdings": {
+      "AMD": 0.1,
+      "AMZN": 0.1,
+      "CPRT": 0.1,
+      "MKTX": 0.1,
+      "NEM": 0.1,
+      "NVDA": 0.1,
+      "WST": 0.09814,
+      "DPZ": 0.08127,
+      "DHR": 0.05294,
+      "NEE": 0.05015
+     },
+     "leverage": 0.9798,
+     "risk_target": 0.1936,
+     "predicted": {
+      "ret": 0.499035,
+      "vol": 0.1936,
+      "sharpe": 2.5725
+     },
+     "realized_linear_ret": 0.225399,
+     "realized_hold": {
+      "growth": 1.225334,
+      "ret": 0.225334,
+      "vol": 0.183816,
+      "sharpe": 1.2232,
+      "max_drawdown": 0.132281
+     },
+     "realized_monthly": {
+      "growth": 1.225441,
+      "ret": 0.225441,
+      "vol": 0.183315,
+      "sharpe": 1.2271,
+      "max_drawdown": 0.126065
+     }
+    }
+   ]
+  },
+  {
+   "period": "2021-09-01 to 2022-09-01",
+   "cutoff": "2021-09-01",
+   "membership": {
+    "as_of": "2021-09-01",
+    "members": 506,
+    "in_the_candidate_pool": 505,
+    "investable": 457,
+    "removed_as_a_different_company": {
+     "INFO": "recycled"
+    },
+    "dropped_not_in_store": 34,
+    "dropped_history_starts_late": 14,
+    "dropped_midwindow": 0,
+    "n_unpriced_constituents": 35,
+    "unpriced_constituents": [
+     "ABMD",
+     "ANSS",
+     "ATVI",
+     "CERN",
+     "CMA",
+     "CTLT",
+     "CTRA",
+     "CTXS",
+     "DFS",
+     "DISCA",
+     "DISCK",
+     "DISH",
+     "DRE",
+     "FBHS",
+     "FLT",
+     "FRC",
+     "GPS",
+     "HBI",
+     "HES",
+     "HOLX",
+     "INFO",
+     "IPG",
+     "JNPR",
+     "K",
+     "KSU",
+     "MRO",
+     "NLSN",
+     "PBCT",
+     "PXD",
+     "SEE",
+     "SIVB",
+     "TWTR",
+     "WBA",
+     "WLTW",
+     "XLNX"
+    ]
+   },
+   "extra_panel": null,
+   "train": {
+    "start": "2016-09-01",
+    "bars": 1259,
+    "years": 4.992,
+    "shrinkage": 0.033964
+   },
+   "test": {
+    "end": "2022-09-01",
+    "bars": 253,
+    "years": 1.0
+   },
+   "rf_at_cutoff": 0.0004,
+   "rf_mean_over_test": 0.007567,
+   "mu_model": {
+    "kind": "history",
+    "lookback_months": 12,
+    "skip_months": 1,
+    "top_n": 10
+   },
+   "costs": null,
+   "n_investable": 457,
+   "mu_rank_correlation": -0.2683,
+   "momentum_rank_correlation": -0.1758,
+   "vol_rank_correlation": 0.7698,
+   "strategies": [
+    {
+     "strategy": "tangency@cap100",
+     "cap": 1.0,
+     "n_holdings": 20,
+     "top_holdings": {
+      "WST": 0.127184,
+      "GNRC": 0.116253,
+      "ENPH": 0.111483,
+      "EXR": 0.085333,
+      "LLY": 0.084113,
+      "DPZ": 0.081422,
+      "ODFL": 0.067122,
+      "TSLA": 0.062162,
+      "SW": 0.060192,
+      "TGT": 0.042701
+     },
+     "predicted": {
+      "ret": 0.556233,
+      "vol": 0.218223,
+      "sharpe": 2.5471
+     },
+     "realized_linear_ret": -0.106416,
+     "realized_hold": {
+      "growth": 0.893584,
+      "ret": -0.106416,
+      "vol": 0.306365,
+      "sharpe": -0.372,
+      "max_drawdown": 0.333342
+     },
+     "realized_monthly": {
+      "growth": 0.889728,
+      "ret": -0.110272,
+      "vol": 0.310477,
+      "sharpe": -0.3795,
+      "max_drawdown": 0.32233
+     }
+    },
+    {
+     "strategy": "min_variance@cap100",
+     "cap": 1.0,
+     "n_holdings": 32,
+     "top_holdings": {
+      "VZ": 0.124434,
+      "CLX": 0.092623,
+      "DPZ": 0.059042,
+      "SW": 0.058362,
+      "NEM": 0.058142,
+      "HLT": 0.056302,
+      "KR": 0.053382,
+      "PSA": 0.047571,
+      "CHRW": 0.044411,
+      "BMY": 0.041191
+     },
+     "predicted": {
+      "ret": 0.120401,
+      "vol": 0.124858,
+      "sharpe": 0.9611
+     },
+     "realized_linear_ret": -0.069901,
+     "realized_hold": {
+      "growth": 0.930099,
+      "ret": -0.069901,
+      "vol": 0.134929,
+      "sharpe": -0.5741,
+      "max_drawdown": 0.154654
+     },
+     "realized_monthly": {
+      "growth": 0.936733,
+      "ret": -0.063267,
+      "vol": 0.135783,
+      "sharpe": -0.5217,
+      "max_drawdown": 0.149384
+     }
+    },
+    {
+     "strategy": "matched_risk@cap100",
+     "cap": 1.0,
+     "n_holdings": 22,
+     "top_holdings": {
+      "WST": 0.120753,
+      "EXR": 0.105192,
+      "DPZ": 0.095872,
+      "GNRC": 0.088352,
+      "ENPH": 0.086102,
+      "LLY": 0.083222,
+      "SW": 0.066611,
+      "ODFL": 0.063321,
+      "TSLA": 0.051921,
+      "COST": 0.048821
+     },
+     "predicted": {
+      "ret": 0.491221,
+      "vol": 0.194216,
+      "sharpe": 2.5272
+     },
+     "realized_linear_ret": -0.087167,
+     "realized_hold": {
+      "growth": 0.912833,
+      "ret": -0.087167,
+      "vol": 0.271684,
+      "sharpe": -0.3487,
+      "max_drawdown": 0.294887
+     },
+     "realized_monthly": {
+      "growth": 0.909755,
+      "ret": -0.090245,
+      "vol": 0.276414,
+      "sharpe": -0.3539,
+      "max_drawdown": 0.285208
+     }
+    },
+    {
+     "strategy": "tangency@cap20",
+     "cap": 0.2,
+     "n_holdings": 20,
+     "top_holdings": {
+      "WST": 0.127184,
+      "GNRC": 0.116253,
+      "ENPH": 0.111483,
+      "EXR": 0.085333,
+      "LLY": 0.084113,
+      "DPZ": 0.081422,
+      "ODFL": 0.067122,
+      "TSLA": 0.062162,
+      "SW": 0.060192,
+      "TGT": 0.042701
+     },
+     "predicted": {
+      "ret": 0.556233,
+      "vol": 0.218223,
+      "sharpe": 2.5471
+     },
+     "realized_linear_ret": -0.106416,
+     "realized_hold": {
+      "growth": 0.893584,
+      "ret": -0.106416,
+      "vol": 0.306365,
+      "sharpe": -0.372,
+      "max_drawdown": 0.333342
+     },
+     "realized_monthly": {
+      "growth": 0.889728,
+      "ret": -0.110272,
+      "vol": 0.310477,
+      "sharpe": -0.3795,
+      "max_drawdown": 0.32233
+     }
+    },
+    {
+     "strategy": "min_variance@cap20",
+     "cap": 0.2,
+     "n_holdings": 32,
+     "top_holdings": {
+      "VZ": 0.124434,
+      "CLX": 0.092623,
+      "DPZ": 0.059042,
+      "SW": 0.058362,
+      "NEM": 0.058142,
+      "HLT": 0.056302,
+      "KR": 0.053382,
+      "PSA": 0.047571,
+      "CHRW": 0.044411,
+      "BMY": 0.041191
+     },
+     "predicted": {
+      "ret": 0.120401,
+      "vol": 0.124858,
+      "sharpe": 0.9611
+     },
+     "realized_linear_ret": -0.069901,
+     "realized_hold": {
+      "growth": 0.930099,
+      "ret": -0.069901,
+      "vol": 0.134929,
+      "sharpe": -0.5741,
+      "max_drawdown": 0.154654
+     },
+     "realized_monthly": {
+      "growth": 0.936733,
+      "ret": -0.063267,
+      "vol": 0.135783,
+      "sharpe": -0.5217,
+      "max_drawdown": 0.149384
+     }
+    },
+    {
+     "strategy": "matched_risk@cap20",
+     "cap": 0.2,
+     "n_holdings": 22,
+     "top_holdings": {
+      "WST": 0.120753,
+      "EXR": 0.105192,
+      "DPZ": 0.095872,
+      "GNRC": 0.088352,
+      "ENPH": 0.086102,
+      "LLY": 0.083222,
+      "SW": 0.066611,
+      "ODFL": 0.063321,
+      "TSLA": 0.051921,
+      "COST": 0.048821
+     },
+     "predicted": {
+      "ret": 0.491221,
+      "vol": 0.194216,
+      "sharpe": 2.5272
+     },
+     "realized_linear_ret": -0.087167,
+     "realized_hold": {
+      "growth": 0.912833,
+      "ret": -0.087167,
+      "vol": 0.271684,
+      "sharpe": -0.3487,
+      "max_drawdown": 0.294887
+     },
+     "realized_monthly": {
+      "growth": 0.909755,
+      "ret": -0.090245,
+      "vol": 0.276414,
+      "sharpe": -0.3539,
+      "max_drawdown": 0.285208
+     }
+    },
+    {
+     "strategy": "tangency@cap10",
+     "cap": 0.1,
+     "n_holdings": 20,
+     "top_holdings": {
+      "GNRC": 0.099999,
+      "WST": 0.099999,
+      "ENPH": 0.099998,
+      "EXR": 0.089419,
+      "LLY": 0.086359,
+      "DPZ": 0.084169,
+      "ODFL": 0.074059,
+      "TSLA": 0.063049,
+      "SW": 0.061599,
+      "TGT": 0.04542
+     },
+     "predicted": {
+      "ret": 0.538128,
+      "vol": 0.211389,
+      "sharpe": 2.5438
+     },
+     "realized_linear_ret": -0.102296,
+     "realized_hold": {
+      "growth": 0.897704,
+      "ret": -0.102296,
+      "vol": 0.297195,
+      "sharpe": -0.3697,
+      "max_drawdown": 0.326758
+     },
+     "realized_monthly": {
+      "growth": 0.895223,
+      "ret": -0.104777,
+      "vol": 0.301251,
+      "sharpe": -0.3729,
+      "max_drawdown": 0.316472
+     }
+    },
+    {
+     "strategy": "min_variance@cap10",
+     "cap": 0.1,
+     "n_holdings": 32,
+     "top_holdings": {
+      "VZ": 0.1,
+      "CLX": 0.09501,
+      "DPZ": 0.05956,
+      "SW": 0.05862,
+      "NEM": 0.05772,
+      "HLT": 0.05644,
+      "KR": 0.05388,
+      "PSA": 0.04819,
+      "CHRW": 0.0457,
+      "BMY": 0.04078
+     },
+     "predicted": {
+      "ret": 0.121061,
+      "vol": 0.124915,
+      "sharpe": 0.9659
+     },
+     "realized_linear_ret": -0.063607,
+     "realized_hold": {
+      "growth": 0.936393,
+      "ret": -0.063607,
+      "vol": 0.135111,
+      "sharpe": -0.5268,
+      "max_drawdown": 0.154828
+     },
+     "realized_monthly": {
+      "growth": 0.942812,
+      "ret": -0.057188,
+      "vol": 0.136021,
+      "sharpe": -0.4761,
+      "max_drawdown": 0.149734
+     }
+    },
+    {
+     "strategy": "matched_risk@cap10",
+     "cap": 0.1,
+     "n_holdings": 23,
+     "top_holdings": {
+      "EXR": 0.099998,
+      "WST": 0.099997,
+      "DPZ": 0.096948,
+      "GNRC": 0.089978,
+      "ENPH": 0.086148,
+      "LLY": 0.085648,
+      "SW": 0.067109,
+      "ODFL": 0.065589,
+      "TSLA": 0.051859,
+      "COST": 0.050339
+     },
+     "predicted": {
+      "ret": 0.49104,
+      "vol": 0.194214,
+      "sharpe": 2.5263
+     },
+     "realized_linear_ret": -0.084067,
+     "realized_hold": {
+      "growth": 0.915933,
+      "ret": -0.084067,
+      "vol": 0.270809,
+      "sharpe": -0.3384,
+      "max_drawdown": 0.292753
+     },
+     "realized_monthly": {
+      "growth": 0.913288,
+      "ret": -0.086712,
+      "vol": 0.275747,
+      "sharpe": -0.3419,
+      "max_drawdown": 0.283045
+     }
+    },
+    {
+     "strategy": "equal_weight",
+     "cap": null,
+     "n_holdings": 457,
+     "top_holdings": {
+      "A": 0.002188,
+      "AAL": 0.002188,
+      "AAP": 0.002188,
+      "AAPL": 0.002188,
+      "ABBV": 0.002188,
+      "ABT": 0.002188,
+      "ACN": 0.002188,
+      "ADBE": 0.002188,
+      "ADI": 0.002188,
+      "ADM": 0.002188
+     },
+     "predicted": {
+      "ret": 0.170219,
+      "vol": 0.201839,
+      "sharpe": 0.8414
+     },
+     "realized_linear_ret": -0.07042,
+     "realized_hold": {
+      "growth": 0.92958,
+      "ret": -0.07042,
+      "vol": 0.192717,
+      "sharpe": -0.4047,
+      "max_drawdown": 0.188788
+     },
+     "realized_monthly": {
+      "growth": 0.920874,
+      "ret": -0.079126,
+      "vol": 0.198793,
+      "sharpe": -0.4361,
+      "max_drawdown": 0.201754
+     }
+    },
+    {
+     "strategy": "momentum_top10",
+     "cap": null,
+     "n_holdings": 10,
+     "top_holdings": {
+      "ALGN": 0.1,
+      "AMAT": 0.1,
+      "BBWI": 0.1,
+      "COF": 0.1,
+      "DVN": 0.1,
+      "ENPH": 0.1,
+      "FCX": 0.1,
+      "IVZ": 0.1,
+      "NUE": 0.1,
+      "TPR": 0.1
+     },
+     "predicted": {
+      "ret": 0.312513,
+      "vol": 0.336454,
+      "sharpe": 0.9277
+     },
+     "realized_linear_ret": -0.003903,
+     "realized_hold": {
+      "growth": 0.996097,
+      "ret": -0.003903,
+      "vol": 0.340413,
+      "sharpe": -0.0337,
+      "max_drawdown": 0.284046
+     },
+     "realized_monthly": {
+      "growth": 0.923912,
+      "ret": -0.076088,
+      "vol": 0.34356,
+      "sharpe": -0.2435,
+      "max_drawdown": 0.317492
+     }
+    },
+    {
+     "strategy": "benchmark:SPY",
+     "cap": null,
+     "n_holdings": 1,
+     "top_holdings": {
+      "SPY": 1.0
+     },
+     "predicted": {
+      "ret": 0.179544,
+      "vol": 0.194213,
+      "sharpe": 0.9224
+     },
+     "realized_linear_ret": -0.110101,
+     "realized_hold": {
+      "growth": 0.889899,
+      "ret": -0.110101,
+      "vol": 0.210713,
+      "sharpe": -0.5584,
+      "max_drawdown": 0.2301
+     },
+     "realized_monthly": {
+      "growth": 0.889899,
+      "ret": -0.110101,
+      "vol": 0.210713,
+      "sharpe": -0.5584,
+      "max_drawdown": 0.2301
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap100",
+     "cap": 1.0,
+     "n_holdings": 20,
+     "top_holdings": {
+      "WST": 0.127184,
+      "GNRC": 0.116253,
+      "ENPH": 0.111483,
+      "EXR": 0.085333,
+      "LLY": 0.084113,
+      "DPZ": 0.081422,
+      "ODFL": 0.067122,
+      "TSLA": 0.062162,
+      "SW": 0.060192,
+      "TGT": 0.042701
+     },
+     "leverage": 0.89,
+     "risk_target": 0.194213,
+     "predicted": {
+      "ret": 0.495077,
+      "vol": 0.194213,
+      "sharpe": 2.5471
+     },
+     "realized_linear_ret": -0.094664,
+     "realized_hold": {
+      "growth": 0.909631,
+      "ret": -0.090369,
+      "vol": 0.27266,
+      "sharpe": -0.3592,
+      "max_drawdown": 0.30039
+     },
+     "realized_monthly": {
+      "growth": 0.906244,
+      "ret": -0.093756,
+      "vol": 0.276318,
+      "sharpe": -0.3667,
+      "max_drawdown": 0.290051
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap20",
+     "cap": 0.2,
+     "n_holdings": 20,
+     "top_holdings": {
+      "WST": 0.127184,
+      "GNRC": 0.116253,
+      "ENPH": 0.111483,
+      "EXR": 0.085333,
+      "LLY": 0.084113,
+      "DPZ": 0.081422,
+      "ODFL": 0.067122,
+      "TSLA": 0.062162,
+      "SW": 0.060192,
+      "TGT": 0.042701
+     },
+     "leverage": 0.89,
+     "risk_target": 0.194213,
+     "predicted": {
+      "ret": 0.495077,
+      "vol": 0.194213,
+      "sharpe": 2.5471
+     },
+     "realized_linear_ret": -0.094664,
+     "realized_hold": {
+      "growth": 0.909631,
+      "ret": -0.090369,
+      "vol": 0.27266,
+      "sharpe": -0.3592,
+      "max_drawdown": 0.30039
+     },
+     "realized_monthly": {
+      "growth": 0.906244,
+      "ret": -0.093756,
+      "vol": 0.276318,
+      "sharpe": -0.3667,
+      "max_drawdown": 0.290051
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap10",
+     "cap": 0.1,
+     "n_holdings": 20,
+     "top_holdings": {
+      "GNRC": 0.099999,
+      "WST": 0.099999,
+      "ENPH": 0.099998,
+      "EXR": 0.089419,
+      "LLY": 0.086359,
+      "DPZ": 0.084169,
+      "ODFL": 0.074059,
+      "TSLA": 0.063049,
+      "SW": 0.061599,
+      "TGT": 0.04542
+     },
+     "leverage": 0.9187,
+     "risk_target": 0.194213,
+     "predicted": {
+      "ret": 0.494436,
+      "vol": 0.194213,
+      "sharpe": 2.5438
+     },
+     "realized_linear_ret": -0.093951,
+     "realized_hold": {
+      "growth": 0.909156,
+      "ret": -0.090844,
+      "vol": 0.273049,
+      "sharpe": -0.3604,
+      "max_drawdown": 0.302938
+     },
+     "realized_monthly": {
+      "growth": 0.906925,
+      "ret": -0.093075,
+      "vol": 0.276774,
+      "sharpe": -0.3636,
+      "max_drawdown": 0.293117
+     }
+    }
+   ]
+  },
+  {
+   "period": "2022-09-01 to 2023-09-01",
+   "cutoff": "2022-09-01",
+   "membership": {
+    "as_of": "2022-09-01",
+    "members": 504,
+    "in_the_candidate_pool": 504,
+    "investable": 465,
+    "removed_as_a_different_company": {},
+    "dropped_not_in_store": 26,
+    "dropped_history_starts_late": 13,
+    "dropped_midwindow": 0,
+    "n_unpriced_constituents": 26,
+    "unpriced_constituents": [
+     "ABMD",
+     "ANSS",
+     "ATVI",
+     "CDAY",
+     "CMA",
+     "CTLT",
+     "CTRA",
+     "CTXS",
+     "DFS",
+     "DISH",
+     "DRE",
+     "FBHS",
+     "FLT",
+     "FRC",
+     "HES",
+     "HOLX",
+     "IPG",
+     "JNPR",
+     "K",
+     "MRO",
+     "NLSN",
+     "PXD",
+     "SEE",
+     "SIVB",
+     "TWTR",
+     "WBA"
+    ]
+   },
+   "extra_panel": null,
+   "train": {
+    "start": "2017-09-01",
+    "bars": 1259,
+    "years": 4.992,
+    "shrinkage": 0.026537
+   },
+   "test": {
+    "end": "2023-09-01",
+    "bars": 252,
+    "years": 0.996
+   },
+   "rf_at_cutoff": 0.02863,
+   "rf_mean_over_test": 0.045414,
+   "mu_model": {
+    "kind": "history",
+    "lookback_months": 12,
+    "skip_months": 1,
+    "top_n": 10
+   },
+   "costs": null,
+   "n_investable": 465,
+   "mu_rank_correlation": 0.0374,
+   "momentum_rank_correlation": -0.13,
+   "vol_rank_correlation": 0.7474,
+   "strategies": [
+    {
+     "strategy": "tangency@cap100",
+     "cap": 1.0,
+     "n_holdings": 10,
+     "top_holdings": {
+      "ENPH": 0.339678,
+      "LLY": 0.192568,
+      "AZO": 0.091359,
+      "KR": 0.078629,
+      "KDP": 0.074879,
+      "DG": 0.064409,
+      "PGR": 0.064059,
+      "EXR": 0.058559,
+      "MOH": 0.02504,
+      "GIS": 0.01082
+     },
+     "predicted": {
+      "ret": 0.904059,
+      "vol": 0.324004,
+      "sharpe": 2.7019
+     },
+     "realized_linear_ret": -0.065468,
+     "realized_hold": {
+      "growth": 0.934277,
+      "ret": -0.065976,
+      "vol": 0.226303,
+      "sharpe": -0.4922,
+      "max_drawdown": 0.214878
+     },
+     "realized_monthly": {
+      "growth": 0.846646,
+      "ret": -0.153915,
+      "vol": 0.242286,
+      "sharpe": -0.8227,
+      "max_drawdown": 0.251585
+     }
+    },
+    {
+     "strategy": "min_variance@cap100",
+     "cap": 1.0,
+     "n_holdings": 25,
+     "top_holdings": {
+      "VZ": 0.142501,
+      "KDP": 0.081106,
+      "NEM": 0.079546,
+      "SW": 0.060235,
+      "CLX": 0.056455,
+      "HLT": 0.054824,
+      "BMY": 0.052374,
+      "DPZ": 0.051374,
+      "KR": 0.046304,
+      "HRL": 0.044564
+     },
+     "predicted": {
+      "ret": 0.092615,
+      "vol": 0.131348,
+      "sharpe": 0.4871
+     },
+     "realized_linear_ret": 0.004042,
+     "realized_hold": {
+      "growth": 1.003973,
+      "ret": 0.003989,
+      "vol": 0.128863,
+      "sharpe": -0.3215,
+      "max_drawdown": 0.10014
+     },
+     "realized_monthly": {
+      "growth": 1.010622,
+      "ret": 0.010665,
+      "vol": 0.129187,
+      "sharpe": -0.269,
+      "max_drawdown": 0.100193
+     }
+    },
+    {
+     "strategy": "matched_risk@cap100",
+     "cap": 1.0,
+     "n_holdings": 15,
+     "top_holdings": {
+      "ENPH": 0.172227,
+      "LLY": 0.130947,
+      "KDP": 0.127137,
+      "EXR": 0.084858,
+      "KR": 0.083798,
+      "PGR": 0.083108,
+      "AZO": 0.076848,
+      "GIS": 0.072869,
+      "DG": 0.062799,
+      "HRL": 0.032349
+     },
+     "predicted": {
+      "ret": 0.567482,
+      "vol": 0.211643,
+      "sharpe": 2.546
+     },
+     "realized_linear_ret": -0.043441,
+     "realized_hold": {
+      "growth": 0.956393,
+      "ret": -0.043777,
+      "vol": 0.163651,
+      "sharpe": -0.545,
+      "max_drawdown": 0.141505
+     },
+     "realized_monthly": {
+      "growth": 0.903126,
+      "ret": -0.09724,
+      "vol": 0.170306,
+      "sharpe": -0.8376,
+      "max_drawdown": 0.164957
+     }
+    },
+    {
+     "strategy": "tangency@cap20",
+     "cap": 0.2,
+     "n_holdings": 13,
+     "top_holdings": {
+      "ENPH": 0.2,
+      "LLY": 0.1705,
+      "KDP": 0.11101,
+      "AZO": 0.09389,
+      "EXR": 0.08266,
+      "PGR": 0.08184,
+      "KR": 0.07987,
+      "DG": 0.07805,
+      "MOH": 0.02882,
+      "GIS": 0.02714
+     },
+     "predicted": {
+      "ret": 0.646659,
+      "vol": 0.235946,
+      "sharpe": 2.6194
+     },
+     "realized_linear_ret": -0.022821,
+     "realized_hold": {
+      "growth": 0.976865,
+      "ret": -0.023226,
+      "vol": 0.179341,
+      "sharpe": -0.3827,
+      "max_drawdown": 0.156199
+     },
+     "realized_monthly": {
+      "growth": 0.911594,
+      "ret": -0.088742,
+      "vol": 0.186416,
+      "sharpe": -0.7197,
+      "max_drawdown": 0.164802
+     }
+    },
+    {
+     "strategy": "min_variance@cap20",
+     "cap": 0.2,
+     "n_holdings": 25,
+     "top_holdings": {
+      "VZ": 0.142501,
+      "KDP": 0.081106,
+      "NEM": 0.079546,
+      "SW": 0.060235,
+      "CLX": 0.056455,
+      "HLT": 0.054824,
+      "BMY": 0.052374,
+      "DPZ": 0.051374,
+      "KR": 0.046304,
+      "HRL": 0.044564
+     },
+     "predicted": {
+      "ret": 0.092615,
+      "vol": 0.131348,
+      "sharpe": 0.4871
+     },
+     "realized_linear_ret": 0.004042,
+     "realized_hold": {
+      "growth": 1.003973,
+      "ret": 0.003989,
+      "vol": 0.128863,
+      "sharpe": -0.3215,
+      "max_drawdown": 0.10014
+     },
+     "realized_monthly": {
+      "growth": 1.010622,
+      "ret": 0.010665,
+      "vol": 0.129187,
+      "sharpe": -0.269,
+      "max_drawdown": 0.100193
+     }
+    },
+    {
+     "strategy": "matched_risk@cap20",
+     "cap": 0.2,
+     "n_holdings": 15,
+     "top_holdings": {
+      "ENPH": 0.172227,
+      "LLY": 0.130947,
+      "KDP": 0.127137,
+      "EXR": 0.084858,
+      "KR": 0.083798,
+      "PGR": 0.083108,
+      "AZO": 0.076848,
+      "GIS": 0.072869,
+      "DG": 0.062799,
+      "HRL": 0.032349
+     },
+     "predicted": {
+      "ret": 0.567482,
+      "vol": 0.211643,
+      "sharpe": 2.546
+     },
+     "realized_linear_ret": -0.043441,
+     "realized_hold": {
+      "growth": 0.956393,
+      "ret": -0.043777,
+      "vol": 0.163651,
+      "sharpe": -0.545,
+      "max_drawdown": 0.141505
+     },
+     "realized_monthly": {
+      "growth": 0.903126,
+      "ret": -0.09724,
+      "vol": 0.170306,
+      "sharpe": -0.8376,
+      "max_drawdown": 0.164957
+     }
+    },
+    {
+     "strategy": "tangency@cap10",
+     "cap": 0.1,
+     "n_holdings": 16,
+     "top_holdings": {
+      "AZO": 0.1,
+      "ENPH": 0.1,
+      "EXR": 0.1,
+      "KDP": 0.1,
+      "LLY": 0.1,
+      "PGR": 0.1,
+      "DG": 0.094171,
+      "KR": 0.079241,
+      "COST": 0.073671,
+      "MOH": 0.050021
+     },
+     "predicted": {
+      "ret": 0.477628,
+      "vol": 0.194587,
+      "sharpe": 2.3074
+     },
+     "realized_linear_ret": -0.027562,
+     "realized_hold": {
+      "growth": 0.972276,
+      "ret": -0.027833,
+      "vol": 0.157944,
+      "sharpe": -0.4638,
+      "max_drawdown": 0.117034
+     },
+     "realized_monthly": {
+      "growth": 0.940359,
+      "ret": -0.059871,
+      "vol": 0.162552,
+      "sharpe": -0.6477,
+      "max_drawdown": 0.117146
+     }
+    },
+    {
+     "strategy": "min_variance@cap10",
+     "cap": 0.1,
+     "n_holdings": 27,
+     "top_holdings": {
+      "VZ": 0.099999,
+      "KDP": 0.082312,
+      "NEM": 0.079602,
+      "SW": 0.060531,
+      "CLX": 0.059081,
+      "HLT": 0.055591,
+      "BMY": 0.052411,
+      "DPZ": 0.052381,
+      "KR": 0.047511,
+      "HRL": 0.046891
+     },
+     "predicted": {
+      "ret": 0.09599,
+      "vol": 0.131525,
+      "sharpe": 0.5121
+     },
+     "realized_linear_ret": 0.008592,
+     "realized_hold": {
+      "growth": 1.008503,
+      "ret": 0.008537,
+      "vol": 0.128323,
+      "sharpe": -0.2874,
+      "max_drawdown": 0.099105
+     },
+     "realized_monthly": {
+      "growth": 1.014857,
+      "ret": 0.014917,
+      "vol": 0.128662,
+      "sharpe": -0.237,
+      "max_drawdown": 0.099189
+     }
+    },
+    {
+     "strategy": "matched_risk@cap10",
+     "cap": 0.1,
+     "n_holdings": 13,
+     "top_holdings": {
+      "DG": 0.1,
+      "AZO": 0.099999,
+      "ENPH": 0.099999,
+      "LLY": 0.099999,
+      "MOH": 0.088609,
+      "PGR": 0.087429,
+      "EXR": 0.083699,
+      "TSLA": 0.071189,
+      "COST": 0.070569,
+      "KDP": 0.070109
+     },
+     "predicted": {
+      "ret": 0.509597,
+      "vol": 0.211645,
+      "sharpe": 2.2725
+     },
+     "realized_linear_ret": -0.02158,
+     "realized_hold": {
+      "growth": 0.978232,
+      "ret": -0.021854,
+      "vol": 0.167467,
+      "sharpe": -0.4017,
+      "max_drawdown": 0.13306
+     },
+     "realized_monthly": {
+      "growth": 0.956694,
+      "ret": -0.043474,
+      "vol": 0.173938,
+      "sharpe": -0.511,
+      "max_drawdown": 0.13875
+     }
+    },
+    {
+     "strategy": "equal_weight",
+     "cap": null,
+     "n_holdings": 465,
+     "top_holdings": {
+      "A": 0.002151,
+      "AAL": 0.002151,
+      "AAP": 0.002151,
+      "AAPL": 0.002151,
+      "ABBV": 0.002151,
+      "ABT": 0.002151,
+      "ACN": 0.002151,
+      "ADBE": 0.002151,
+      "ADI": 0.002151,
+      "ADM": 0.002151
+     },
+     "predicted": {
+      "ret": 0.112553,
+      "vol": 0.216983,
+      "sharpe": 0.3868
+     },
+     "realized_linear_ret": 0.10458,
+     "realized_hold": {
+      "growth": 1.104003,
+      "ret": 0.104438,
+      "vol": 0.182605,
+      "sharpe": 0.3232,
+      "max_drawdown": 0.13242
+     },
+     "realized_monthly": {
+      "growth": 1.104676,
+      "ret": 0.105114,
+      "vol": 0.184645,
+      "sharpe": 0.3233,
+      "max_drawdown": 0.13242
+     }
+    },
+    {
+     "strategy": "momentum_top10",
+     "cap": null,
+     "n_holdings": 10,
+     "top_holdings": {
+      "APA": 0.1,
+      "CF": 0.1,
+      "COP": 0.1,
+      "DLTR": 0.1,
+      "DVN": 0.1,
+      "EOG": 0.1,
+      "FANG": 0.1,
+      "OXY": 0.1,
+      "VLO": 0.1,
+      "XOM": 0.1
+     },
+     "predicted": {
+      "ret": 0.138148,
+      "vol": 0.408426,
+      "sharpe": 0.2681
+     },
+     "realized_linear_ret": 0.077009,
+     "realized_hold": {
+      "growth": 1.076629,
+      "ret": 0.076946,
+      "vol": 0.295643,
+      "sharpe": 0.1067,
+      "max_drawdown": 0.251882
+     },
+     "realized_monthly": {
+      "growth": 1.080148,
+      "ret": 0.08048,
+      "vol": 0.295486,
+      "sharpe": 0.1187,
+      "max_drawdown": 0.252463
+     }
+    },
+    {
+     "strategy": "benchmark:SPY",
+     "cap": null,
+     "n_holdings": 1,
+     "top_holdings": {
+      "SPY": 1.0
+     },
+     "predicted": {
+      "ret": 0.117922,
+      "vol": 0.211647,
+      "sharpe": 0.4219
+     },
+     "realized_linear_ret": 0.157419,
+     "realized_hold": {
+      "growth": 1.156747,
+      "ret": 0.157419,
+      "vol": 0.181639,
+      "sharpe": 0.6166,
+      "max_drawdown": 0.12883
+     },
+     "realized_monthly": {
+      "growth": 1.156747,
+      "ret": 0.157419,
+      "vol": 0.181639,
+      "sharpe": 0.6166,
+      "max_drawdown": 0.12883
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap100",
+     "cap": 1.0,
+     "n_holdings": 10,
+     "top_holdings": {
+      "ENPH": 0.339678,
+      "LLY": 0.192568,
+      "AZO": 0.091359,
+      "KR": 0.078629,
+      "KDP": 0.074879,
+      "DG": 0.064409,
+      "PGR": 0.064059,
+      "EXR": 0.058559,
+      "MOH": 0.02504,
+      "GIS": 0.01082
+     },
+     "leverage": 0.6532,
+     "risk_target": 0.211647,
+     "predicted": {
+      "ret": 0.60048,
+      "vol": 0.211647,
+      "sharpe": 2.7019
+     },
+     "realized_linear_ret": -0.032837,
+     "realized_hold": {
+      "growth": 0.977033,
+      "ret": -0.023058,
+      "vol": 0.147826,
+      "sharpe": -0.4632,
+      "max_drawdown": 0.141248
+     },
+     "realized_monthly": {
+      "growth": 0.916996,
+      "ret": -0.083321,
+      "vol": 0.158264,
+      "sharpe": -0.8134,
+      "max_drawdown": 0.15989
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap20",
+     "cap": 0.2,
+     "n_holdings": 13,
+     "top_holdings": {
+      "ENPH": 0.2,
+      "LLY": 0.1705,
+      "KDP": 0.11101,
+      "AZO": 0.09389,
+      "EXR": 0.08266,
+      "PGR": 0.08184,
+      "KR": 0.07987,
+      "DG": 0.07805,
+      "MOH": 0.02882,
+      "GIS": 0.02714
+     },
+     "leverage": 0.897,
+     "risk_target": 0.211647,
+     "predicted": {
+      "ret": 0.58301,
+      "vol": 0.211647,
+      "sharpe": 2.6194
+     },
+     "realized_linear_ret": -0.017523,
+     "realized_hold": {
+      "growth": 0.985156,
+      "ret": -0.014903,
+      "vol": 0.160871,
+      "sharpe": -0.3749,
+      "max_drawdown": 0.1399
+     },
+     "realized_monthly": {
+      "growth": 0.92602,
+      "ret": -0.074263,
+      "vol": 0.167217,
+      "sharpe": -0.7157,
+      "max_drawdown": 0.145698
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap10",
+     "cap": 0.1,
+     "n_holdings": 16,
+     "top_holdings": {
+      "AZO": 0.1,
+      "ENPH": 0.1,
+      "EXR": 0.1,
+      "KDP": 0.1,
+      "LLY": 0.1,
+      "PGR": 0.1,
+      "DG": 0.094171,
+      "KR": 0.079241,
+      "COST": 0.073671,
+      "MOH": 0.050021
+     },
+     "leverage": 1.0877,
+     "risk_target": 0.211647,
+     "predicted": {
+      "ret": 0.516992,
+      "vol": 0.211647,
+      "sharpe": 2.3074
+     },
+     "realized_linear_ret": -0.032488,
+     "realized_hold": {
+      "growth": 0.964982,
+      "ret": -0.035155,
+      "vol": 0.17179,
+      "sharpe": -0.469,
+      "max_drawdown": 0.127206
+     },
+     "realized_monthly": {
+      "growth": 0.930511,
+      "ret": -0.069756,
+      "vol": 0.176803,
+      "sharpe": -0.6514,
+      "max_drawdown": 0.127329
+     }
+    }
+   ]
+  },
+  {
+   "period": "2023-09-01 to 2024-08-30",
+   "cutoff": "2023-09-01",
+   "membership": {
+    "as_of": "2023-09-01",
+    "members": 504,
+    "in_the_candidate_pool": 504,
+    "investable": 474,
+    "removed_as_a_different_company": {},
+    "dropped_not_in_store": 17,
+    "dropped_history_starts_late": 13,
+    "dropped_midwindow": 0,
+    "n_unpriced_constituents": 17,
+    "unpriced_constituents": [
+     "ANSS",
+     "ATVI",
+     "CDAY",
+     "CMA",
+     "CTLT",
+     "CTRA",
+     "DFS",
+     "FLT",
+     "HES",
+     "HOLX",
+     "IPG",
+     "JNPR",
+     "K",
+     "MRO",
+     "PXD",
+     "SEE",
+     "WBA"
+    ]
+   },
+   "extra_panel": null,
+   "train": {
+    "start": "2018-09-04",
+    "bars": 1258,
+    "years": 4.988,
+    "shrinkage": 0.023267
+   },
+   "test": {
+    "end": "2024-08-30",
+    "bars": 251,
+    "years": 0.992
+   },
+   "rf_at_cutoff": 0.05268,
+   "rf_mean_over_test": 0.052247,
+   "mu_model": {
+    "kind": "history",
+    "lookback_months": 12,
+    "skip_months": 1,
+    "top_n": 10
+   },
+   "costs": null,
+   "n_investable": 474,
+   "mu_rank_correlation": 0.1317,
+   "momentum_rank_correlation": 0.1162,
+   "vol_rank_correlation": 0.6618,
+   "strategies": [
+    {
+     "strategy": "tangency@cap100",
+     "cap": 1.0,
+     "n_holdings": 6,
+     "top_holdings": {
+      "LLY": 0.468864,
+      "PWR": 0.244098,
+      "ENPH": 0.130569,
+      "TSLA": 0.108109,
+      "AZO": 0.03944,
+      "MCK": 0.00892
+     },
+     "predicted": {
+      "ret": 0.513305,
+      "vol": 0.270734,
+      "sharpe": 1.7014
+     },
+     "realized_linear_ret": 0.413123,
+     "realized_hold": {
+      "growth": 1.408912,
+      "ret": 0.412782,
+      "vol": 0.234127,
+      "sharpe": 1.5399,
+      "max_drawdown": 0.158651
+     },
+     "realized_monthly": {
+      "growth": 1.439111,
+      "ret": 0.443308,
+      "vol": 0.234859,
+      "sharpe": 1.6651,
+      "max_drawdown": 0.161738
+     }
+    },
+    {
+     "strategy": "min_variance@cap100",
+     "cap": 1.0,
+     "n_holdings": 29,
+     "top_holdings": {
+      "VZ": 0.143984,
+      "KDP": 0.072031,
+      "BMY": 0.061681,
+      "NEM": 0.061131,
+      "SW": 0.052601,
+      "HRL": 0.051181,
+      "KR": 0.050861,
+      "WMT": 0.04741,
+      "HLT": 0.04626,
+      "CLX": 0.04587
+     },
+     "predicted": {
+      "ret": 0.063594,
+      "vol": 0.135184,
+      "sharpe": 0.0807
+     },
+     "realized_linear_ret": 0.176524,
+     "realized_hold": {
+      "growth": 1.174885,
+      "ret": 0.176401,
+      "vol": 0.102557,
+      "sharpe": 1.2106,
+      "max_drawdown": 0.092271
+     },
+     "realized_monthly": {
+      "growth": 1.191775,
+      "ret": 0.193449,
+      "vol": 0.104345,
+      "sharpe": 1.3532,
+      "max_drawdown": 0.092745
+     }
+    },
+    {
+     "strategy": "matched_risk@cap100",
+     "cap": 1.0,
+     "n_holdings": 16,
+     "top_holdings": {
+      "LLY": 0.347784,
+      "PWR": 0.177282,
+      "ENPH": 0.076041,
+      "AZO": 0.075951,
+      "TSLA": 0.069761,
+      "GIS": 0.068521,
+      "CMG": 0.04024,
+      "MCK": 0.03046,
+      "KR": 0.02645,
+      "HSY": 0.02574
+     },
+     "predicted": {
+      "ret": 0.413171,
+      "vol": 0.21942,
+      "sharpe": 1.6429
+     },
+     "realized_linear_ret": 0.367357,
+     "realized_hold": {
+      "growth": 1.363674,
+      "ret": 0.367062,
+      "vol": 0.175019,
+      "sharpe": 1.7987,
+      "max_drawdown": 0.112759
+     },
+     "realized_monthly": {
+      "growth": 1.387492,
+      "ret": 0.391132,
+      "vol": 0.172353,
+      "sharpe": 1.9662,
+      "max_drawdown": 0.115833
+     }
+    },
+    {
+     "strategy": "tangency@cap20",
+     "cap": 0.2,
+     "n_holdings": 12,
+     "top_holdings": {
+      "PWR": 0.199998,
+      "LLY": 0.199997,
+      "ENPH": 0.132879,
+      "MCK": 0.104109,
+      "TSLA": 0.101769,
+      "AZO": 0.091309,
+      "AJG": 0.072549,
+      "WST": 0.041,
+      "GIS": 0.02135,
+      "HSY": 0.01637
+     },
+     "predicted": {
+      "ret": 0.462707,
+      "vol": 0.252593,
+      "sharpe": 1.6233
+     },
+     "realized_linear_ret": 0.265781,
+     "realized_hold": {
+      "growth": 1.263133,
+      "ret": 0.265496,
+      "vol": 0.169957,
+      "sharpe": 1.2547,
+      "max_drawdown": 0.131882
+     },
+     "realized_monthly": {
+      "growth": 1.294603,
+      "ret": 0.29728,
+      "vol": 0.179188,
+      "sharpe": 1.3675,
+      "max_drawdown": 0.136571
+     }
+    },
+    {
+     "strategy": "min_variance@cap20",
+     "cap": 0.2,
+     "n_holdings": 29,
+     "top_holdings": {
+      "VZ": 0.143984,
+      "KDP": 0.072031,
+      "BMY": 0.061681,
+      "NEM": 0.061131,
+      "SW": 0.052601,
+      "HRL": 0.051181,
+      "KR": 0.050861,
+      "WMT": 0.04741,
+      "HLT": 0.04626,
+      "CLX": 0.04587
+     },
+     "predicted": {
+      "ret": 0.063594,
+      "vol": 0.135184,
+      "sharpe": 0.0807
+     },
+     "realized_linear_ret": 0.176524,
+     "realized_hold": {
+      "growth": 1.174885,
+      "ret": 0.176401,
+      "vol": 0.102557,
+      "sharpe": 1.2106,
+      "max_drawdown": 0.092271
+     },
+     "realized_monthly": {
+      "growth": 1.191775,
+      "ret": 0.193449,
+      "vol": 0.104345,
+      "sharpe": 1.3532,
+      "max_drawdown": 0.092745
+     }
+    },
+    {
+     "strategy": "matched_risk@cap20",
+     "cap": 0.2,
+     "n_holdings": 15,
+     "top_holdings": {
+      "LLY": 0.2,
+      "PWR": 0.19626,
+      "ENPH": 0.09018,
+      "AZO": 0.08225,
+      "GIS": 0.0813,
+      "TSLA": 0.07326,
+      "MCK": 0.06701,
+      "AJG": 0.04484,
+      "WST": 0.03914,
+      "HSY": 0.0385
+     },
+     "predicted": {
+      "ret": 0.404011,
+      "vol": 0.21942,
+      "sharpe": 1.6012
+     },
+     "realized_linear_ret": 0.273694,
+     "realized_hold": {
+      "growth": 1.270989,
+      "ret": 0.27343,
+      "vol": 0.151407,
+      "sharpe": 1.4609,
+      "max_drawdown": 0.114707
+     },
+     "realized_monthly": {
+      "growth": 1.296297,
+      "ret": 0.298991,
+      "vol": 0.154873,
+      "sharpe": 1.5932,
+      "max_drawdown": 0.118505
+     }
+    },
+    {
+     "strategy": "tangency@cap10",
+     "cap": 0.1,
+     "n_holdings": 15,
+     "top_holdings": {
+      "AJG": 0.1,
+      "AZO": 0.1,
+      "ENPH": 0.1,
+      "LLY": 0.1,
+      "MCK": 0.1,
+      "PWR": 0.1,
+      "TSLA": 0.1,
+      "WST": 0.070253,
+      "HSY": 0.060001,
+      "ODFL": 0.056091
+     },
+     "predicted": {
+      "ret": 0.406786,
+      "vol": 0.23265,
+      "sharpe": 1.5221
+     },
+     "realized_linear_ret": 0.175254,
+     "realized_hold": {
+      "growth": 1.173495,
+      "ret": 0.174998,
+      "vol": 0.138249,
+      "sharpe": 0.8879,
+      "max_drawdown": 0.113008
+     },
+     "realized_monthly": {
+      "growth": 1.198068,
+      "ret": 0.199801,
+      "vol": 0.146435,
+      "sharpe": 1.0076,
+      "max_drawdown": 0.114951
+     }
+    },
+    {
+     "strategy": "min_variance@cap10",
+     "cap": 0.1,
+     "n_holdings": 30,
+     "top_holdings": {
+      "VZ": 0.1,
+      "KDP": 0.07339,
+      "NEM": 0.06234,
+      "BMY": 0.06199,
+      "HRL": 0.0551,
+      "SW": 0.05299,
+      "KR": 0.05138,
+      "WMT": 0.05122,
+      "CLX": 0.04818,
+      "JNJ": 0.04764
+     },
+     "predicted": {
+      "ret": 0.068452,
+      "vol": 0.135399,
+      "sharpe": 0.1165
+     },
+     "realized_linear_ret": 0.170269,
+     "realized_hold": {
+      "growth": 1.168684,
+      "ret": 0.170142,
+      "vol": 0.10071,
+      "sharpe": 1.1706,
+      "max_drawdown": 0.091869
+     },
+     "realized_monthly": {
+      "growth": 1.185054,
+      "ret": 0.186664,
+      "vol": 0.102817,
+      "sharpe": 1.3073,
+      "max_drawdown": 0.092379
+     }
+    },
+    {
+     "strategy": "matched_risk@cap10",
+     "cap": 0.1,
+     "n_holdings": 15,
+     "top_holdings": {
+      "AJG": 0.1,
+      "AZO": 0.1,
+      "ENPH": 0.1,
+      "LLY": 0.1,
+      "MCK": 0.1,
+      "PWR": 0.1,
+      "TSLA": 0.08299,
+      "GIS": 0.06881,
+      "WST": 0.06298,
+      "HSY": 0.04998
+     },
+     "predicted": {
+      "ret": 0.385076,
+      "vol": 0.219422,
+      "sharpe": 1.5149
+     },
+     "realized_linear_ret": 0.19146,
+     "realized_hold": {
+      "growth": 1.189571,
+      "ret": 0.191224,
+      "vol": 0.127997,
+      "sharpe": 1.0858,
+      "max_drawdown": 0.103544
+     },
+     "realized_monthly": {
+      "growth": 1.215652,
+      "ret": 0.217553,
+      "vol": 0.135315,
+      "sharpe": 1.2216,
+      "max_drawdown": 0.10552
+     }
+    },
+    {
+     "strategy": "equal_weight",
+     "cap": null,
+     "n_holdings": 474,
+     "top_holdings": {
+      "A": 0.00211,
+      "AAL": 0.00211,
+      "AAPL": 0.00211,
+      "ABBV": 0.00211,
+      "ABT": 0.00211,
+      "ACGL": 0.00211,
+      "ACN": 0.00211,
+      "ADBE": 0.00211,
+      "ADI": 0.00211,
+      "ADM": 0.00211
+     },
+     "predicted": {
+      "ret": 0.092336,
+      "vol": 0.226067,
+      "sharpe": 0.1754
+     },
+     "realized_linear_ret": 0.19922,
+     "realized_hold": {
+      "growth": 1.197236,
+      "ret": 0.198961,
+      "vol": 0.124254,
+      "sharpe": 1.1808,
+      "max_drawdown": 0.10654
+     },
+     "realized_monthly": {
+      "growth": 1.198127,
+      "ret": 0.199861,
+      "vol": 0.12659,
+      "sharpe": 1.1661,
+      "max_drawdown": 0.107568
+     }
+    },
+    {
+     "strategy": "momentum_top10",
+     "cap": null,
+     "n_holdings": 10,
+     "top_holdings": {
+      "AVGO": 0.1,
+      "CCL": 0.1,
+      "FICO": 0.1,
+      "GE": 0.1,
+      "META": 0.1,
+      "NFLX": 0.1,
+      "NVDA": 0.1,
+      "PHM": 0.1,
+      "RCL": 0.1,
+      "WYNN": 0.1
+     },
+     "predicted": {
+      "ret": 0.133391,
+      "vol": 0.352508,
+      "sharpe": 0.229
+     },
+     "realized_linear_ret": 0.674951,
+     "realized_hold": {
+      "growth": 1.667579,
+      "ret": 0.674415,
+      "vol": 0.230529,
+      "sharpe": 2.6989,
+      "max_drawdown": 0.113745
+     },
+     "realized_monthly": {
+      "growth": 1.649753,
+      "ret": 0.656373,
+      "vol": 0.222239,
+      "sharpe": 2.7184,
+      "max_drawdown": 0.113894
+     }
+    },
+    {
+     "strategy": "benchmark:SPY",
+     "cap": null,
+     "n_holdings": 1,
+     "top_holdings": {
+      "SPY": 1.0
+     },
+     "predicted": {
+      "ret": 0.11146,
+      "vol": 0.219421,
+      "sharpe": 0.2679
+     },
+     "realized_linear_ret": 0.269192,
+     "realized_hold": {
+      "growth": 1.266793,
+      "ret": 0.269192,
+      "vol": 0.123691,
+      "sharpe": 1.7539,
+      "max_drawdown": 0.086574
+     },
+     "realized_monthly": {
+      "growth": 1.266793,
+      "ret": 0.269192,
+      "vol": 0.123691,
+      "sharpe": 1.7539,
+      "max_drawdown": 0.086574
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap100",
+     "cap": 1.0,
+     "n_holdings": 6,
+     "top_holdings": {
+      "LLY": 0.468864,
+      "PWR": 0.244098,
+      "ENPH": 0.130569,
+      "TSLA": 0.108109,
+      "AZO": 0.03944,
+      "MCK": 0.00892
+     },
+     "leverage": 0.8105,
+     "risk_target": 0.219421,
+     "predicted": {
+      "ret": 0.426001,
+      "vol": 0.219421,
+      "sharpe": 1.7014
+     },
+     "realized_linear_ret": 0.344807,
+     "realized_hold": {
+      "growth": 1.338517,
+      "ret": 0.341643,
+      "vol": 0.189751,
+      "sharpe": 1.5251,
+      "max_drawdown": 0.12874
+     },
+     "realized_monthly": {
+      "growth": 1.361761,
+      "ret": 0.365129,
+      "vol": 0.190345,
+      "sharpe": 1.6438,
+      "max_drawdown": 0.131325
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap20",
+     "cap": 0.2,
+     "n_holdings": 12,
+     "top_holdings": {
+      "PWR": 0.199998,
+      "LLY": 0.199997,
+      "ENPH": 0.132879,
+      "MCK": 0.104109,
+      "TSLA": 0.101769,
+      "AZO": 0.091309,
+      "AJG": 0.072549,
+      "WST": 0.041,
+      "GIS": 0.02135,
+      "HSY": 0.01637
+     },
+     "leverage": 0.8687,
+     "risk_target": 0.219421,
+     "predicted": {
+      "ret": 0.408859,
+      "vol": 0.219421,
+      "sharpe": 1.6233
+     },
+     "realized_linear_ret": 0.237795,
+     "realized_hold": {
+      "growth": 1.235141,
+      "ret": 0.237229,
+      "vol": 0.147637,
+      "sharpe": 1.253,
+      "max_drawdown": 0.114377
+     },
+     "realized_monthly": {
+      "growth": 1.262056,
+      "ret": 0.264408,
+      "vol": 0.155656,
+      "sharpe": 1.363,
+      "max_drawdown": 0.118521
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap10",
+     "cap": 0.1,
+     "n_holdings": 15,
+     "top_holdings": {
+      "AJG": 0.1,
+      "AZO": 0.1,
+      "ENPH": 0.1,
+      "LLY": 0.1,
+      "MCK": 0.1,
+      "PWR": 0.1,
+      "TSLA": 0.1,
+      "WST": 0.070253,
+      "HSY": 0.060001,
+      "ODFL": 0.056091
+     },
+     "leverage": 0.9431,
+     "risk_target": 0.219421,
+     "predicted": {
+      "ret": 0.38665,
+      "vol": 0.219421,
+      "sharpe": 1.5221
+     },
+     "realized_linear_ret": 0.168284,
+     "realized_hold": {
+      "growth": 1.166805,
+      "ret": 0.168246,
+      "vol": 0.130388,
+      "sharpe": 0.8897,
+      "max_drawdown": 0.106471
+     },
+     "realized_monthly": {
+      "growth": 1.189908,
+      "ret": 0.191564,
+      "vol": 0.138108,
+      "sharpe": 1.0088,
+      "max_drawdown": 0.108315
+     }
+    }
+   ]
+  },
+  {
+   "period": "2024-08-30 to 2025-08-29",
+   "cutoff": "2024-08-30",
+   "membership": {
+    "as_of": "2024-09-01",
+    "members": 504,
+    "in_the_candidate_pool": 504,
+    "investable": 481,
+    "removed_as_a_different_company": {},
+    "dropped_not_in_store": 12,
+    "dropped_history_starts_late": 11,
+    "dropped_midwindow": 0,
+    "n_unpriced_constituents": 12,
+    "unpriced_constituents": [
+     "ANSS",
+     "CTLT",
+     "CTRA",
+     "DAY",
+     "DFS",
+     "HES",
+     "HOLX",
+     "IPG",
+     "JNPR",
+     "K",
+     "MRO",
+     "WBA"
+    ]
+   },
+   "extra_panel": null,
+   "train": {
+    "start": "2019-09-03",
+    "bars": 1258,
+    "years": 4.988,
+    "shrinkage": 0.024903
+   },
+   "test": {
+    "end": "2025-08-29",
+    "bars": 250,
+    "years": 0.988
+   },
+   "rf_at_cutoff": 0.04968,
+   "rf_mean_over_test": 0.042919,
+   "mu_model": {
+    "kind": "history",
+    "lookback_months": 12,
+    "skip_months": 1,
+    "top_n": 10
+   },
+   "costs": null,
+   "n_investable": 481,
+   "mu_rank_correlation": 0.0602,
+   "momentum_rank_correlation": 0.2203,
+   "vol_rank_correlation": 0.7291,
+   "strategies": [
+    {
+     "strategy": "tangency@cap100",
+     "cap": 1.0,
+     "n_holdings": 11,
+     "top_holdings": {
+      "LLY": 0.32882,
+      "NVDA": 0.19813,
+      "PWR": 0.12703,
+      "ABBV": 0.08151,
+      "KR": 0.07138,
+      "SMCI": 0.04973,
+      "PGR": 0.04704,
+      "MCK": 0.04041,
+      "TSLA": 0.03683,
+      "MRNA": 0.0155
+     },
+     "predicted": {
+      "ret": 0.585762,
+      "vol": 0.243573,
+      "sharpe": 2.2009
+     },
+     "realized_linear_ret": 0.109899,
+     "realized_hold": {
+      "growth": 1.107977,
+      "ret": 0.109347,
+      "vol": 0.246663,
+      "sharpe": 0.2693,
+      "max_drawdown": 0.192638
+     },
+     "realized_monthly": {
+      "growth": 1.11956,
+      "ret": 0.121084,
+      "vol": 0.256427,
+      "sharpe": 0.3048,
+      "max_drawdown": 0.197023
+     }
+    },
+    {
+     "strategy": "min_variance@cap100",
+     "cap": 1.0,
+     "n_holdings": 32,
+     "top_holdings": {
+      "VZ": 0.106965,
+      "KR": 0.064981,
+      "BMY": 0.064461,
+      "KDP": 0.063471,
+      "WMT": 0.054831,
+      "JNJ": 0.054251,
+      "SW": 0.04751,
+      "HLT": 0.04372,
+      "CLX": 0.04294,
+      "DPZ": 0.04266
+     },
+     "predicted": {
+      "ret": 0.099904,
+      "vol": 0.132472,
+      "sharpe": 0.3791
+     },
+     "realized_linear_ret": 0.067766,
+     "realized_hold": {
+      "growth": 1.066642,
+      "ret": 0.067471,
+      "vol": 0.130465,
+      "sharpe": 0.1882,
+      "max_drawdown": 0.091532
+     },
+     "realized_monthly": {
+      "growth": 1.062028,
+      "ret": 0.062798,
+      "vol": 0.132942,
+      "sharpe": 0.1495,
+      "max_drawdown": 0.09188
+     }
+    },
+    {
+     "strategy": "matched_risk@cap100",
+     "cap": 1.0,
+     "n_holdings": 12,
+     "top_holdings": {
+      "LLY": 0.257044,
+      "NVDA": 0.140121,
+      "ABBV": 0.125741,
+      "KR": 0.114111,
+      "PWR": 0.113441,
+      "PGR": 0.074081,
+      "MCK": 0.051521,
+      "SMCI": 0.03967,
+      "TSLA": 0.0332,
+      "REGN": 0.02723
+     },
+     "predicted": {
+      "ret": 0.515828,
+      "vol": 0.214171,
+      "sharpe": 2.1765
+     },
+     "realized_linear_ret": 0.09778,
+     "realized_hold": {
+      "growth": 1.096019,
+      "ret": 0.097231,
+      "vol": 0.204291,
+      "sharpe": 0.2659,
+      "max_drawdown": 0.161463
+     },
+     "realized_monthly": {
+      "growth": 1.101872,
+      "ret": 0.103161,
+      "vol": 0.214641,
+      "sharpe": 0.2807,
+      "max_drawdown": 0.168326
+     }
+    },
+    {
+     "strategy": "tangency@cap20",
+     "cap": 0.2,
+     "n_holdings": 11,
+     "top_holdings": {
+      "LLY": 0.199998,
+      "NVDA": 0.194888,
+      "ABBV": 0.129719,
+      "PWR": 0.128489,
+      "KR": 0.087379,
+      "PGR": 0.069839,
+      "MCK": 0.056739,
+      "SMCI": 0.054639,
+      "TSLA": 0.03241,
+      "REGN": 0.02902
+     },
+     "predicted": {
+      "ret": 0.552292,
+      "vol": 0.230686,
+      "sharpe": 2.1788
+     },
+     "realized_linear_ret": 0.136318,
+     "realized_hold": {
+      "growth": 1.134067,
+      "ret": 0.135787,
+      "vol": 0.226381,
+      "sharpe": 0.4102,
+      "max_drawdown": 0.180119
+     },
+     "realized_monthly": {
+      "growth": 1.147182,
+      "ret": 0.149081,
+      "vol": 0.234869,
+      "sharpe": 0.452,
+      "max_drawdown": 0.187891
+     }
+    },
+    {
+     "strategy": "min_variance@cap20",
+     "cap": 0.2,
+     "n_holdings": 32,
+     "top_holdings": {
+      "VZ": 0.106965,
+      "KR": 0.064981,
+      "BMY": 0.064461,
+      "KDP": 0.063471,
+      "WMT": 0.054831,
+      "JNJ": 0.054251,
+      "SW": 0.04751,
+      "HLT": 0.04372,
+      "CLX": 0.04294,
+      "DPZ": 0.04266
+     },
+     "predicted": {
+      "ret": 0.099904,
+      "vol": 0.132472,
+      "sharpe": 0.3791
+     },
+     "realized_linear_ret": 0.067766,
+     "realized_hold": {
+      "growth": 1.066642,
+      "ret": 0.067471,
+      "vol": 0.130465,
+      "sharpe": 0.1882,
+      "max_drawdown": 0.091532
+     },
+     "realized_monthly": {
+      "growth": 1.062028,
+      "ret": 0.062798,
+      "vol": 0.132942,
+      "sharpe": 0.1495,
+      "max_drawdown": 0.09188
+     }
+    },
+    {
+     "strategy": "matched_risk@cap20",
+     "cap": 0.2,
+     "n_holdings": 12,
+     "top_holdings": {
+      "LLY": 0.199999,
+      "NVDA": 0.153102,
+      "ABBV": 0.142352,
+      "PWR": 0.117141,
+      "KR": 0.112001,
+      "PGR": 0.080181,
+      "MCK": 0.057901,
+      "SMCI": 0.045021,
+      "REGN": 0.035991,
+      "TSLA": 0.031411
+     },
+     "predicted": {
+      "ret": 0.514081,
+      "vol": 0.214171,
+      "sharpe": 2.1684
+     },
+     "realized_linear_ret": 0.115446,
+     "realized_hold": {
+      "growth": 1.113463,
+      "ret": 0.114905,
+      "vol": 0.203487,
+      "sharpe": 0.3538,
+      "max_drawdown": 0.162361
+     },
+     "realized_monthly": {
+      "growth": 1.12141,
+      "ret": 0.122959,
+      "vol": 0.212679,
+      "sharpe": 0.3763,
+      "max_drawdown": 0.170532
+     }
+    },
+    {
+     "strategy": "tangency@cap10",
+     "cap": 0.1,
+     "n_holdings": 14,
+     "top_holdings": {
+      "ABBV": 0.1,
+      "KR": 0.1,
+      "LLY": 0.1,
+      "MCK": 0.1,
+      "NVDA": 0.1,
+      "PGR": 0.1,
+      "PWR": 0.1,
+      "REGN": 0.091741,
+      "SMCI": 0.085011,
+      "TSLA": 0.054701
+     },
+     "predicted": {
+      "ret": 0.49004,
+      "vol": 0.211579,
+      "sharpe": 2.0813
+     },
+     "realized_linear_ret": 0.082564,
+     "realized_hold": {
+      "growth": 1.08091,
+      "ret": 0.081924,
+      "vol": 0.210328,
+      "sharpe": 0.1854,
+      "max_drawdown": 0.172247
+     },
+     "realized_monthly": {
+      "growth": 1.089652,
+      "ret": 0.090779,
+      "vol": 0.222973,
+      "sharpe": 0.2146,
+      "max_drawdown": 0.186162
+     }
+    },
+    {
+     "strategy": "min_variance@cap10",
+     "cap": 0.1,
+     "n_holdings": 32,
+     "top_holdings": {
+      "VZ": 0.1,
+      "KR": 0.065086,
+      "BMY": 0.064501,
+      "KDP": 0.063701,
+      "WMT": 0.055221,
+      "JNJ": 0.054721,
+      "SW": 0.04759,
+      "HLT": 0.0438,
+      "CLX": 0.04333,
+      "DPZ": 0.04278
+     },
+     "predicted": {
+      "ret": 0.100492,
+      "vol": 0.132478,
+      "sharpe": 0.3835
+     },
+     "realized_linear_ret": 0.06691,
+     "realized_hold": {
+      "growth": 1.065794,
+      "ret": 0.066613,
+      "vol": 0.130437,
+      "sharpe": 0.1817,
+      "max_drawdown": 0.09162
+     },
+     "realized_monthly": {
+      "growth": 1.061074,
+      "ret": 0.061832,
+      "vol": 0.13294,
+      "sharpe": 0.1423,
+      "max_drawdown": 0.091965
+     }
+    },
+    {
+     "strategy": "matched_risk@cap10",
+     "cap": 0.1,
+     "n_holdings": 14,
+     "top_holdings": {
+      "ABBV": 0.099999,
+      "LLY": 0.099999,
+      "MCK": 0.099999,
+      "NVDA": 0.099999,
+      "PGR": 0.099999,
+      "PWR": 0.099999,
+      "KR": 0.096969,
+      "SMCI": 0.091489,
+      "REGN": 0.089629,
+      "TSLA": 0.058889
+     },
+     "predicted": {
+      "ret": 0.495312,
+      "vol": 0.21417,
+      "sharpe": 2.0807
+     },
+     "realized_linear_ret": 0.085353,
+     "realized_hold": {
+      "growth": 1.083666,
+      "ret": 0.084715,
+      "vol": 0.215394,
+      "sharpe": 0.194,
+      "max_drawdown": 0.176565
+     },
+     "realized_monthly": {
+      "growth": 1.094707,
+      "ret": 0.095902,
+      "vol": 0.228577,
+      "sharpe": 0.2318,
+      "max_drawdown": 0.190584
+     }
+    },
+    {
+     "strategy": "equal_weight",
+     "cap": null,
+     "n_holdings": 481,
+     "top_holdings": {
+      "A": 0.002079,
+      "AAL": 0.002079,
+      "AAPL": 0.002079,
+      "ABBV": 0.002079,
+      "ABT": 0.002079,
+      "ACGL": 0.002079,
+      "ACN": 0.002079,
+      "ADBE": 0.002079,
+      "ADI": 0.002079,
+      "ADM": 0.002079
+     },
+     "predicted": {
+      "ret": 0.132514,
+      "vol": 0.22072,
+      "sharpe": 0.3753
+     },
+     "realized_linear_ret": 0.095404,
+     "realized_hold": {
+      "growth": 1.093724,
+      "ret": 0.094905,
+      "vol": 0.171845,
+      "sharpe": 0.3025,
+      "max_drawdown": 0.180502
+     },
+     "realized_monthly": {
+      "growth": 1.091823,
+      "ret": 0.092979,
+      "vol": 0.175152,
+      "sharpe": 0.2858,
+      "max_drawdown": 0.178558
+     }
+    },
+    {
+     "strategy": "momentum_top10",
+     "cap": null,
+     "n_holdings": 10,
+     "top_holdings": {
+      "DECK": 0.1,
+      "FICO": 0.1,
+      "GDDY": 0.1,
+      "GE": 0.1,
+      "HWM": 0.1,
+      "KKR": 0.1,
+      "NRG": 0.1,
+      "NVDA": 0.1,
+      "SMCI": 0.1,
+      "VST": 0.1
+     },
+     "predicted": {
+      "ret": 0.455053,
+      "vol": 0.297893,
+      "sharpe": 1.3608
+     },
+     "realized_linear_ret": 0.347337,
+     "realized_hold": {
+      "growth": 1.341584,
+      "ret": 0.346342,
+      "vol": 0.363856,
+      "sharpe": 0.8339,
+      "max_drawdown": 0.302089
+     },
+     "realized_monthly": {
+      "growth": 1.355653,
+      "ret": 0.360632,
+      "vol": 0.363663,
+      "sharpe": 0.8736,
+      "max_drawdown": 0.291415
+     }
+    },
+    {
+     "strategy": "benchmark:SPY",
+     "cap": null,
+     "n_holdings": 1,
+     "top_holdings": {
+      "SPY": 1.0
+     },
+     "predicted": {
+      "ret": 0.160112,
+      "vol": 0.21417,
+      "sharpe": 0.5156
+     },
+     "realized_linear_ret": 0.160665,
+     "realized_hold": {
+      "growth": 1.158608,
+      "ret": 0.160665,
+      "vol": 0.197778,
+      "sharpe": 0.5953,
+      "max_drawdown": 0.187552
+     },
+     "realized_monthly": {
+      "growth": 1.158608,
+      "ret": 0.160665,
+      "vol": 0.197778,
+      "sharpe": 0.5953,
+      "max_drawdown": 0.187552
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap100",
+     "cap": 1.0,
+     "n_holdings": 11,
+     "top_holdings": {
+      "LLY": 0.32882,
+      "NVDA": 0.19813,
+      "PWR": 0.12703,
+      "ABBV": 0.08151,
+      "KR": 0.07138,
+      "SMCI": 0.04973,
+      "PGR": 0.04704,
+      "MCK": 0.04041,
+      "TSLA": 0.03683,
+      "MRNA": 0.0155
+     },
+     "leverage": 0.8793,
+     "risk_target": 0.21417,
+     "predicted": {
+      "ret": 0.521048,
+      "vol": 0.21417,
+      "sharpe": 2.2009
+     },
+     "realized_linear_ret": 0.102629,
+     "realized_hold": {
+      "growth": 1.103364,
+      "ret": 0.104672,
+      "vol": 0.216887,
+      "sharpe": 0.2847,
+      "max_drawdown": 0.170303
+     },
+     "realized_monthly": {
+      "growth": 1.113781,
+      "ret": 0.115228,
+      "vol": 0.225473,
+      "sharpe": 0.3207,
+      "max_drawdown": 0.174231
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap20",
+     "cap": 0.2,
+     "n_holdings": 11,
+     "top_holdings": {
+      "LLY": 0.199998,
+      "NVDA": 0.194888,
+      "ABBV": 0.129719,
+      "PWR": 0.128489,
+      "KR": 0.087379,
+      "PGR": 0.069839,
+      "MCK": 0.056739,
+      "SMCI": 0.054639,
+      "TSLA": 0.03241,
+      "REGN": 0.02902
+     },
+     "leverage": 0.9284,
+     "risk_target": 0.21417,
+     "predicted": {
+      "ret": 0.516307,
+      "vol": 0.21417,
+      "sharpe": 2.1788
+     },
+     "realized_linear_ret": 0.130115,
+     "realized_hold": {
+      "growth": 1.129146,
+      "ret": 0.1308,
+      "vol": 0.210173,
+      "sharpe": 0.4181,
+      "max_drawdown": 0.167688
+     },
+     "realized_monthly": {
+      "growth": 1.141404,
+      "ret": 0.143225,
+      "vol": 0.218053,
+      "sharpe": 0.46,
+      "max_drawdown": 0.174993
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap10",
+     "cap": 0.1,
+     "n_holdings": 14,
+     "top_holdings": {
+      "ABBV": 0.1,
+      "KR": 0.1,
+      "LLY": 0.1,
+      "MCK": 0.1,
+      "NVDA": 0.1,
+      "PGR": 0.1,
+      "PWR": 0.1,
+      "REGN": 0.091741,
+      "SMCI": 0.085011,
+      "TSLA": 0.054701
+     },
+     "leverage": 1.0122,
+     "risk_target": 0.21417,
+     "predicted": {
+      "ret": 0.495432,
+      "vol": 0.21417,
+      "sharpe": 2.0813
+     },
+     "realized_linear_ret": 0.082966,
+     "realized_hold": {
+      "growth": 1.081097,
+      "ret": 0.082113,
+      "vol": 0.212904,
+      "sharpe": 0.1841,
+      "max_drawdown": 0.174276
+     },
+     "realized_monthly": {
+      "growth": 1.089912,
+      "ret": 0.091044,
+      "vol": 0.225703,
+      "sharpe": 0.2132,
+      "max_drawdown": 0.188329
+     }
+    }
+   ]
+  },
+  {
+   "period": "2025-08-29 to 2026-09-01",
+   "cutoff": "2025-08-29",
+   "membership": {
+    "as_of": "2025-09-01",
+    "members": 504,
+    "in_the_candidate_pool": 504,
+    "investable": 486,
+    "removed_as_a_different_company": {},
+    "dropped_not_in_store": 5,
+    "dropped_history_starts_late": 13,
+    "dropped_midwindow": 0,
+    "n_unpriced_constituents": 5,
+    "unpriced_constituents": [
+     "CTRA",
+     "DAY",
+     "HOLX",
+     "IPG",
+     "K"
+    ]
+   },
+   "extra_panel": null,
+   "train": {
+    "start": "2020-09-01",
+    "bars": 1255,
+    "years": 4.976,
+    "shrinkage": 0.016403
+   },
+   "test": {
+    "end": "2026-09-01",
+    "bars": 252,
+    "years": 0.996
+   },
+   "rf_at_cutoff": 0.04043,
+   "rf_mean_over_test": 0.036749,
+   "mu_model": {
+    "kind": "history",
+    "lookback_months": 12,
+    "skip_months": 1,
+    "top_n": 10
+   },
+   "costs": null,
+   "n_investable": 486,
+   "mu_rank_correlation": 0.1456,
+   "momentum_rank_correlation": 0.0356,
+   "vol_rank_correlation": 0.7397,
+   "strategies": [
+    {
+     "strategy": "tangency@cap100",
+     "cap": 1.0,
+     "n_holdings": 18,
+     "top_holdings": {
+      "MCK": 0.204565,
+      "TRGP": 0.110209,
+      "CBOE": 0.098109,
+      "LLY": 0.092929,
+      "GE": 0.074369,
+      "AVGO": 0.052219,
+      "TKO": 0.04919,
+      "AXON": 0.04639,
+      "HWM": 0.04576,
+      "PM": 0.04374
+     },
+     "predicted": {
+      "ret": 0.432291,
+      "vol": 0.163316,
+      "sharpe": 2.3994
+     },
+     "realized_linear_ret": 0.274443,
+     "realized_hold": {
+      "growth": 1.273063,
+      "ret": 0.274288,
+      "vol": 0.125711,
+      "sharpe": 1.8896,
+      "max_drawdown": 0.103341
+     },
+     "realized_monthly": {
+      "growth": 1.294291,
+      "ret": 0.295622,
+      "vol": 0.124814,
+      "sharpe": 2.0741,
+      "max_drawdown": 0.106812
+     }
+    },
+    {
+     "strategy": "min_variance@cap100",
+     "cap": 1.0,
+     "n_holdings": 54,
+     "top_holdings": {
+      "JNJ": 0.092155,
+      "LMT": 0.069151,
+      "VZ": 0.063921,
+      "CBOE": 0.062151,
+      "MCD": 0.053371,
+      "WMT": 0.052011,
+      "KMB": 0.04881,
+      "CME": 0.04325,
+      "HRL": 0.03906,
+      "DGX": 0.03774
+     },
+     "predicted": {
+      "ret": 0.109891,
+      "vol": 0.105636,
+      "sharpe": 0.6576
+     },
+     "realized_linear_ret": 0.176741,
+     "realized_hold": {
+      "growth": 1.175866,
+      "ret": 0.176625,
+      "vol": 0.106286,
+      "sharpe": 1.316,
+      "max_drawdown": 0.087196
+     },
+     "realized_monthly": {
+      "growth": 1.193199,
+      "ret": 0.194039,
+      "vol": 0.106898,
+      "sharpe": 1.4714,
+      "max_drawdown": 0.076656
+     }
+    },
+    {
+     "strategy": "matched_risk@cap100",
+     "cap": 1.0,
+     "n_holdings": 18,
+     "top_holdings": {
+      "MCK": 0.2256,
+      "TRGP": 0.13481,
+      "LLY": 0.10153,
+      "GE": 0.09115,
+      "CBOE": 0.07678,
+      "HWM": 0.06213,
+      "AVGO": 0.05341,
+      "AXON": 0.05153,
+      "TKO": 0.04491,
+      "VST": 0.03948
+     },
+     "predicted": {
+      "ret": 0.466793,
+      "vol": 0.178723,
+      "sharpe": 2.3856
+     },
+     "realized_linear_ret": 0.311031,
+     "realized_hold": {
+      "growth": 1.309468,
+      "ret": 0.310876,
+      "vol": 0.13483,
+      "sharpe": 2.0331,
+      "max_drawdown": 0.109761
+     },
+     "realized_monthly": {
+      "growth": 1.331737,
+      "ret": 0.333258,
+      "vol": 0.135258,
+      "sharpe": 2.1922,
+      "max_drawdown": 0.115264
+     }
+    },
+    {
+     "strategy": "tangency@cap20",
+     "cap": 0.2,
+     "n_holdings": 19,
+     "top_holdings": {
+      "MCK": 0.2,
+      "TRGP": 0.110352,
+      "CBOE": 0.098891,
+      "LLY": 0.093371,
+      "GE": 0.074651,
+      "AVGO": 0.052111,
+      "TKO": 0.049211,
+      "AXON": 0.046321,
+      "HWM": 0.046041,
+      "PM": 0.044571
+     },
+     "predicted": {
+      "ret": 0.431867,
+      "vol": 0.163142,
+      "sharpe": 2.3994
+     },
+     "realized_linear_ret": 0.27357,
+     "realized_hold": {
+      "growth": 1.272194,
+      "ret": 0.273414,
+      "vol": 0.125195,
+      "sharpe": 1.8904,
+      "max_drawdown": 0.103039
+     },
+     "realized_monthly": {
+      "growth": 1.293258,
+      "ret": 0.294584,
+      "vol": 0.124292,
+      "sharpe": 2.0744,
+      "max_drawdown": 0.106486
+     }
+    },
+    {
+     "strategy": "min_variance@cap20",
+     "cap": 0.2,
+     "n_holdings": 54,
+     "top_holdings": {
+      "JNJ": 0.092155,
+      "LMT": 0.069151,
+      "VZ": 0.063921,
+      "CBOE": 0.062151,
+      "MCD": 0.053371,
+      "WMT": 0.052011,
+      "KMB": 0.04881,
+      "CME": 0.04325,
+      "HRL": 0.03906,
+      "DGX": 0.03774
+     },
+     "predicted": {
+      "ret": 0.109891,
+      "vol": 0.105636,
+      "sharpe": 0.6576
+     },
+     "realized_linear_ret": 0.176741,
+     "realized_hold": {
+      "growth": 1.175866,
+      "ret": 0.176625,
+      "vol": 0.106286,
+      "sharpe": 1.316,
+      "max_drawdown": 0.087196
+     },
+     "realized_monthly": {
+      "growth": 1.193199,
+      "ret": 0.194039,
+      "vol": 0.106898,
+      "sharpe": 1.4714,
+      "max_drawdown": 0.076656
+     }
+    },
+    {
+     "strategy": "matched_risk@cap20",
+     "cap": 0.2,
+     "n_holdings": 18,
+     "top_holdings": {
+      "MCK": 0.199997,
+      "TRGP": 0.137389,
+      "LLY": 0.105019,
+      "GE": 0.093869,
+      "CBOE": 0.080259,
+      "HWM": 0.064819,
+      "AVGO": 0.052939,
+      "AXON": 0.051479,
+      "TKO": 0.04484,
+      "VST": 0.04016
+     },
+     "predicted": {
+      "ret": 0.466613,
+      "vol": 0.178724,
+      "sharpe": 2.3846
+     },
+     "realized_linear_ret": 0.308099,
+     "realized_hold": {
+      "growth": 1.306545,
+      "ret": 0.307938,
+      "vol": 0.132542,
+      "sharpe": 2.0461,
+      "max_drawdown": 0.108422
+     },
+     "realized_monthly": {
+      "growth": 1.327812,
+      "ret": 0.329312,
+      "vol": 0.132874,
+      "sharpe": 2.2018,
+      "max_drawdown": 0.113852
+     }
+    },
+    {
+     "strategy": "tangency@cap10",
+     "cap": 0.1,
+     "n_holdings": 20,
+     "top_holdings": {
+      "CBOE": 0.1,
+      "TRGP": 0.1,
+      "MCK": 0.099997,
+      "LLY": 0.096921,
+      "GE": 0.077021,
+      "COR": 0.063291,
+      "HWM": 0.053061,
+      "PM": 0.049201,
+      "TKO": 0.048871,
+      "AVGO": 0.048571
+     },
+     "predicted": {
+      "ret": 0.42181,
+      "vol": 0.160023,
+      "sharpe": 2.3833
+     },
+     "realized_linear_ret": 0.248011,
+     "realized_hold": {
+      "growth": 1.246756,
+      "ret": 0.247852,
+      "vol": 0.120339,
+      "sharpe": 1.7542,
+      "max_drawdown": 0.104835
+     },
+     "realized_monthly": {
+      "growth": 1.266531,
+      "ret": 0.267724,
+      "vol": 0.119743,
+      "sharpe": 1.9289,
+      "max_drawdown": 0.107898
+     }
+    },
+    {
+     "strategy": "min_variance@cap10",
+     "cap": 0.1,
+     "n_holdings": 54,
+     "top_holdings": {
+      "JNJ": 0.092155,
+      "LMT": 0.069151,
+      "VZ": 0.063921,
+      "CBOE": 0.062151,
+      "MCD": 0.053371,
+      "WMT": 0.052011,
+      "KMB": 0.04881,
+      "CME": 0.04325,
+      "HRL": 0.03906,
+      "DGX": 0.03774
+     },
+     "predicted": {
+      "ret": 0.109892,
+      "vol": 0.105636,
+      "sharpe": 0.6576
+     },
+     "realized_linear_ret": 0.176743,
+     "realized_hold": {
+      "growth": 1.175868,
+      "ret": 0.176628,
+      "vol": 0.106284,
+      "sharpe": 1.3161,
+      "max_drawdown": 0.087194
+     },
+     "realized_monthly": {
+      "growth": 1.193202,
+      "ret": 0.194042,
+      "vol": 0.106897,
+      "sharpe": 1.4715,
+      "max_drawdown": 0.076655
+     }
+    },
+    {
+     "strategy": "matched_risk@cap10",
+     "cap": 0.1,
+     "n_holdings": 19,
+     "top_holdings": {
+      "GE": 0.1,
+      "LLY": 0.1,
+      "MCK": 0.1,
+      "TRGP": 0.1,
+      "HWM": 0.09185,
+      "CBOE": 0.08576,
+      "COR": 0.06842,
+      "AXON": 0.05421,
+      "AVGO": 0.0508,
+      "VST": 0.05026
+     },
+     "predicted": {
+      "ret": 0.46216,
+      "vol": 0.178723,
+      "sharpe": 2.3597
+     },
+     "realized_linear_ret": 0.265407,
+     "realized_hold": {
+      "growth": 1.264065,
+      "ret": 0.265246,
+      "vol": 0.134055,
+      "sharpe": 1.7045,
+      "max_drawdown": 0.11804
+     },
+     "realized_monthly": {
+      "growth": 1.285397,
+      "ret": 0.286683,
+      "vol": 0.135139,
+      "sharpe": 1.8495,
+      "max_drawdown": 0.122873
+     }
+    },
+    {
+     "strategy": "equal_weight",
+     "cap": null,
+     "n_holdings": 486,
+     "top_holdings": {
+      "A": 0.002058,
+      "AAPL": 0.002058,
+      "ABBV": 0.002058,
+      "ABT": 0.002058,
+      "ACGL": 0.002058,
+      "ACN": 0.002058,
+      "ADBE": 0.002058,
+      "ADI": 0.002058,
+      "ADM": 0.002058,
+      "ADP": 0.002058
+     },
+     "predicted": {
+      "ret": 0.130225,
+      "vol": 0.169373,
+      "sharpe": 0.5302
+     },
+     "realized_linear_ret": 0.186417,
+     "realized_hold": {
+      "growth": 1.185205,
+      "ret": 0.186007,
+      "vol": 0.117853,
+      "sharpe": 1.2665,
+      "max_drawdown": 0.078488
+     },
+     "realized_monthly": {
+      "growth": 1.172501,
+      "ret": 0.173244,
+      "vol": 0.114701,
+      "sharpe": 1.19,
+      "max_drawdown": 0.077042
+     }
+    },
+    {
+     "strategy": "momentum_top10",
+     "cap": null,
+     "n_holdings": 10,
+     "top_holdings": {
+      "AVGO": 0.1,
+      "AXON": 0.1,
+      "HWM": 0.1,
+      "IBKR": 0.1,
+      "JBL": 0.1,
+      "NRG": 0.1,
+      "RCL": 0.1,
+      "TPR": 0.1,
+      "UAL": 0.1,
+      "VST": 0.1
+     },
+     "predicted": {
+      "ret": 0.46634,
+      "vol": 0.274339,
+      "sharpe": 1.5525
+     },
+     "realized_linear_ret": 0.078962,
+     "realized_hold": {
+      "growth": 1.078453,
+      "ret": 0.078778,
+      "vol": 0.274722,
+      "sharpe": 0.153,
+      "max_drawdown": 0.163184
+     },
+     "realized_monthly": {
+      "growth": 1.08544,
+      "ret": 0.085794,
+      "vol": 0.274393,
+      "sharpe": 0.1787,
+      "max_drawdown": 0.16834
+     }
+    },
+    {
+     "strategy": "benchmark:SPY",
+     "cap": null,
+     "n_holdings": 1,
+     "top_holdings": {
+      "SPY": 1.0
+     },
+     "predicted": {
+      "ret": 0.14536,
+      "vol": 0.178722,
+      "sharpe": 0.5871
+     },
+     "realized_linear_ret": 0.194892,
+     "realized_hold": {
+      "growth": 1.194048,
+      "ret": 0.194892,
+      "vol": 0.12813,
+      "sharpe": 1.2342,
+      "max_drawdown": 0.08885
+     },
+     "realized_monthly": {
+      "growth": 1.194048,
+      "ret": 0.194892,
+      "vol": 0.12813,
+      "sharpe": 1.2342,
+      "max_drawdown": 0.08885
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap100",
+     "cap": 1.0,
+     "n_holdings": 18,
+     "top_holdings": {
+      "MCK": 0.204565,
+      "TRGP": 0.110209,
+      "CBOE": 0.098109,
+      "LLY": 0.092929,
+      "GE": 0.074369,
+      "AVGO": 0.052219,
+      "TKO": 0.04919,
+      "AXON": 0.04639,
+      "HWM": 0.04576,
+      "PM": 0.04374
+     },
+     "leverage": 1.0943,
+     "risk_target": 0.178722,
+     "predicted": {
+      "ret": 0.469257,
+      "vol": 0.178722,
+      "sharpe": 2.3994
+     },
+     "realized_linear_ret": 0.296518,
+     "realized_hold": {
+      "growth": 1.296927,
+      "ret": 0.298271,
+      "vol": 0.13757,
+      "sharpe": 1.901,
+      "max_drawdown": 0.112844
+     },
+     "realized_monthly": {
+      "growth": 1.320624,
+      "ret": 0.322088,
+      "vol": 0.136588,
+      "sharpe": 2.0891,
+      "max_drawdown": 0.116602
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap20",
+     "cap": 0.2,
+     "n_holdings": 19,
+     "top_holdings": {
+      "MCK": 0.2,
+      "TRGP": 0.110352,
+      "CBOE": 0.098891,
+      "LLY": 0.093371,
+      "GE": 0.074651,
+      "AVGO": 0.052111,
+      "TKO": 0.049211,
+      "AXON": 0.046321,
+      "HWM": 0.046041,
+      "PM": 0.044571
+     },
+     "leverage": 1.0955,
+     "risk_target": 0.178722,
+     "predicted": {
+      "ret": 0.46925,
+      "vol": 0.178722,
+      "sharpe": 2.3994
+     },
+     "realized_linear_ret": 0.295835,
+     "realized_hold": {
+      "growth": 1.296261,
+      "ret": 0.297602,
+      "vol": 0.137151,
+      "sharpe": 1.9019,
+      "max_drawdown": 0.112633
+     },
+     "realized_monthly": {
+      "growth": 1.319807,
+      "ret": 0.321267,
+      "vol": 0.136162,
+      "sharpe": 2.0896,
+      "max_drawdown": 0.116369
+     }
+    },
+    {
+     "strategy": "tangency_levered@cap10",
+     "cap": 0.1,
+     "n_holdings": 20,
+     "top_holdings": {
+      "CBOE": 0.1,
+      "TRGP": 0.1,
+      "MCK": 0.099997,
+      "LLY": 0.096921,
+      "GE": 0.077021,
+      "COR": 0.063291,
+      "HWM": 0.053061,
+      "PM": 0.049201,
+      "TKO": 0.048871,
+      "AVGO": 0.048571
+     },
+     "leverage": 1.1169,
+     "risk_target": 0.178722,
+     "predicted": {
+      "ret": 0.466376,
+      "vol": 0.178722,
+      "sharpe": 2.3833
+     },
+     "realized_linear_ret": 0.272268,
+     "realized_hold": {
+      "growth": 1.272744,
+      "ret": 0.273968,
+      "vol": 0.134401,
+      "sharpe": 1.765,
+      "max_drawdown": 0.11674
+     },
+     "realized_monthly": {
+      "growth": 1.295322,
+      "ret": 0.296658,
+      "vol": 0.133735,
+      "sharpe": 1.9435,
+      "max_drawdown": 0.120117
+     }
+    }
+   ]
+  }
+ ]
+}

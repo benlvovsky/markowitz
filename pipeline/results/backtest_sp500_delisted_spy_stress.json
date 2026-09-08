@@ -1,0 +1,81 @@
+{
+  "kind": "stress_bound",
+  "unpriceable": [
+    "DFS",
+    "HES",
+    "MRO",
+    "PXD",
+    "WRK"
+  ],
+  "span": {
+    "start": "2023-09-01",
+    "end": "2026-09-03",
+    "years": 3.006
+  },
+  "best_observed_growth": {
+    "symbol": "CMA",
+    "multiple": 2.2065
+  },
+  "spy_growth": 1.7787,
+  "equal_weight": {
+    "held": 489,
+    "annualised": {
+      "as_measured": 0.16138,
+      "five_wiped_out": 0.15745,
+      "five_at_the_best_observed": 0.16297
+    },
+    "widest_swing_pp_per_year": 0.551
+  },
+  "optimised": {
+    "tangency@cap100": {
+      "return_per_unit_of_risk": 1.4679,
+      "benchmark_return_per_unit_of_risk": 1.48,
+      "max_exposure_at_this_cap": 1.0,
+      "terminal_shortfall_needed": -0.00548,
+      "shortfall_over_that_exposure": -0.00548,
+      "times_a_restored_name_was_held": 0
+    },
+    "matched_risk@cap100": {
+      "return_per_unit_of_risk": 1.5208,
+      "benchmark_return_per_unit_of_risk": 1.48,
+      "max_exposure_at_this_cap": 1.0,
+      "terminal_shortfall_needed": 0.01759,
+      "shortfall_over_that_exposure": 0.01759,
+      "times_a_restored_name_was_held": 0
+    },
+    "tangency@cap20": {
+      "return_per_unit_of_risk": 1.5893,
+      "benchmark_return_per_unit_of_risk": 1.48,
+      "max_exposure_at_this_cap": 1.0,
+      "terminal_shortfall_needed": 0.04399,
+      "shortfall_over_that_exposure": 0.04399,
+      "times_a_restored_name_was_held": 0
+    },
+    "matched_risk@cap20": {
+      "return_per_unit_of_risk": 1.6222,
+      "benchmark_return_per_unit_of_risk": 1.48,
+      "max_exposure_at_this_cap": 1.0,
+      "terminal_shortfall_needed": 0.05752,
+      "shortfall_over_that_exposure": 0.05752,
+      "times_a_restored_name_was_held": 0
+    },
+    "tangency@cap10": {
+      "return_per_unit_of_risk": 1.7955,
+      "benchmark_return_per_unit_of_risk": 1.48,
+      "max_exposure_at_this_cap": 0.5,
+      "terminal_shortfall_needed": 0.10704,
+      "shortfall_over_that_exposure": 0.21409,
+      "times_a_restored_name_was_held": 0
+    },
+    "matched_risk@cap10": {
+      "return_per_unit_of_risk": 1.7711,
+      "benchmark_return_per_unit_of_risk": 1.48,
+      "max_exposure_at_this_cap": 0.5,
+      "terminal_shortfall_needed": 0.10594,
+      "shortfall_over_that_exposure": 0.21188,
+      "times_a_restored_name_was_held": 0
+    }
+  },
+  "restored_names_in_this_result": "panel_spy.parquet",
+  "result": "backtest_sp500_delisted_spy.json"
+}

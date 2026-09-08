@@ -1,0 +1,176 @@
+{
+  "generated_at": "2026-09-06T06:14:31+00:00",
+  "source": "stockanalysis.com",
+  "continuation": "cash",
+  "continuation_note": "proceeds in 13-week T-bills at ^IRX as it moved",
+  "terminal_bar_rule": "the last traded bar is dropped; see delisted.py's docstring",
+  "gate": "not run this invocation",
+  "gate_threshold": 0.005,
+  "spinoff_controls_excluded_from_gate": [
+    "T"
+  ],
+  "caveats": [
+    "K (Kellanova) spun off WK Kellogg in 2023 and this vendor credits a distribution in kind that the store does not, so K's level carries the same disagreement the T control measures at 1.0e-1 and there is no second series to resolve it against",
+    "CTRA's last traded bar is 2026-05-06 and the corporate event behind the delisting is not known here; the terminal level is what the market paid, which is the number the measurement needs, but the event is unstated because it was not verified",
+    "5 constituents (DFS, HES, MRO, PXD, WRK) are served by neither vendor at any date and are not in this panel at all"
+  ],
+  "unpriceable": [
+    "DFS",
+    "HES",
+    "MRO",
+    "PXD",
+    "WRK"
+  ],
+  "symbols": {
+    "ANSS": {
+      "served_as": "ANSS",
+      "first": "2015-07-16",
+      "real_bars": 2514,
+      "continued_bars": 287,
+      "terminal_date": "2025-07-15",
+      "terminal_level": 392.72,
+      "dropped_date": "2025-07-16",
+      "dropped_level": 374.3,
+      "dropped_volume": 18893246,
+      "dropped_bar_return": -0.046904
+    },
+    "ATVI": {
+      "served_as": "ATVI",
+      "first": "2013-10-15",
+      "real_bars": 2516,
+      "continued_bars": 725,
+      "terminal_date": "2023-10-12",
+      "terminal_level": 94.42,
+      "dropped_date": "2023-10-13",
+      "dropped_level": 94.42,
+      "dropped_volume": 1,
+      "dropped_bar_return": 0.0
+    },
+    "CDAY": {
+      "served_as": "DAY",
+      "first": "2018-04-27",
+      "real_bars": 1952,
+      "continued_bars": 148,
+      "terminal_date": "2026-02-02",
+      "terminal_level": 68.92,
+      "dropped_date": "2026-02-03",
+      "dropped_level": 69.86,
+      "dropped_volume": 29599828,
+      "dropped_bar_return": 0.013639
+    },
+    "CMA": {
+      "served_as": "CMA",
+      "first": "2016-02-01",
+      "real_bars": 2514,
+      "continued_bars": 150,
+      "terminal_date": "2026-01-29",
+      "terminal_level": 92.86,
+      "dropped_date": "2026-01-30",
+      "dropped_level": 88.67,
+      "dropped_volume": 47848352,
+      "dropped_bar_return": -0.045122
+    },
+    "CTLT": {
+      "served_as": "CTLT",
+      "first": "2014-12-18",
+      "real_bars": 2516,
+      "continued_bars": 428,
+      "terminal_date": "2024-12-17",
+      "terminal_level": 63.48,
+      "dropped_date": "2024-12-18",
+      "dropped_level": 63.48,
+      "dropped_volume": 0,
+      "dropped_bar_return": 0.0
+    },
+    "CTRA": {
+      "served_as": "CTRA",
+      "first": "2016-05-06",
+      "real_bars": 2513,
+      "continued_bars": 84,
+      "terminal_date": "2026-05-05",
+      "terminal_level": 35.63,
+      "dropped_date": "2026-05-06",
+      "dropped_level": 32.56,
+      "dropped_volume": 69181126,
+      "dropped_bar_return": -0.086163
+    },
+    "HOLX": {
+      "served_as": "HOLX",
+      "first": "2016-04-06",
+      "real_bars": 2513,
+      "continued_bars": 106,
+      "terminal_date": "2026-04-02",
+      "terminal_level": 75.65,
+      "dropped_date": "2026-04-06",
+      "dropped_level": 76.01,
+      "dropped_volume": 101701146,
+      "dropped_bar_return": 0.004759
+    },
+    "IPG": {
+      "served_as": "IPG",
+      "first": "2015-11-27",
+      "real_bars": 2514,
+      "continued_bars": 193,
+      "terminal_date": "2025-11-25",
+      "terminal_level": 25.06,
+      "dropped_date": "2025-11-26",
+      "dropped_level": 24.57,
+      "dropped_volume": 81319698,
+      "dropped_bar_return": -0.019553
+    },
+    "JNPR": {
+      "served_as": "JNPR",
+      "first": "2015-07-02",
+      "real_bars": 2514,
+      "continued_bars": 296,
+      "terminal_date": "2025-07-01",
+      "terminal_level": 39.95,
+      "dropped_date": "2025-07-02",
+      "dropped_level": 39.95,
+      "dropped_volume": 0,
+      "dropped_bar_return": 0.0
+    },
+    "K": {
+      "served_as": "K",
+      "first": "2015-12-10",
+      "real_bars": 2514,
+      "continued_bars": 184,
+      "terminal_date": "2025-12-09",
+      "terminal_level": 83.45,
+      "dropped_date": "2025-12-10",
+      "dropped_level": 83.44,
+      "dropped_volume": 9946509,
+      "dropped_bar_return": -0.00012
+    },
+    "SEE": {
+      "served_as": "SEE",
+      "first": "2016-04-08",
+      "real_bars": 2513,
+      "continued_bars": 104,
+      "terminal_date": "2026-04-07",
+      "terminal_level": 42.14,
+      "dropped_date": "2026-04-08",
+      "dropped_level": 42.15,
+      "dropped_volume": 3312261,
+      "dropped_bar_return": 0.000237
+    },
+    "WBA": {
+      "served_as": "WBA",
+      "first": "2015-08-27",
+      "real_bars": 2514,
+      "continued_bars": 257,
+      "terminal_date": "2025-08-26",
+      "terminal_level": 11.92,
+      "dropped_date": "2025-08-27",
+      "dropped_level": 11.98,
+      "dropped_volume": 452081061,
+      "dropped_bar_return": 0.005034
+    }
+  },
+  "panel": {
+    "start": "2013-10-15",
+    "end": "2026-09-03",
+    "bars": 3241,
+    "columns": 12
+  }
+}

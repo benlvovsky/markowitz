@@ -1,0 +1,81 @@
+{
+  "kind": "stress_bound",
+  "unpriceable": [
+    "DFS",
+    "HES",
+    "MRO",
+    "PXD",
+    "WRK"
+  ],
+  "span": {
+    "start": "2023-09-01",
+    "end": "2026-09-03",
+    "years": 3.006
+  },
+  "best_observed_growth": {
+    "symbol": "CMA",
+    "multiple": 2.2065
+  },
+  "spy_growth": 1.7787,
+  "equal_weight": {
+    "held": 477,
+    "annualised": {
+      "as_measured": 0.16156,
+      "five_wiped_out": 0.15753,
+      "five_at_the_best_observed": 0.16318
+    },
+    "widest_swing_pp_per_year": 0.565
+  },
+  "optimised": {
+    "tangency@cap100": {
+      "return_per_unit_of_risk": 1.4651,
+      "benchmark_return_per_unit_of_risk": 1.48,
+      "max_exposure_at_this_cap": 1.0,
+      "terminal_shortfall_needed": -0.00676,
+      "shortfall_over_that_exposure": -0.00676,
+      "times_a_restored_name_was_held": null
+    },
+    "matched_risk@cap100": {
+      "return_per_unit_of_risk": 1.5208,
+      "benchmark_return_per_unit_of_risk": 1.48,
+      "max_exposure_at_this_cap": 1.0,
+      "terminal_shortfall_needed": 0.01761,
+      "shortfall_over_that_exposure": 0.01761,
+      "times_a_restored_name_was_held": null
+    },
+    "tangency@cap20": {
+      "return_per_unit_of_risk": 1.5854,
+      "benchmark_return_per_unit_of_risk": 1.48,
+      "max_exposure_at_this_cap": 1.0,
+      "terminal_shortfall_needed": 0.04257,
+      "shortfall_over_that_exposure": 0.04257,
+      "times_a_restored_name_was_held": null
+    },
+    "matched_risk@cap20": {
+      "return_per_unit_of_risk": 1.6221,
+      "benchmark_return_per_unit_of_risk": 1.48,
+      "max_exposure_at_this_cap": 1.0,
+      "terminal_shortfall_needed": 0.05749,
+      "shortfall_over_that_exposure": 0.05749,
+      "times_a_restored_name_was_held": null
+    },
+    "tangency@cap10": {
+      "return_per_unit_of_risk": 1.7865,
+      "benchmark_return_per_unit_of_risk": 1.48,
+      "max_exposure_at_this_cap": 0.5,
+      "terminal_shortfall_needed": 0.10467,
+      "shortfall_over_that_exposure": 0.20934,
+      "times_a_restored_name_was_held": null
+    },
+    "matched_risk@cap10": {
+      "return_per_unit_of_risk": 1.7711,
+      "benchmark_return_per_unit_of_risk": 1.48,
+      "max_exposure_at_this_cap": 0.5,
+      "terminal_shortfall_needed": 0.10592,
+      "shortfall_over_that_exposure": 0.21183,
+      "times_a_restored_name_was_held": null
+    }
+  },
+  "restored_names_in_this_result": "none -- this is a baseline run, so `times_a_restored_name_was_held` is not measurable from it and is null",
+  "result": "backtest_sp500.json"
+}

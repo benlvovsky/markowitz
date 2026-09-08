@@ -131,7 +131,14 @@ def load(key: str = DEFAULT) -> Universe:
     if len(meta) != len(assets):
         raise ValueError(f"{path}: duplicate symbols in [assets]")
 
-    benchmark = doc.get("benchmark")
+    # `benchmark = ""` means DELIBERATELY NONE, and it is not the same as omitting the key.
+    # TOML has no null, so a universe whose benchmark is not one of its own assets -- a stock
+    # universe, where an index fund among the candidates would let the optimiser buy the thing
+    # it is being measured against -- could otherwise only say so by leaving the key out, which
+    # reads as an oversight. The empty string is a declaration, and the comment beside it in the
+    # file is the argument for it. `backtest.py --benchmark` supplies one that is priced but not
+    # investable; nothing else in the pipeline needs a benchmark to exist.
+    benchmark = doc.get("benchmark") or None
     if benchmark is not None and benchmark not in meta:
         raise ValueError(f"{path}: benchmark {benchmark!r} is not in [assets]")
 

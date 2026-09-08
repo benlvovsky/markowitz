@@ -1,0 +1,733 @@
+# The S&P 500 AS IT STOOD AT EACH REBALANCE DATE -- one membership list per year, not one list
+# used for every year. Reconstructed on 2026-09-06 by walking Wikipedia's index change log
+# BACKWARDS from the current component table:
+#
+#   https://en.wikipedia.org/wiki/List_of_S%26P_500_companies          (503 current members)
+#   https://en.wikipedia.org/wiki/Historical_components_of_the_S%26P_500  (407 changes, from 1976)
+#
+# For each change effective AFTER a snapshot date, the added ticker is removed and the removed
+# ticker is added back. Cross-checked against the hand-verified `sp500_2023.toml`: 498 of that
+# file's 503 names reproduce exactly. The 5 disagreements are all TICKER SPELLING, not
+# membership -- BF.B/BF-B and BRK.B/BRK-B punctuation, and three renames the change log does
+# not carry (FLT->CPAY, WRK->SW, EQR->VMRK). A rename is harmless for pricing when the vendor
+# keeps the history under the new spelling; it is NOT harmless when a merger adopted the
+# partner's ticker, which is why `[recycled]` below exists and is checked rather than assumed.
+#
+# WHY THIS FILE INSTEAD OF ONE `sp500_YYYY.toml` PER YEAR: the snapshots share ~95% of their
+# names, so eleven separate universe files would be eleven copies of the same 500 lines and a
+# diff between two years would be unreadable. `universe.py` does not load this file and must
+# not learn to -- a universe is a set of symbols, and this is a set of symbols PER DATE.
+#
+# COVERAGE IS WORSE THE FURTHER BACK YOU GO, and the missing names are exactly the dead ones:
+# 12.2% of the 2016 list is priced by nobody against 0.6% of the 2024 list. That is not a
+# rounding error in the early windows and it is stated per snapshot in `pipeline/results/`
+# rather than averaged away.
+
+name = "S&P 500, point in time"
+description = """
+The index membership as it stood on 1 September of each year from 2016 to 2026, so that a
+walk-forward test can choose weights from the companies that were actually in the index on the
+day the weights were chosen -- not from the companies that are in it today, which is a list
+that already knows who survived.
+
+The benchmark is deliberately empty. SPY enters through `--benchmark`, priced but not
+investable, for the reason given in `sp500_2023.toml`: an index fund among its own constituents
+has lower variance than almost any one of them, so a minimum-variance solve buys it on sight and
+the question stops being a question."""
+benchmark = ""
+retrieved = "2026-09-06"
+
+# ------------------------------------------------------------------- priced by vendor two
+# The primary vendor serves NOTHING for these (not a short series -- a 404, or a 200 with an
+# empty timestamp array). stockanalysis.com serves them; `delisted.py` fetches and cross-checks
+# them, and they reach the optimiser only through `--extra-panel`. They never enter the store.
+vendor_two = ["ANSS", "ATVI", "CA", "CMA", "CTLT", "CTRA", "DAY", "DNB", "FL", "HBI", "HOLX", "IPG", "JNPR", "JWN", "K", "MON", "PDCO", "SEE", "SIVB", "SRCL", "TGNA", "TWTR", "WBA"]
+
+# --------------------------------------------------------------------- priced by nobody
+# "Priced by nobody" means NO VENDOR SERVES THE HISTORY THE WINDOWS THAT HOLD THE NAME NEED, which
+# is not the same sentence as "no vendor serves the ticker" -- and the difference is two names, so
+# it is stated rather than left to the reader:
+#   * the other 65 return nothing from either vendor at any range;
+#   * BBBY returns 36 bars from 2026-07-17 from the primary (the vendor defect in `[truncated]`)
+#     and HTTP 400 from the second;
+#   * SBNY returns 516 bars from 2024-08-15 from the primary -- "Signature Bank" on the pink
+#     sheets, the failed bank's post-receivership shell rather than the constituent the index held
+#     in 2022 -- and HTTP 400 from the second. Right company, unusable history: every window that
+#     holds SBNY ends before the stub begins, so the store keeps it and the start filter drops it.
+# Both were checked against the second vendor before being listed here; neither is in `vendor_two`,
+# because that table is a claim that the second vendor delivers.
+#
+# These are bounded in a `*_stress.json` artifact rather than assumed harmless -- with 12.2% of the
+# 2016 list here, "assume it does not matter" is not available.
+unpriceable = ["ABMD", "ADS", "AGN", "ALXN", "ARNC", "BBBY", "BCR", "BHI", "CDAY", "CELG", "CERN", "CHK", "CTXS", "CXO", "DFS", "DISCA", "DISCK", "DISH", "DO", "DPS", "DRE", "DWDP", "ENDP", "ETFC", "FBHS", "FLIR", "FLT", "FRC", "FTR", "GGP", "GPS", "HAR", "HES", "HFC", "KSU", "LLL", "LLTC", "LM", "LVLT", "MJN", "MNK", "MRO", "MXIM", "NBL", "NLSN", "PBCT", "PXD", "RAI", "RHT", "RTN", "SBNY", "SNI", "STJ", "SWN", "TIF", "TSS", "TYC", "VAR", "VIAB", "WCG", "WFM", "WLTW", "WYN", "XEC", "XL", "XLNX", "YHOO"]
+
+# --------------------------------------------------------------------------- the snapshots
+[snapshots]
+# 2016-09-01: 507 members
+"2016-09-01" = [
+  "A", "AA", "AAL", "AAP", "AAPL", "ABBV", "ABT", "ACN", "ADBE", "ADI",
+  "ADM", "ADP", "ADS", "ADSK", "AEE", "AEP", "AES", "AET", "AFL", "AGN",
+  "AIG", "AIV", "AIZ", "AJG", "AKAM", "ALB", "ALK", "ALL", "ALLE", "ALXN",
+  "AMAT", "AME", "AMG", "AMGN", "AMP", "AMT", "AMZN", "AN", "ANDV", "AON",
+  "APA", "APC", "APD", "APH", "APTV", "ATVI", "AVB", "AVGO", "AVY", "AWK",
+  "AXP", "AYI", "AZO", "BA", "BAC", "BALL", "BAX", "BBBY", "BBWI", "BBY",
+  "BCR", "BDX", "BEN", "BF-B", "BHI", "BIIB", "BKNG", "BLK", "BMY", "BNY",
+  "BRK-B", "BSX", "BWA", "BXP", "C", "CA", "CAG", "CAH", "CAT", "CB",
+  "CBRE", "CCI", "CCL", "CELG", "CERN", "CF", "CFG", "CHD", "CHK", "CHRW",
+  "CI", "CINF", "CL", "CLX", "CMA", "CMCSA", "CME", "CMG", "CMI", "CMS",
+  "CNC", "CNP", "COF", "COL", "COP", "COR", "COST", "CPB", "CPRI", "CRM",
+  "CSCO", "CSRA", "CSX", "CTAS", "CTRA", "CTSH", "CTXS", "CVS", "CVX", "CXO",
+  "D", "DAL", "DD", "DE", "DFS", "DG", "DGX", "DHI", "DHR", "DIS",
+  "DISCA", "DISCK", "DLR", "DLTR", "DNB", "DO", "DOC", "DOV", "DOW", "DPS",
+  "DRI", "DTE", "DUK", "DVA", "DVN", "EA", "EBAY", "ECHO", "ECL", "ED",
+  "EFX", "EG", "EIX", "EL", "ELV", "EMC", "EMN", "EMR", "ENDP", "EOG",
+  "EQIX", "EQT", "ES", "ESRX", "ESS", "ETFC", "ETN", "ETR", "EW", "EXC",
+  "EXPD", "EXPE", "EXR", "F", "FAST", "FBHS", "FCX", "FDX", "FE", "FFIV",
+  "FIS", "FISV", "FITB", "FL", "FLIR", "FLR", "FLS", "FMC", "FOX", "FOXA",
+  "FRT", "FSLR", "FTI", "FTR", "FTV", "GD", "GE", "GEN", "GGP", "GILD",
+  "GIS", "GL", "GLW", "GM", "GOOG", "GOOGL", "GPC", "GPN", "GPS", "GRMN",
+  "GS", "GT", "GWW", "HAL", "HAR", "HAS", "HBAN", "HBI", "HCA", "HD",
+  "HES", "HIG", "HOG", "HOLX", "HON", "HOT", "HP", "HPE", "HPQ", "HRB",
+  "HRL", "HSIC", "HST", "HSY", "HUM", "IBM", "ICE", "IFF", "ILMN", "INTC",
+  "INTU", "IP", "IPG", "IRM", "ISRG", "ITW", "IVZ", "J", "JBHT", "JCI",
+  "JEF", "JNJ", "JNPR", "JPM", "JWN", "K", "KEY", "KHC", "KIM", "KLAC",
+  "KMB", "KMI", "KMX", "KO", "KR", "KSS", "KSU", "L", "LEG", "LEN",
+  "LH", "LHX", "LIN", "LKQ", "LLL", "LLTC", "LLY", "LM", "LMT", "LNC",
+  "LNT", "LOW", "LRCX", "LUMN", "LUV", "LVLT", "LYB", "M", "MA", "MAC",
+  "MAR", "MAS", "MAT", "MCD", "MCHP", "MCK", "MCO", "MDLZ", "MDT", "MET",
+  "META", "MHK", "MJN", "MKC", "MLM", "MMM", "MNK", "MNST", "MO", "MON",
+  "MOS", "MPC", "MRK", "MRO", "MRSH", "MS", "MSFT", "MSI", "MTB", "MU",
+  "MUR", "NAVI", "NBL", "NDAQ", "NEE", "NEM", "NFLX", "NFX", "NI", "NKE",
+  "NLSN", "NOC", "NOV", "NRG", "NSC", "NTAP", "NTRS", "NUE", "NVDA", "NWL",
+  "NWS", "NWSA", "O", "OI", "OKE", "OMC", "ORCL", "ORLY", "OXY", "PAYX",
+  "PBCT", "PBI", "PCAR", "PCG", "PDCO", "PEG", "PEP", "PFE", "PFG", "PG",
+  "PGR", "PH", "PHM", "PLD", "PM", "PNC", "PNR", "PNW", "PPG", "PPL",
+  "PRGO", "PRU", "PSA", "PSKY", "PSX", "PVH", "PWR", "PXD", "PYPL", "QCOM",
+  "QRVO", "R", "RAI", "RCL", "REGN", "RF", "RHI", "RHT", "RIG", "RL",
+  "ROK", "ROP", "ROST", "RRC", "RSG", "RTN", "RTX", "RVTY", "SBUX", "SCG",
+  "SCHW", "SE", "SEE", "SHW", "SIG", "SJM", "SLB", "SLG", "SNA", "SNI",
+  "SO", "SPG", "SPGI", "SPLS", "SRCL", "SRE", "STI", "STJ", "STT", "STX",
+  "STZ", "SW", "SWK", "SWKS", "SWN", "SYF", "SYK", "SYY", "T", "TAP",
+  "TDC", "TDG", "TEL", "TFC", "TGNA", "TGT", "TIF", "TJX", "TMO", "TPR",
+  "TRIP", "TROW", "TRV", "TSCO", "TSN", "TSS", "TT", "TWX", "TXN", "TXT",
+  "TYC", "UA", "UAA", "UAL", "UDR", "UHS", "ULTA", "UNH", "UNM", "UNP",
+  "UPS", "URBN", "URI", "USB", "V", "VAR", "VFC", "VIAB", "VLO", "VMC",
+  "VMRK", "VNO", "VRSK", "VRSN", "VRTX", "VTR", "VTRS", "VZ", "WAT", "WBA",
+  "WDC", "WEC", "WELL", "WFC", "WFM", "WHR", "WLTW", "WM", "WMB", "WMT",
+  "WU", "WY", "WYN", "WYNN", "XEC", "XEL", "XL", "XLNX", "XOM", "XRAY",
+  "XRX", "XYL", "YHOO", "YUM", "ZBH", "ZION", "ZTS",
+]
+
+# 2017-09-01: 506 members
+"2017-09-01" = [
+  "A", "AAL", "AAP", "AAPL", "ABBV", "ABT", "ACN", "ADBE", "ADI", "ADM",
+  "ADP", "ADS", "ADSK", "AEE", "AEP", "AES", "AET", "AFL", "AGN", "AIG",
+  "AIV", "AIZ", "AJG", "AKAM", "ALB", "ALGN", "ALK", "ALL", "ALLE", "ALXN",
+  "AMAT", "AMD", "AME", "AMG", "AMGN", "AMP", "AMT", "AMZN", "ANDV", "ANSS",
+  "AON", "AOS", "APA", "APC", "APD", "APH", "APTV", "ARE", "ARNC", "ATVI",
+  "AVB", "AVGO", "AVY", "AWK", "AXP", "AYI", "AZO", "BA", "BAC", "BALL",
+  "BAX", "BBWI", "BBY", "BCR", "BDX", "BEN", "BF-B", "BHF", "BIIB", "BKNG",
+  "BKR", "BLK", "BMY", "BNY", "BRK-B", "BSX", "BWA", "BXP", "C", "CA",
+  "CAG", "CAH", "CAT", "CB", "CBOE", "CBRE", "CCI", "CCL", "CELG", "CERN",
+  "CF", "CFG", "CHD", "CHK", "CHRW", "CHTR", "CI", "CINF", "CL", "CLX",
+  "CMA", "CMCSA", "CME", "CMG", "CMI", "CMS", "CNC", "CNP", "COF", "COL",
+  "COO", "COP", "COR", "COST", "COTY", "CPB", "CPRI", "CRM", "CSCO", "CSRA",
+  "CSX", "CTAS", "CTRA", "CTSH", "CTXS", "CVS", "CVX", "CXO", "D", "DAL",
+  "DE", "DFS", "DG", "DGX", "DHI", "DHR", "DIS", "DISCA", "DISCK", "DISH",
+  "DLR", "DLTR", "DOC", "DOV", "DPS", "DRE", "DRI", "DTE", "DUK", "DVA",
+  "DVN", "DWDP", "DXC", "EA", "EBAY", "ECHO", "ECL", "ED", "EFX", "EG",
+  "EIX", "EL", "ELV", "EMN", "EMR", "EOG", "EQIX", "EQT", "ES", "ESRX",
+  "ESS", "ETFC", "ETN", "ETR", "EVHC", "EW", "EXC", "EXPD", "EXPE", "EXR",
+  "F", "FAST", "FBHS", "FCX", "FDX", "FE", "FFIV", "FIS", "FISV", "FITB",
+  "FL", "FLIR", "FLR", "FLS", "FMC", "FOX", "FOXA", "FRT", "FTI", "FTV",
+  "GD", "GE", "GEN", "GGP", "GILD", "GIS", "GL", "GLW", "GM", "GOOG",
+  "GOOGL", "GPC", "GPN", "GPS", "GRMN", "GS", "GT", "GWW", "HAL", "HAS",
+  "HBAN", "HBI", "HCA", "HD", "HES", "HIG", "HLT", "HOG", "HOLX", "HON",
+  "HP", "HPE", "HPQ", "HRB", "HRL", "HSIC", "HST", "HSY", "HUM", "IBM",
+  "ICE", "IDXX", "IFF", "ILMN", "INCY", "INFO", "INTC", "INTU", "IP", "IPG",
+  "IRM", "ISRG", "IT", "ITW", "IVZ", "J", "JBHT", "JCI", "JEF", "JNJ",
+  "JNPR", "JPM", "JWN", "K", "KEY", "KHC", "KIM", "KLAC", "KMB", "KMI",
+  "KMX", "KO", "KR", "KSS", "KSU", "L", "LEG", "LEN", "LH", "LHX",
+  "LIN", "LKQ", "LLL", "LLY", "LMT", "LNC", "LNT", "LOW", "LRCX", "LUMN",
+  "LUV", "LVLT", "LYB", "M", "MA", "MAA", "MAC", "MAR", "MAS", "MAT",
+  "MCD", "MCHP", "MCK", "MCO", "MDLZ", "MDT", "MET", "META", "MGM", "MHK",
+  "MKC", "MLM", "MMM", "MNST", "MO", "MON", "MOS", "MPC", "MRK", "MRO",
+  "MRSH", "MS", "MSFT", "MSI", "MTB", "MTD", "MU", "NAVI", "NBL", "NDAQ",
+  "NEE", "NEM", "NFLX", "NFX", "NI", "NKE", "NLSN", "NOC", "NOV", "NRG",
+  "NSC", "NTAP", "NTRS", "NUE", "NVDA", "NWL", "NWS", "NWSA", "O", "OKE",
+  "OMC", "ORCL", "ORLY", "OXY", "PAYX", "PBCT", "PCAR", "PCG", "PDCO", "PEG",
+  "PEP", "PFE", "PFG", "PG", "PGR", "PH", "PHM", "PKG", "PLD", "PM",
+  "PNC", "PNR", "PNW", "PPG", "PPL", "PRGO", "PRU", "PSA", "PSKY", "PSX",
+  "PVH", "PWR", "PXD", "PYPL", "Q", "QCOM", "QRVO", "RCL", "REG", "REGN",
+  "RF", "RHI", "RHT", "RJF", "RL", "RMD", "ROK", "ROP", "ROST", "RRC",
+  "RSG", "RTN", "RTX", "RVTY", "SBAC", "SBUX", "SCG", "SCHW", "SEE", "SHW",
+  "SIG", "SJM", "SLB", "SLG", "SNA", "SNI", "SNPS", "SO", "SPG", "SPGI",
+  "SPLS", "SRCL", "SRE", "STI", "STT", "STX", "STZ", "SW", "SWK", "SWKS",
+  "SYF", "SYK", "SYY", "T", "TAP", "TDG", "TEL", "TFC", "TGT", "TIF",
+  "TJX", "TMO", "TPR", "TRIP", "TROW", "TRV", "TSCO", "TSN", "TSS", "TT",
+  "TWX", "TXN", "TXT", "UA", "UAA", "UAL", "UDR", "UHS", "ULTA", "UNH",
+  "UNM", "UNP", "UPS", "URI", "USB", "V", "VAR", "VFC", "VIAB", "VLO",
+  "VMC", "VMRK", "VNO", "VRSK", "VRSN", "VRTX", "VTR", "VTRS", "VZ", "WAT",
+  "WBA", "WDC", "WEC", "WELL", "WFC", "WHR", "WLTW", "WM", "WMB", "WMT",
+  "WU", "WY", "WYN", "WYNN", "XEC", "XEL", "XL", "XLNX", "XOM", "XRAY",
+  "XRX", "XYL", "YUM", "ZBH", "ZION", "ZTS",
+]
+
+# 2018-09-01: 506 members
+"2018-09-01" = [
+  "A", "AAL", "AAP", "AAPL", "ABBV", "ABMD", "ABT", "ACN", "ADBE", "ADI",
+  "ADM", "ADP", "ADS", "ADSK", "AEE", "AEP", "AES", "AET", "AFL", "AGN",
+  "AIG", "AIV", "AIZ", "AJG", "AKAM", "ALB", "ALGN", "ALK", "ALL", "ALLE",
+  "ALXN", "AMAT", "AMD", "AME", "AMG", "AMGN", "AMP", "AMT", "AMZN", "ANDV",
+  "ANET", "ANSS", "AON", "AOS", "APA", "APC", "APD", "APH", "APTV", "ARE",
+  "ARNC", "ATVI", "AVB", "AVGO", "AVY", "AWK", "AXP", "AZO", "BA", "BAC",
+  "BALL", "BAX", "BBWI", "BBY", "BDX", "BEN", "BF-B", "BHF", "BIIB", "BKNG",
+  "BKR", "BLK", "BMY", "BNY", "BR", "BRK-B", "BSX", "BWA", "BXP", "C",
+  "CA", "CAG", "CAH", "CAT", "CB", "CBOE", "CBRE", "CCI", "CCL", "CDNS",
+  "CELG", "CERN", "CF", "CFG", "CHD", "CHRW", "CHTR", "CI", "CINF", "CL",
+  "CLX", "CMA", "CMCSA", "CME", "CMG", "CMI", "CMS", "CNC", "CNP", "COF",
+  "COL", "COO", "COP", "COR", "COST", "COTY", "CPB", "CPRI", "CPRT", "CRM",
+  "CSCO", "CSX", "CTAS", "CTRA", "CTSH", "CTXS", "CVS", "CVX", "CXO", "D",
+  "DAL", "DE", "DFS", "DG", "DGX", "DHI", "DHR", "DIS", "DISCA", "DISCK",
+  "DISH", "DLR", "DLTR", "DOC", "DOV", "DRE", "DRI", "DTE", "DUK", "DVA",
+  "DVN", "DWDP", "DXC", "EA", "EBAY", "ECHO", "ECL", "ED", "EFX", "EG",
+  "EIX", "EL", "ELV", "EMN", "EMR", "EOG", "EQIX", "EQT", "ES", "ESRX",
+  "ESS", "ETFC", "ETN", "ETR", "EVHC", "EVRG", "EW", "EXC", "EXPD", "EXPE",
+  "EXR", "F", "FAST", "FBHS", "FCX", "FDX", "FE", "FFIV", "FIS", "FISV",
+  "FITB", "FL", "FLIR", "FLR", "FLS", "FLT", "FMC", "FOX", "FOXA", "FRT",
+  "FTI", "FTV", "GD", "GE", "GEN", "GILD", "GIS", "GL", "GLW", "GM",
+  "GOOG", "GOOGL", "GPC", "GPN", "GPS", "GRMN", "GS", "GT", "GWW", "HAL",
+  "HAS", "HBAN", "HBI", "HCA", "HD", "HES", "HFC", "HIG", "HII", "HLT",
+  "HOG", "HOLX", "HON", "HP", "HPE", "HPQ", "HRB", "HRL", "HSIC", "HST",
+  "HSY", "HUM", "IBM", "ICE", "IDXX", "IFF", "ILMN", "INCY", "INFO", "INTC",
+  "INTU", "IP", "IPG", "IPGP", "IQV", "IRM", "ISRG", "IT", "ITW", "IVZ",
+  "J", "JBHT", "JCI", "JEF", "JNJ", "JNPR", "JPM", "JWN", "K", "KEY",
+  "KHC", "KIM", "KLAC", "KMB", "KMI", "KMX", "KO", "KR", "KSS", "KSU",
+  "L", "LEG", "LEN", "LH", "LHX", "LIN", "LKQ", "LLL", "LLY", "LMT",
+  "LNC", "LNT", "LOW", "LRCX", "LUMN", "LUV", "LYB", "M", "MA", "MAA",
+  "MAC", "MAR", "MAS", "MAT", "MCD", "MCHP", "MCK", "MCO", "MDLZ", "MDT",
+  "MET", "META", "MGM", "MHK", "MKC", "MLM", "MMM", "MNST", "MO", "MOS",
+  "MPC", "MRK", "MRO", "MRSH", "MS", "MSCI", "MSFT", "MSI", "MTB", "MTD",
+  "MU", "NBL", "NCLH", "NDAQ", "NEE", "NEM", "NFLX", "NFX", "NI", "NKE",
+  "NKTR", "NLSN", "NOC", "NOV", "NRG", "NSC", "NTAP", "NTRS", "NUE", "NVDA",
+  "NWL", "NWS", "NWSA", "O", "OKE", "OMC", "ORCL", "ORLY", "OXY", "PAYX",
+  "PBCT", "PCAR", "PCG", "PEG", "PEP", "PFE", "PFG", "PG", "PGR", "PH",
+  "PHM", "PKG", "PLD", "PM", "PNC", "PNR", "PNW", "PPG", "PPL", "PRGO",
+  "PRU", "PSA", "PSKY", "PSX", "PVH", "PWR", "PXD", "PYPL", "QCOM", "QRVO",
+  "RCL", "REG", "REGN", "RF", "RHI", "RHT", "RJF", "RL", "RMD", "ROK",
+  "ROP", "ROST", "RSG", "RTN", "RTX", "RVTY", "SBAC", "SBUX", "SCG", "SCHW",
+  "SEE", "SHW", "SIVB", "SJM", "SLB", "SLG", "SNA", "SNPS", "SO", "SPG",
+  "SPGI", "SRCL", "SRE", "STI", "STT", "STX", "STZ", "SW", "SWK", "SWKS",
+  "SYF", "SYK", "SYY", "T", "TAP", "TDG", "TEL", "TFC", "TGT", "TIF",
+  "TJX", "TMO", "TPR", "TRIP", "TROW", "TRV", "TSCO", "TSN", "TSS", "TT",
+  "TTWO", "TWTR", "TXN", "TXT", "UA", "UAA", "UAL", "UDR", "UHS", "ULTA",
+  "UNH", "UNM", "UNP", "UPS", "URI", "USB", "V", "VAR", "VFC", "VIAB",
+  "VLO", "VMC", "VMRK", "VNO", "VRSK", "VRSN", "VRTX", "VTR", "VTRS", "VZ",
+  "WAT", "WBA", "WDC", "WEC", "WELL", "WFC", "WHR", "WLTW", "WM", "WMB",
+  "WMT", "WU", "WY", "WYNN", "XEC", "XEL", "XL", "XLNX", "XOM", "XRAY",
+  "XRX", "XYL", "YUM", "ZBH", "ZION", "ZTS",
+]
+
+# 2019-09-01: 506 members
+"2019-09-01" = [
+  "A", "AAL", "AAP", "AAPL", "ABBV", "ABMD", "ABT", "ACN", "ADBE", "ADI",
+  "ADM", "ADP", "ADS", "ADSK", "AEE", "AEP", "AES", "AFL", "AGN", "AIG",
+  "AIV", "AIZ", "AJG", "AKAM", "ALB", "ALGN", "ALK", "ALL", "ALLE", "ALXN",
+  "AMAT", "AMCR", "AMD", "AME", "AMG", "AMGN", "AMP", "AMT", "AMZN", "ANET",
+  "ANSS", "AON", "AOS", "APA", "APD", "APH", "APTV", "ARE", "ARNC", "ATO",
+  "ATVI", "AVB", "AVGO", "AVY", "AWK", "AXP", "AZO", "BA", "BAC", "BALL",
+  "BAX", "BBWI", "BBY", "BDX", "BEN", "BF-B", "BIIB", "BKNG", "BKR", "BLK",
+  "BMY", "BNY", "BR", "BRK-B", "BSX", "BWA", "BXP", "C", "CAG", "CAH",
+  "CAT", "CB", "CBOE", "CBRE", "CCI", "CCL", "CDNS", "CE", "CELG", "CERN",
+  "CF", "CFG", "CHD", "CHRW", "CHTR", "CI", "CINF", "CL", "CLX", "CMA",
+  "CMCSA", "CME", "CMG", "CMI", "CMS", "CNC", "CNP", "COF", "COO", "COP",
+  "COR", "COST", "COTY", "CPB", "CPRI", "CPRT", "CRM", "CSCO", "CSX", "CTAS",
+  "CTRA", "CTSH", "CTVA", "CTXS", "CVS", "CVX", "CXO", "D", "DAL", "DD",
+  "DE", "DFS", "DG", "DGX", "DHI", "DHR", "DIS", "DISCA", "DISCK", "DISH",
+  "DLR", "DLTR", "DOC", "DOV", "DOW", "DRE", "DRI", "DTE", "DUK", "DVA",
+  "DVN", "DXC", "EA", "EBAY", "ECHO", "ECL", "ED", "EFX", "EG", "EIX",
+  "EL", "ELV", "EMN", "EMR", "EOG", "EQIX", "ES", "ESS", "ETFC", "ETN",
+  "ETR", "EVRG", "EW", "EXC", "EXPD", "EXPE", "EXR", "F", "FANG", "FAST",
+  "FBHS", "FCX", "FDX", "FE", "FFIV", "FIS", "FISV", "FITB", "FLIR", "FLS",
+  "FLT", "FMC", "FOX", "FOXA", "FRC", "FRT", "FTI", "FTNT", "FTV", "GD",
+  "GE", "GEN", "GILD", "GIS", "GL", "GLW", "GM", "GOOG", "GOOGL", "GPC",
+  "GPN", "GPS", "GRMN", "GS", "GWW", "HAL", "HAS", "HBAN", "HBI", "HCA",
+  "HD", "HES", "HFC", "HIG", "HII", "HLT", "HOG", "HOLX", "HON", "HP",
+  "HPE", "HPQ", "HRB", "HRL", "HSIC", "HST", "HSY", "HUM", "IBM", "ICE",
+  "IDXX", "IEX", "IFF", "ILMN", "INCY", "INFO", "INTC", "INTU", "IP", "IPG",
+  "IPGP", "IQV", "IRM", "ISRG", "IT", "ITW", "IVZ", "J", "JBHT", "JCI",
+  "JEF", "JKHY", "JNJ", "JNPR", "JPM", "JWN", "K", "KEY", "KEYS", "KHC",
+  "KIM", "KLAC", "KMB", "KMI", "KMX", "KO", "KR", "KSS", "KSU", "L",
+  "LDOS", "LEG", "LEN", "LH", "LHX", "LIN", "LKQ", "LLY", "LMT", "LNC",
+  "LNT", "LOW", "LRCX", "LUMN", "LUV", "LW", "LYB", "M", "MA", "MAA",
+  "MAC", "MAR", "MAS", "MCD", "MCHP", "MCK", "MCO", "MDLZ", "MDT", "MET",
+  "META", "MGM", "MHK", "MKC", "MKTX", "MLM", "MMM", "MNST", "MO", "MOS",
+  "MPC", "MRK", "MRO", "MRSH", "MS", "MSCI", "MSFT", "MSI", "MTB", "MTD",
+  "MU", "MXIM", "NBL", "NCLH", "NDAQ", "NEE", "NEM", "NFLX", "NI", "NKE",
+  "NKTR", "NLSN", "NOC", "NOV", "NRG", "NSC", "NTAP", "NTRS", "NUE", "NVDA",
+  "NWL", "NWS", "NWSA", "O", "OKE", "OMC", "ORCL", "ORLY", "OXY", "PAYX",
+  "PBCT", "PCAR", "PEG", "PEP", "PFE", "PFG", "PG", "PGR", "PH", "PHM",
+  "PKG", "PLD", "PM", "PNC", "PNR", "PNW", "PPG", "PPL", "PRGO", "PRU",
+  "PSA", "PSKY", "PSX", "PVH", "PWR", "PXD", "PYPL", "QCOM", "QRVO", "RCL",
+  "REG", "REGN", "RF", "RHI", "RJF", "RL", "RMD", "ROK", "ROL", "ROP",
+  "ROST", "RSG", "RTN", "RTX", "RVTY", "SBAC", "SBUX", "SCHW", "SEE", "SHW",
+  "SIVB", "SJM", "SLB", "SLG", "SNA", "SNPS", "SO", "SPG", "SPGI", "SRE",
+  "STI", "STT", "STX", "STZ", "SW", "SWK", "SWKS", "SYF", "SYK", "SYY",
+  "T", "TAP", "TDG", "TEL", "TFC", "TFX", "TGT", "TIF", "TJX", "TMO",
+  "TMUS", "TPR", "TRIP", "TROW", "TRV", "TSCO", "TSN", "TSS", "TT", "TTWO",
+  "TWTR", "TXN", "TXT", "UA", "UAA", "UAL", "UDR", "UHS", "ULTA", "UNH",
+  "UNM", "UNP", "UPS", "URI", "USB", "V", "VAR", "VFC", "VIAB", "VLO",
+  "VMC", "VMRK", "VNO", "VRSK", "VRSN", "VRTX", "VTR", "VTRS", "VZ", "WAB",
+  "WAT", "WBA", "WCG", "WDC", "WEC", "WELL", "WFC", "WHR", "WLTW", "WM",
+  "WMB", "WMT", "WU", "WY", "WYNN", "XEC", "XEL", "XLNX", "XOM", "XRAY",
+  "XRX", "XYL", "YUM", "ZBH", "ZION", "ZTS",
+]
+
+# 2020-09-01: 506 members
+"2020-09-01" = [
+  "A", "AAL", "AAP", "AAPL", "ABBV", "ABMD", "ABT", "ACN", "ADBE", "ADI",
+  "ADM", "ADP", "ADSK", "AEE", "AEP", "AES", "AFL", "AIG", "AIV", "AIZ",
+  "AJG", "AKAM", "ALB", "ALGN", "ALK", "ALL", "ALLE", "ALXN", "AMAT", "AMCR",
+  "AMD", "AME", "AMGN", "AMP", "AMT", "AMZN", "ANET", "ANSS", "AON", "AOS",
+  "APA", "APD", "APH", "APTV", "ARE", "ATO", "ATVI", "AVB", "AVGO", "AVY",
+  "AWK", "AXP", "AZO", "BA", "BAC", "BALL", "BAX", "BBWI", "BBY", "BDX",
+  "BEN", "BF-B", "BIIB", "BIO", "BKNG", "BKR", "BLK", "BMY", "BNY", "BR",
+  "BRK-B", "BSX", "BWA", "BXP", "C", "CAG", "CAH", "CARR", "CAT", "CB",
+  "CBOE", "CBRE", "CCI", "CCL", "CDNS", "CDW", "CE", "CERN", "CF", "CFG",
+  "CHD", "CHRW", "CHTR", "CI", "CINF", "CL", "CLX", "CMA", "CMCSA", "CME",
+  "CMG", "CMI", "CMS", "CNC", "CNP", "COF", "COO", "COP", "COR", "COST",
+  "COTY", "CPB", "CPRT", "CRM", "CSCO", "CSX", "CTAS", "CTRA", "CTSH", "CTVA",
+  "CTXS", "CVS", "CVX", "CXO", "D", "DAL", "DD", "DE", "DFS", "DG",
+  "DGX", "DHI", "DHR", "DIS", "DISCA", "DISCK", "DISH", "DLR", "DLTR", "DOC",
+  "DOV", "DOW", "DPZ", "DRE", "DRI", "DTE", "DUK", "DVA", "DVN", "DXC",
+  "DXCM", "EA", "EBAY", "ECHO", "ECL", "ED", "EFX", "EG", "EIX", "EL",
+  "ELV", "EMN", "EMR", "EOG", "EQIX", "ES", "ESS", "ETFC", "ETN", "ETR",
+  "EVRG", "EW", "EXC", "EXPD", "EXPE", "EXR", "F", "FANG", "FAST", "FBHS",
+  "FCX", "FDX", "FE", "FFIV", "FIS", "FISV", "FITB", "FLIR", "FLS", "FLT",
+  "FMC", "FOX", "FOXA", "FRC", "FRT", "FTI", "FTNT", "FTV", "GD", "GE",
+  "GEN", "GILD", "GIS", "GL", "GLW", "GM", "GOOG", "GOOGL", "GPC", "GPN",
+  "GPS", "GRMN", "GS", "GWW", "HAL", "HAS", "HBAN", "HBI", "HCA", "HD",
+  "HES", "HFC", "HIG", "HII", "HLT", "HOLX", "HON", "HPE", "HPQ", "HRB",
+  "HRL", "HSIC", "HST", "HSY", "HUM", "HWM", "IBM", "ICE", "IDXX", "IEX",
+  "IFF", "ILMN", "INCY", "INFO", "INTC", "INTU", "IP", "IPG", "IPGP", "IQV",
+  "IR", "IRM", "ISRG", "IT", "ITW", "IVZ", "J", "JBHT", "JCI", "JKHY",
+  "JNJ", "JNPR", "JPM", "K", "KEY", "KEYS", "KHC", "KIM", "KLAC", "KMB",
+  "KMI", "KMX", "KO", "KR", "KSS", "KSU", "L", "LDOS", "LEG", "LEN",
+  "LH", "LHX", "LIN", "LKQ", "LLY", "LMT", "LNC", "LNT", "LOW", "LRCX",
+  "LUMN", "LUV", "LVS", "LW", "LYB", "LYV", "MA", "MAA", "MAR", "MAS",
+  "MCD", "MCHP", "MCK", "MCO", "MDLZ", "MDT", "MET", "META", "MGM", "MHK",
+  "MKC", "MKTX", "MLM", "MMM", "MNST", "MO", "MOS", "MPC", "MRK", "MRO",
+  "MRSH", "MS", "MSCI", "MSFT", "MSI", "MTB", "MTD", "MU", "MXIM", "NBL",
+  "NCLH", "NDAQ", "NEE", "NEM", "NFLX", "NI", "NKE", "NLSN", "NOC", "NOV",
+  "NOW", "NRG", "NSC", "NTAP", "NTRS", "NUE", "NVDA", "NVR", "NWL", "NWS",
+  "NWSA", "O", "ODFL", "OKE", "OMC", "ORCL", "ORLY", "OTIS", "OXY", "PAYC",
+  "PAYX", "PBCT", "PCAR", "PEG", "PEP", "PFE", "PFG", "PG", "PGR", "PH",
+  "PHM", "PKG", "PLD", "PM", "PNC", "PNR", "PNW", "PPG", "PPL", "PRGO",
+  "PRU", "PSA", "PSKY", "PSX", "PVH", "PWR", "PXD", "PYPL", "QCOM", "QRVO",
+  "RCL", "REG", "REGN", "RF", "RHI", "RJF", "RL", "RMD", "ROK", "ROL",
+  "ROP", "ROST", "RSG", "RTX", "RVTY", "SBAC", "SBUX", "SCHW", "SEE", "SHW",
+  "SIVB", "SJM", "SLB", "SLG", "SNA", "SNPS", "SO", "SPG", "SPGI", "SRE",
+  "STE", "STT", "STX", "STZ", "SW", "SWK", "SWKS", "SYF", "SYK", "SYY",
+  "T", "TAP", "TDG", "TDY", "TEL", "TFC", "TFX", "TGT", "TIF", "TJX",
+  "TMO", "TMUS", "TPR", "TROW", "TRV", "TSCO", "TSN", "TT", "TTWO", "TWTR",
+  "TXN", "TXT", "TYL", "UA", "UAA", "UAL", "UDR", "UHS", "ULTA", "UNH",
+  "UNM", "UNP", "UPS", "URI", "USB", "V", "VAR", "VFC", "VLO", "VMC",
+  "VMRK", "VNO", "VRSK", "VRSN", "VRTX", "VTR", "VTRS", "VZ", "WAB", "WAT",
+  "WBA", "WDC", "WEC", "WELL", "WFC", "WHR", "WLTW", "WM", "WMB", "WMT",
+  "WRB", "WST", "WU", "WY", "WYNN", "XEL", "XLNX", "XOM", "XRAY", "XRX",
+  "XYL", "YUM", "ZBH", "ZBRA", "ZION", "ZTS",
+]
+
+# 2021-09-01: 506 members
+"2021-09-01" = [
+  "A", "AAL", "AAP", "AAPL", "ABBV", "ABMD", "ABT", "ACN", "ADBE", "ADI",
+  "ADM", "ADP", "ADSK", "AEE", "AEP", "AES", "AFL", "AIG", "AIZ", "AJG",
+  "AKAM", "ALB", "ALGN", "ALK", "ALL", "ALLE", "AMAT", "AMCR", "AMD", "AME",
+  "AMGN", "AMP", "AMT", "AMZN", "ANET", "ANSS", "AON", "AOS", "APA", "APD",
+  "APH", "APTV", "ARE", "ATO", "ATVI", "AVB", "AVGO", "AVY", "AWK", "AXP",
+  "AZO", "BA", "BAC", "BALL", "BAX", "BBWI", "BBY", "BDX", "BEN", "BF-B",
+  "BIIB", "BIO", "BKNG", "BKR", "BLK", "BMY", "BNY", "BR", "BRK-B", "BSX",
+  "BWA", "BXP", "C", "CAG", "CAH", "CARR", "CAT", "CB", "CBOE", "CBRE",
+  "CCI", "CCL", "CDNS", "CDW", "CE", "CERN", "CF", "CFG", "CHD", "CHRW",
+  "CHTR", "CI", "CINF", "CL", "CLX", "CMA", "CMCSA", "CME", "CMG", "CMI",
+  "CMS", "CNC", "CNP", "COF", "COO", "COP", "COR", "COST", "CPB", "CPRT",
+  "CRL", "CRM", "CSCO", "CSX", "CTAS", "CTLT", "CTRA", "CTSH", "CTVA", "CTXS",
+  "CVS", "CVX", "CZR", "D", "DAL", "DD", "DE", "DFS", "DG", "DGX",
+  "DHI", "DHR", "DIS", "DISCA", "DISCK", "DISH", "DLR", "DLTR", "DOC", "DOV",
+  "DOW", "DPZ", "DRE", "DRI", "DTE", "DUK", "DVA", "DVN", "DXC", "DXCM",
+  "EA", "EBAY", "ECHO", "ECL", "ED", "EFX", "EG", "EIX", "EL", "ELV",
+  "EMN", "EMR", "ENPH", "EOG", "EQIX", "ES", "ESS", "ETN", "ETR", "ETSY",
+  "EVRG", "EW", "EXC", "EXPD", "EXPE", "EXR", "F", "FANG", "FAST", "FBHS",
+  "FCX", "FDX", "FE", "FFIV", "FIS", "FISV", "FITB", "FLT", "FMC", "FOX",
+  "FOXA", "FRC", "FRT", "FTNT", "FTV", "GD", "GE", "GEN", "GILD", "GIS",
+  "GL", "GLW", "GM", "GNRC", "GOOG", "GOOGL", "GPC", "GPN", "GPS", "GRMN",
+  "GS", "GWW", "HAL", "HAS", "HBAN", "HBI", "HCA", "HD", "HES", "HIG",
+  "HII", "HLT", "HOLX", "HON", "HPE", "HPQ", "HRL", "HSIC", "HST", "HSY",
+  "HUM", "HWM", "IBM", "ICE", "IDXX", "IEX", "IFF", "ILMN", "INCY", "INFO",
+  "INTC", "INTU", "IP", "IPG", "IPGP", "IQV", "IR", "IRM", "ISRG", "IT",
+  "ITW", "IVZ", "J", "JBHT", "JCI", "JKHY", "JNJ", "JNPR", "JPM", "K",
+  "KEY", "KEYS", "KHC", "KIM", "KLAC", "KMB", "KMI", "KMX", "KO", "KR",
+  "KSU", "L", "LDOS", "LEG", "LEN", "LH", "LHX", "LIN", "LKQ", "LLY",
+  "LMT", "LNC", "LNT", "LOW", "LRCX", "LUMN", "LUV", "LVS", "LW", "LYB",
+  "LYV", "MA", "MAA", "MAR", "MAS", "MCD", "MCHP", "MCK", "MCO", "MDLZ",
+  "MDT", "MET", "META", "MGM", "MHK", "MKC", "MKTX", "MLM", "MMM", "MNST",
+  "MO", "MOS", "MPC", "MPWR", "MRK", "MRNA", "MRO", "MRSH", "MS", "MSCI",
+  "MSFT", "MSI", "MTB", "MTD", "MU", "NCLH", "NDAQ", "NEE", "NEM", "NFLX",
+  "NI", "NKE", "NLSN", "NOC", "NOV", "NOW", "NRG", "NSC", "NTAP", "NTRS",
+  "NUE", "NVDA", "NVR", "NWL", "NWS", "NWSA", "NXPI", "O", "ODFL", "OGN",
+  "OKE", "OMC", "ORCL", "ORLY", "OTIS", "OXY", "PAYC", "PAYX", "PBCT", "PCAR",
+  "PEG", "PENN", "PEP", "PFE", "PFG", "PG", "PGR", "PH", "PHM", "PKG",
+  "PLD", "PM", "PNC", "PNR", "PNW", "POOL", "PPG", "PPL", "PRGO", "PRU",
+  "PSA", "PSKY", "PSX", "PTC", "PVH", "PWR", "PXD", "PYPL", "QCOM", "QRVO",
+  "RCL", "REG", "REGN", "RF", "RHI", "RJF", "RL", "RMD", "ROK", "ROL",
+  "ROP", "ROST", "RSG", "RTX", "RVTY", "SBAC", "SBUX", "SCHW", "SEE", "SHW",
+  "SIVB", "SJM", "SLB", "SNA", "SNPS", "SO", "SPG", "SPGI", "SRE", "STE",
+  "STT", "STX", "STZ", "SW", "SWK", "SWKS", "SYF", "SYK", "SYY", "T",
+  "TAP", "TDG", "TDY", "TECH", "TEL", "TER", "TFC", "TFX", "TGT", "TJX",
+  "TMO", "TMUS", "TPR", "TRMB", "TROW", "TRV", "TSCO", "TSLA", "TSN", "TT",
+  "TTWO", "TWTR", "TXN", "TXT", "TYL", "UA", "UAA", "UAL", "UDR", "UHS",
+  "ULTA", "UNH", "UNM", "UNP", "UPS", "URI", "USB", "V", "VFC", "VLO",
+  "VMC", "VMRK", "VNO", "VRSK", "VRSN", "VRTX", "VTR", "VTRS", "VZ", "WAB",
+  "WAT", "WBA", "WDC", "WEC", "WELL", "WFC", "WHR", "WLTW", "WM", "WMB",
+  "WMT", "WRB", "WST", "WU", "WY", "WYNN", "XEL", "XLNX", "XOM", "XRAY",
+  "XYL", "YUM", "ZBH", "ZBRA", "ZION", "ZTS",
+]
+
+# 2022-09-01: 504 members
+"2022-09-01" = [
+  "A", "AAL", "AAP", "AAPL", "ABBV", "ABMD", "ABT", "ACN", "ADBE", "ADI",
+  "ADM", "ADP", "ADSK", "AEE", "AEP", "AES", "AFL", "AIG", "AIZ", "AJG",
+  "AKAM", "ALB", "ALGN", "ALK", "ALL", "ALLE", "AMAT", "AMCR", "AMD", "AME",
+  "AMGN", "AMP", "AMT", "AMZN", "ANET", "ANSS", "AON", "AOS", "APA", "APD",
+  "APH", "APTV", "ARE", "ATO", "ATVI", "AVB", "AVGO", "AVY", "AWK", "AXP",
+  "AZO", "BA", "BAC", "BALL", "BAX", "BBWI", "BBY", "BDX", "BEN", "BF-B",
+  "BIIB", "BIO", "BKNG", "BKR", "BLK", "BMY", "BNY", "BR", "BRK-B", "BRO",
+  "BSX", "BWA", "BXP", "C", "CAG", "CAH", "CARR", "CAT", "CB", "CBOE",
+  "CBRE", "CCI", "CCL", "CDAY", "CDNS", "CDW", "CE", "CEG", "CF", "CFG",
+  "CHD", "CHRW", "CHTR", "CI", "CINF", "CL", "CLX", "CMA", "CMCSA", "CME",
+  "CMG", "CMI", "CMS", "CNC", "CNP", "COF", "COO", "COP", "COR", "COST",
+  "CPB", "CPRT", "CPT", "CRL", "CRM", "CSCO", "CSX", "CTAS", "CTLT", "CTRA",
+  "CTSH", "CTVA", "CTXS", "CVS", "CVX", "CZR", "D", "DAL", "DD", "DE",
+  "DFS", "DG", "DGX", "DHI", "DHR", "DIS", "DISH", "DLR", "DLTR", "DOC",
+  "DOV", "DOW", "DPZ", "DRE", "DRI", "DTE", "DUK", "DVA", "DVN", "DXC",
+  "DXCM", "EA", "EBAY", "ECHO", "ECL", "ED", "EFX", "EG", "EIX", "EL",
+  "ELV", "EMN", "EMR", "ENPH", "EOG", "EPAM", "EQIX", "ES", "ESS", "ETN",
+  "ETR", "ETSY", "EVRG", "EW", "EXC", "EXPD", "EXPE", "EXR", "F", "FANG",
+  "FAST", "FBHS", "FCX", "FDS", "FDX", "FE", "FFIV", "FIS", "FISV", "FITB",
+  "FLT", "FMC", "FOX", "FOXA", "FRC", "FRT", "FTNT", "FTV", "GD", "GE",
+  "GEN", "GILD", "GIS", "GL", "GLW", "GM", "GNRC", "GOOG", "GOOGL", "GPC",
+  "GPN", "GRMN", "GS", "GWW", "HAL", "HAS", "HBAN", "HCA", "HD", "HES",
+  "HIG", "HII", "HLT", "HOLX", "HON", "HPE", "HPQ", "HRL", "HSIC", "HST",
+  "HSY", "HUM", "HWM", "IBM", "ICE", "IDXX", "IEX", "IFF", "ILMN", "INCY",
+  "INTC", "INTU", "IP", "IPG", "IQV", "IR", "IRM", "ISRG", "IT", "ITW",
+  "IVZ", "J", "JBHT", "JCI", "JKHY", "JNJ", "JNPR", "JPM", "K", "KDP",
+  "KEY", "KEYS", "KHC", "KIM", "KLAC", "KMB", "KMI", "KMX", "KO", "KR",
+  "L", "LDOS", "LEN", "LH", "LHX", "LIN", "LKQ", "LLY", "LMT", "LNC",
+  "LNT", "LOW", "LRCX", "LUMN", "LUV", "LVS", "LW", "LYB", "LYV", "MA",
+  "MAA", "MAR", "MAS", "MCD", "MCHP", "MCK", "MCO", "MDLZ", "MDT", "MET",
+  "META", "MGM", "MHK", "MKC", "MKTX", "MLM", "MMM", "MNST", "MO", "MOH",
+  "MOS", "MPC", "MPWR", "MRK", "MRNA", "MRO", "MRSH", "MS", "MSCI", "MSFT",
+  "MSI", "MTB", "MTCH", "MTD", "MU", "NCLH", "NDAQ", "NDSN", "NEE", "NEM",
+  "NFLX", "NI", "NKE", "NLSN", "NOC", "NOW", "NRG", "NSC", "NTAP", "NTRS",
+  "NUE", "NVDA", "NVR", "NWL", "NWS", "NWSA", "NXPI", "O", "ODFL", "OGN",
+  "OKE", "OMC", "ON", "ORCL", "ORLY", "OTIS", "OXY", "PAYC", "PAYX", "PCAR",
+  "PEG", "PENN", "PEP", "PFE", "PFG", "PG", "PGR", "PH", "PHM", "PKG",
+  "PLD", "PM", "PNC", "PNR", "PNW", "POOL", "PPG", "PPL", "PRU", "PSA",
+  "PSKY", "PSX", "PTC", "PVH", "PWR", "PXD", "PYPL", "QCOM", "QRVO", "RCL",
+  "REG", "REGN", "RF", "RHI", "RJF", "RL", "RMD", "ROK", "ROL", "ROP",
+  "ROST", "RSG", "RTX", "RVTY", "SBAC", "SBNY", "SBUX", "SCHW", "SEDG", "SEE",
+  "SHW", "SIVB", "SJM", "SLB", "SNA", "SNPS", "SO", "SPG", "SPGI", "SRE",
+  "STE", "STT", "STX", "STZ", "SW", "SWK", "SWKS", "SYF", "SYK", "SYY",
+  "T", "TAP", "TDG", "TDY", "TECH", "TEL", "TER", "TFC", "TFX", "TGT",
+  "TJX", "TMO", "TMUS", "TPR", "TRMB", "TROW", "TRV", "TSCO", "TSLA", "TSN",
+  "TT", "TTWO", "TWTR", "TXN", "TXT", "TYL", "UAL", "UDR", "UHS", "ULTA",
+  "UNH", "UNP", "UPS", "URI", "USB", "V", "VFC", "VICI", "VLO", "VMC",
+  "VMRK", "VNO", "VRSK", "VRSN", "VRTX", "VTR", "VTRS", "VZ", "WAB", "WAT",
+  "WBA", "WBD", "WDC", "WEC", "WELL", "WFC", "WHR", "WM", "WMB", "WMT",
+  "WRB", "WST", "WTW", "WY", "WYNN", "XEL", "XOM", "XRAY", "XYL", "YUM",
+  "ZBH", "ZBRA", "ZION", "ZTS",
+]
+
+# 2023-09-01: 504 members
+"2023-09-01" = [
+  "A", "AAL", "AAPL", "ABBV", "ABT", "ACGL", "ACN", "ADBE", "ADI", "ADM",
+  "ADP", "ADSK", "AEE", "AEP", "AES", "AFL", "AIG", "AIZ", "AJG", "AKAM",
+  "ALB", "ALGN", "ALK", "ALL", "ALLE", "AMAT", "AMCR", "AMD", "AME", "AMGN",
+  "AMP", "AMT", "AMZN", "ANET", "ANSS", "AON", "AOS", "APA", "APD", "APH",
+  "APTV", "ARE", "ATO", "ATVI", "AVB", "AVGO", "AVY", "AWK", "AXON", "AXP",
+  "AZO", "BA", "BAC", "BALL", "BAX", "BBWI", "BBY", "BDX", "BEN", "BF-B",
+  "BG", "BIIB", "BIO", "BKNG", "BKR", "BLK", "BMY", "BNY", "BR", "BRK-B",
+  "BRO", "BSX", "BWA", "BXP", "C", "CAG", "CAH", "CARR", "CAT", "CB",
+  "CBOE", "CBRE", "CCI", "CCL", "CDAY", "CDNS", "CDW", "CE", "CEG", "CF",
+  "CFG", "CHD", "CHRW", "CHTR", "CI", "CINF", "CL", "CLX", "CMA", "CMCSA",
+  "CME", "CMG", "CMI", "CMS", "CNC", "CNP", "COF", "COO", "COP", "COR",
+  "COST", "CPB", "CPRT", "CPT", "CRL", "CRM", "CSCO", "CSGP", "CSX", "CTAS",
+  "CTLT", "CTRA", "CTSH", "CTVA", "CVS", "CVX", "CZR", "D", "DAL", "DD",
+  "DE", "DFS", "DG", "DGX", "DHI", "DHR", "DIS", "DLR", "DLTR", "DOC",
+  "DOV", "DOW", "DPZ", "DRI", "DTE", "DUK", "DVA", "DVN", "DXC", "DXCM",
+  "EA", "EBAY", "ECHO", "ECL", "ED", "EFX", "EG", "EIX", "EL", "ELV",
+  "EMN", "EMR", "ENPH", "EOG", "EPAM", "EQIX", "EQT", "ES", "ESS", "ETN",
+  "ETR", "ETSY", "EVRG", "EW", "EXC", "EXPD", "EXPE", "EXR", "F", "FANG",
+  "FAST", "FCX", "FDS", "FDX", "FE", "FFIV", "FICO", "FIS", "FISV", "FITB",
+  "FLT", "FMC", "FOX", "FOXA", "FRT", "FSLR", "FTNT", "FTV", "GD", "GE",
+  "GEHC", "GEN", "GILD", "GIS", "GL", "GLW", "GM", "GNRC", "GOOG", "GOOGL",
+  "GPC", "GPN", "GRMN", "GS", "GWW", "HAL", "HAS", "HBAN", "HCA", "HD",
+  "HES", "HIG", "HII", "HLT", "HOLX", "HON", "HPE", "HPQ", "HRL", "HSIC",
+  "HST", "HSY", "HUM", "HWM", "IBM", "ICE", "IDXX", "IEX", "IFF", "ILMN",
+  "INCY", "INTC", "INTU", "INVH", "IP", "IPG", "IQV", "IR", "IRM", "ISRG",
+  "IT", "ITW", "IVZ", "J", "JBHT", "JCI", "JKHY", "JNJ", "JNPR", "JPM",
+  "K", "KDP", "KEY", "KEYS", "KHC", "KIM", "KLAC", "KMB", "KMI", "KMX",
+  "KO", "KR", "KVUE", "L", "LDOS", "LEN", "LH", "LHX", "LIN", "LKQ",
+  "LLY", "LMT", "LNC", "LNT", "LOW", "LRCX", "LUV", "LVS", "LW", "LYB",
+  "LYV", "MA", "MAA", "MAR", "MAS", "MCD", "MCHP", "MCK", "MCO", "MDLZ",
+  "MDT", "MET", "META", "MGM", "MHK", "MKC", "MKTX", "MLM", "MMM", "MNST",
+  "MO", "MOH", "MOS", "MPC", "MPWR", "MRK", "MRNA", "MRO", "MRSH", "MS",
+  "MSCI", "MSFT", "MSI", "MTB", "MTCH", "MTD", "MU", "NCLH", "NDAQ", "NDSN",
+  "NEE", "NEM", "NFLX", "NI", "NKE", "NOC", "NOW", "NRG", "NSC", "NTAP",
+  "NTRS", "NUE", "NVDA", "NVR", "NWL", "NWS", "NWSA", "NXPI", "O", "ODFL",
+  "OGN", "OKE", "OMC", "ON", "ORCL", "ORLY", "OTIS", "OXY", "PANW", "PAYC",
+  "PAYX", "PCAR", "PCG", "PEG", "PEP", "PFE", "PFG", "PG", "PGR", "PH",
+  "PHM", "PKG", "PLD", "PM", "PNC", "PNR", "PNW", "PODD", "POOL", "PPG",
+  "PPL", "PRU", "PSA", "PSKY", "PSX", "PTC", "PWR", "PXD", "PYPL", "QCOM",
+  "QRVO", "RCL", "REG", "REGN", "RF", "RHI", "RJF", "RL", "RMD", "ROK",
+  "ROL", "ROP", "ROST", "RSG", "RTX", "RVTY", "SBAC", "SBUX", "SCHW", "SEDG",
+  "SEE", "SHW", "SJM", "SLB", "SNA", "SNPS", "SO", "SPG", "SPGI", "SRE",
+  "STE", "STLD", "STT", "STX", "STZ", "SW", "SWK", "SWKS", "SYF", "SYK",
+  "SYY", "T", "TAP", "TDG", "TDY", "TECH", "TEL", "TER", "TFC", "TFX",
+  "TGT", "TJX", "TMO", "TMUS", "TPR", "TRGP", "TRMB", "TROW", "TRV", "TSCO",
+  "TSLA", "TSN", "TT", "TTWO", "TXN", "TXT", "TYL", "UAL", "UDR", "UHS",
+  "ULTA", "UNH", "UNP", "UPS", "URI", "USB", "V", "VFC", "VICI", "VLO",
+  "VMC", "VMRK", "VRSK", "VRSN", "VRTX", "VTR", "VTRS", "VZ", "WAB", "WAT",
+  "WBA", "WBD", "WDC", "WEC", "WELL", "WFC", "WHR", "WM", "WMB", "WMT",
+  "WRB", "WST", "WTW", "WY", "WYNN", "XEL", "XOM", "XRAY", "XYL", "YUM",
+  "ZBH", "ZBRA", "ZION", "ZTS",
+]
+
+# 2024-09-01: 504 members
+"2024-09-01" = [
+  "A", "AAL", "AAPL", "ABBV", "ABNB", "ABT", "ACGL", "ACN", "ADBE", "ADI",
+  "ADM", "ADP", "ADSK", "AEE", "AEP", "AES", "AFL", "AIG", "AIZ", "AJG",
+  "AKAM", "ALB", "ALGN", "ALL", "ALLE", "AMAT", "AMCR", "AMD", "AME", "AMGN",
+  "AMP", "AMT", "AMZN", "ANET", "ANSS", "AON", "AOS", "APA", "APD", "APH",
+  "APTV", "ARE", "ATO", "AVB", "AVGO", "AVY", "AWK", "AXON", "AXP", "AZO",
+  "BA", "BAC", "BALL", "BAX", "BBWI", "BBY", "BDX", "BEN", "BF-B", "BG",
+  "BIIB", "BIO", "BKNG", "BKR", "BLDR", "BLK", "BMY", "BNY", "BR", "BRK-B",
+  "BRO", "BSX", "BWA", "BX", "BXP", "C", "CAG", "CAH", "CARR", "CAT",
+  "CB", "CBOE", "CBRE", "CCI", "CCL", "CDNS", "CDW", "CE", "CEG", "CF",
+  "CFG", "CHD", "CHRW", "CHTR", "CI", "CINF", "CL", "CLX", "CMCSA", "CME",
+  "CMG", "CMI", "CMS", "CNC", "CNP", "COF", "COO", "COP", "COR", "COST",
+  "CPAY", "CPB", "CPRT", "CPT", "CRL", "CRM", "CRWD", "CSCO", "CSGP", "CSX",
+  "CTAS", "CTLT", "CTRA", "CTSH", "CTVA", "CVS", "CVX", "CZR", "D", "DAL",
+  "DAY", "DD", "DE", "DECK", "DFS", "DG", "DGX", "DHI", "DHR", "DIS",
+  "DLR", "DLTR", "DOC", "DOV", "DOW", "DPZ", "DRI", "DTE", "DUK", "DVA",
+  "DVN", "DXCM", "EA", "EBAY", "ECHO", "ECL", "ED", "EFX", "EG", "EIX",
+  "EL", "ELV", "EMN", "EMR", "ENPH", "EOG", "EPAM", "EQIX", "EQT", "ES",
+  "ESS", "ETN", "ETR", "ETSY", "EVRG", "EW", "EXC", "EXPD", "EXPE", "EXR",
+  "F", "FANG", "FAST", "FCX", "FDS", "FDX", "FE", "FFIV", "FICO", "FIS",
+  "FISV", "FITB", "FMC", "FOX", "FOXA", "FRT", "FSLR", "FTNT", "FTV", "GD",
+  "GDDY", "GE", "GEHC", "GEN", "GEV", "GILD", "GIS", "GL", "GLW", "GM",
+  "GNRC", "GOOG", "GOOGL", "GPC", "GPN", "GRMN", "GS", "GWW", "HAL", "HAS",
+  "HBAN", "HCA", "HD", "HES", "HIG", "HII", "HLT", "HOLX", "HON", "HPE",
+  "HPQ", "HRL", "HSIC", "HST", "HSY", "HUBB", "HUM", "HWM", "IBM", "ICE",
+  "IDXX", "IEX", "IFF", "INCY", "INTC", "INTU", "INVH", "IP", "IPG", "IQV",
+  "IR", "IRM", "ISRG", "IT", "ITW", "IVZ", "J", "JBHT", "JBL", "JCI",
+  "JKHY", "JNJ", "JNPR", "JPM", "K", "KDP", "KEY", "KEYS", "KHC", "KIM",
+  "KKR", "KLAC", "KMB", "KMI", "KMX", "KO", "KR", "KVUE", "L", "LDOS",
+  "LEN", "LH", "LHX", "LIN", "LKQ", "LLY", "LMT", "LNT", "LOW", "LRCX",
+  "LULU", "LUV", "LVS", "LW", "LYB", "LYV", "MA", "MAA", "MAR", "MAS",
+  "MCD", "MCHP", "MCK", "MCO", "MDLZ", "MDT", "MET", "META", "MGM", "MHK",
+  "MKC", "MKTX", "MLM", "MMM", "MNST", "MO", "MOH", "MOS", "MPC", "MPWR",
+  "MRK", "MRNA", "MRO", "MRSH", "MS", "MSCI", "MSFT", "MSI", "MTB", "MTCH",
+  "MTD", "MU", "NCLH", "NDAQ", "NDSN", "NEE", "NEM", "NFLX", "NI", "NKE",
+  "NOC", "NOW", "NRG", "NSC", "NTAP", "NTRS", "NUE", "NVDA", "NVR", "NWS",
+  "NWSA", "NXPI", "O", "ODFL", "OKE", "OMC", "ON", "ORCL", "ORLY", "OTIS",
+  "OXY", "PANW", "PAYC", "PAYX", "PCAR", "PCG", "PEG", "PEP", "PFE", "PFG",
+  "PG", "PGR", "PH", "PHM", "PKG", "PLD", "PM", "PNC", "PNR", "PNW",
+  "PODD", "POOL", "PPG", "PPL", "PRU", "PSA", "PSKY", "PSX", "PTC", "PWR",
+  "PYPL", "QCOM", "QRVO", "RCL", "REG", "REGN", "RF", "RJF", "RL", "RMD",
+  "ROK", "ROL", "ROP", "ROST", "RSG", "RTX", "RVTY", "SBAC", "SBUX", "SCHW",
+  "SHW", "SJM", "SLB", "SMCI", "SNA", "SNPS", "SO", "SOLV", "SPG", "SPGI",
+  "SRE", "STE", "STLD", "STT", "STX", "STZ", "SW", "SWK", "SWKS", "SYF",
+  "SYK", "SYY", "T", "TAP", "TDG", "TDY", "TECH", "TEL", "TER", "TFC",
+  "TFX", "TGT", "TJX", "TMO", "TMUS", "TPR", "TRGP", "TRMB", "TROW", "TRV",
+  "TSCO", "TSLA", "TSN", "TT", "TTWO", "TXN", "TXT", "TYL", "UAL", "UBER",
+  "UDR", "UHS", "ULTA", "UNH", "UNP", "UPS", "URI", "USB", "V", "VICI",
+  "VLO", "VLTO", "VMC", "VMRK", "VRSK", "VRSN", "VRTX", "VST", "VTR", "VTRS",
+  "VZ", "WAB", "WAT", "WBA", "WBD", "WDC", "WEC", "WELL", "WFC", "WM",
+  "WMB", "WMT", "WRB", "WST", "WTW", "WY", "WYNN", "XEL", "XOM", "XYL",
+  "YUM", "ZBH", "ZBRA", "ZTS",
+]
+
+# 2025-09-01: 504 members
+"2025-09-01" = [
+  "A", "AAPL", "ABBV", "ABNB", "ABT", "ACGL", "ACN", "ADBE", "ADI", "ADM",
+  "ADP", "ADSK", "AEE", "AEP", "AES", "AFL", "AIG", "AIZ", "AJG", "AKAM",
+  "ALB", "ALGN", "ALL", "ALLE", "AMAT", "AMCR", "AMD", "AME", "AMGN", "AMP",
+  "AMT", "AMZN", "ANET", "AON", "AOS", "APA", "APD", "APH", "APO", "APTV",
+  "ARE", "ATO", "AVB", "AVGO", "AVY", "AWK", "AXON", "AXP", "AZO", "BA",
+  "BAC", "BALL", "BAX", "BBY", "BDX", "BEN", "BF-B", "BG", "BIIB", "BKNG",
+  "BKR", "BLDR", "BLK", "BMY", "BNY", "BR", "BRK-B", "BRO", "BSX", "BX",
+  "BXP", "C", "CAG", "CAH", "CARR", "CAT", "CB", "CBOE", "CBRE", "CCI",
+  "CCL", "CDNS", "CDW", "CEG", "CF", "CFG", "CHD", "CHRW", "CHTR", "CI",
+  "CINF", "CL", "CLX", "CMCSA", "CME", "CMG", "CMI", "CMS", "CNC", "CNP",
+  "COF", "COIN", "COO", "COP", "COR", "COST", "CPAY", "CPB", "CPRT", "CPT",
+  "CRL", "CRM", "CRWD", "CSCO", "CSGP", "CSX", "CTAS", "CTRA", "CTSH", "CTVA",
+  "CVS", "CVX", "CZR", "D", "DAL", "DASH", "DAY", "DD", "DDOG", "DE",
+  "DECK", "DELL", "DG", "DGX", "DHI", "DHR", "DIS", "DLR", "DLTR", "DOC",
+  "DOV", "DOW", "DPZ", "DRI", "DTE", "DUK", "DVA", "DVN", "DXCM", "EA",
+  "EBAY", "ECHO", "ECL", "ED", "EFX", "EG", "EIX", "EL", "ELV", "EMN",
+  "EMR", "ENPH", "EOG", "EPAM", "EQIX", "EQT", "ERIE", "ES", "ESS", "ETN",
+  "ETR", "EVRG", "EW", "EXC", "EXE", "EXPD", "EXPE", "EXR", "F", "FANG",
+  "FAST", "FCX", "FDS", "FDX", "FE", "FFIV", "FICO", "FIS", "FISV", "FITB",
+  "FOX", "FOXA", "FRT", "FSLR", "FTNT", "FTV", "GD", "GDDY", "GE", "GEHC",
+  "GEN", "GEV", "GILD", "GIS", "GL", "GLW", "GM", "GNRC", "GOOG", "GOOGL",
+  "GPC", "GPN", "GRMN", "GS", "GWW", "HAL", "HAS", "HBAN", "HCA", "HD",
+  "HIG", "HII", "HLT", "HOLX", "HON", "HPE", "HPQ", "HRL", "HSIC", "HST",
+  "HSY", "HUBB", "HUM", "HWM", "IBKR", "IBM", "ICE", "IDXX", "IEX", "IFF",
+  "INCY", "INTC", "INTU", "INVH", "IP", "IPG", "IQV", "IR", "IRM", "ISRG",
+  "IT", "ITW", "IVZ", "J", "JBHT", "JBL", "JCI", "JKHY", "JNJ", "JPM",
+  "K", "KDP", "KEY", "KEYS", "KHC", "KIM", "KKR", "KLAC", "KMB", "KMI",
+  "KMX", "KO", "KR", "KVUE", "L", "LDOS", "LEN", "LH", "LHX", "LII",
+  "LIN", "LKQ", "LLY", "LMT", "LNT", "LOW", "LRCX", "LULU", "LUV", "LVS",
+  "LW", "LYB", "LYV", "MA", "MAA", "MAR", "MAS", "MCD", "MCHP", "MCK",
+  "MCO", "MDLZ", "MDT", "MET", "META", "MGM", "MHK", "MKC", "MKTX", "MLM",
+  "MMM", "MNST", "MO", "MOH", "MOS", "MPC", "MPWR", "MRK", "MRNA", "MRSH",
+  "MS", "MSCI", "MSFT", "MSI", "MTB", "MTCH", "MTD", "MU", "NCLH", "NDAQ",
+  "NDSN", "NEE", "NEM", "NFLX", "NI", "NKE", "NOC", "NOW", "NRG", "NSC",
+  "NTAP", "NTRS", "NUE", "NVDA", "NVR", "NWS", "NWSA", "NXPI", "O", "ODFL",
+  "OKE", "OMC", "ON", "ORCL", "ORLY", "OTIS", "OXY", "PANW", "PAYC", "PAYX",
+  "PCAR", "PCG", "PEG", "PEP", "PFE", "PFG", "PG", "PGR", "PH", "PHM",
+  "PKG", "PLD", "PLTR", "PM", "PNC", "PNR", "PNW", "PODD", "POOL", "PPG",
+  "PPL", "PRU", "PSA", "PSKY", "PSX", "PTC", "PWR", "PYPL", "QCOM", "RCL",
+  "REG", "REGN", "RF", "RJF", "RL", "RMD", "ROK", "ROL", "ROP", "ROST",
+  "RSG", "RTX", "RVTY", "SBAC", "SBUX", "SCHW", "SHW", "SJM", "SLB", "SMCI",
+  "SNA", "SNPS", "SO", "SOLV", "SPG", "SPGI", "SRE", "STE", "STLD", "STT",
+  "STX", "STZ", "SW", "SWK", "SWKS", "SYF", "SYK", "SYY", "T", "TAP",
+  "TDG", "TDY", "TECH", "TEL", "TER", "TFC", "TGT", "TJX", "TKO", "TMO",
+  "TMUS", "TPL", "TPR", "TRGP", "TRMB", "TROW", "TRV", "TSCO", "TSLA", "TSN",
+  "TT", "TTD", "TTWO", "TXN", "TXT", "TYL", "UAL", "UBER", "UDR", "UHS",
+  "ULTA", "UNH", "UNP", "UPS", "URI", "USB", "V", "VICI", "VLO", "VLTO",
+  "VMC", "VMRK", "VRSK", "VRSN", "VRTX", "VST", "VTR", "VTRS", "VZ", "WAB",
+  "WAT", "WBD", "WDAY", "WDC", "WEC", "WELL", "WFC", "WM", "WMB", "WMT",
+  "WRB", "WSM", "WST", "WTW", "WY", "WYNN", "XEL", "XOM", "XYL", "XYZ",
+  "YUM", "ZBH", "ZBRA", "ZTS",
+]
+
+# 2026-09-01: 503 members
+"2026-09-01" = [
+  "A", "AAPL", "ABBV", "ABNB", "ABT", "ACGL", "ACN", "ADBE", "ADI", "ADM",
+  "ADP", "ADSK", "AEE", "AEP", "AES", "AFL", "AIG", "AIZ", "AJG", "AKAM",
+  "ALB", "ALGN", "ALL", "ALLE", "AMAT", "AMCR", "AMD", "AME", "AMGN", "AMP",
+  "AMT", "AMZN", "ANET", "AON", "AOS", "APA", "APD", "APH", "APO", "APP",
+  "APTV", "ARE", "ARES", "ATO", "AVGO", "AVY", "AWK", "AXON", "AXP", "AZO",
+  "BA", "BAC", "BALL", "BAX", "BBY", "BDX", "BEN", "BF-B", "BG", "BIIB",
+  "BKNG", "BKR", "BLDR", "BLK", "BMY", "BNY", "BR", "BRK-B", "BRO", "BSX",
+  "BX", "BXP", "C", "CAH", "CARR", "CASY", "CAT", "CB", "CBOE", "CBRE",
+  "CCI", "CCL", "CDNS", "CDW", "CEG", "CF", "CFG", "CHD", "CHRW", "CHTR",
+  "CI", "CIEN", "CINF", "CL", "CLX", "CMCSA", "CME", "CMG", "CMI", "CMS",
+  "CNC", "CNP", "COF", "COHR", "COIN", "COO", "COP", "COR", "COST", "CPAY",
+  "CPRT", "CPT", "CRH", "CRL", "CRM", "CRWD", "CSCO", "CSGP", "CSX", "CTAS",
+  "CTSH", "CTVA", "CVNA", "CVS", "CVX", "D", "DAL", "DASH", "DD", "DDOG",
+  "DE", "DECK", "DELL", "DG", "DGX", "DHI", "DHR", "DIS", "DLR", "DLTR",
+  "DOC", "DOV", "DOW", "DPZ", "DRI", "DTE", "DUK", "DVA", "DVN", "DXCM",
+  "EBAY", "ECHO", "ECL", "ED", "EFX", "EG", "EIX", "EL", "ELV", "EME",
+  "EMR", "EOG", "EQIX", "EQT", "ERIE", "ES", "ESS", "ETN", "ETR", "EVRG",
+  "EW", "EXC", "EXE", "EXPD", "EXPE", "EXR", "F", "FANG", "FAST", "FCX",
+  "FDS", "FDX", "FDXF", "FE", "FERG", "FFIV", "FICO", "FIS", "FISV", "FITB",
+  "FIX", "FLEX", "FOX", "FOXA", "FRT", "FSLR", "FTNT", "FTV", "GD", "GDDY",
+  "GE", "GEHC", "GEN", "GEV", "GILD", "GIS", "GL", "GLW", "GM", "GNRC",
+  "GOOG", "GOOGL", "GPC", "GPN", "GRMN", "GS", "GWW", "HAL", "HAS", "HBAN",
+  "HCA", "HD", "HIG", "HII", "HLT", "HON", "HONA", "HOOD", "HPE", "HPQ",
+  "HRL", "HSIC", "HST", "HSY", "HUBB", "HUM", "HWM", "IBKR", "IBM", "ICE",
+  "IDXX", "IEX", "IFF", "INCY", "INTC", "INTU", "INVH", "IP", "IQV", "IR",
+  "IRM", "ISRG", "IT", "ITW", "IVZ", "J", "JBHT", "JBL", "JCI", "JKHY",
+  "JNJ", "JPM", "KDP", "KEY", "KEYS", "KHC", "KIM", "KKR", "KLAC", "KMB",
+  "KMI", "KO", "KR", "KVUE", "L", "LDOS", "LEN", "LH", "LHX", "LII",
+  "LIN", "LITE", "LLY", "LMT", "LNT", "LOW", "LRCX", "LULU", "LUV", "LVS",
+  "LYB", "LYV", "MA", "MAA", "MAR", "MAS", "MCD", "MCHP", "MCK", "MCO",
+  "MDLZ", "MDT", "MET", "META", "MGM", "MKC", "MLM", "MMM", "MNST", "MO",
+  "MOS", "MPC", "MPWR", "MRK", "MRNA", "MRSH", "MRVL", "MS", "MSCI", "MSFT",
+  "MSI", "MTB", "MTD", "MU", "NCLH", "NDAQ", "NDSN", "NEE", "NEM", "NFLX",
+  "NI", "NKE", "NOC", "NOW", "NRG", "NSC", "NTAP", "NTRS", "NUE", "NVDA",
+  "NVR", "NWS", "NWSA", "NXPI", "O", "ODFL", "OKE", "OMC", "ON", "ORCL",
+  "ORLY", "OTIS", "OXY", "PANW", "PAYX", "PCAR", "PCG", "PEG", "PEP", "PFE",
+  "PFG", "PG", "PGR", "PH", "PHM", "PKG", "PLD", "PLTR", "PM", "PNC",
+  "PNR", "PNW", "PODD", "PPG", "PPL", "PRU", "PSA", "PSKY", "PSX", "PTC",
+  "PWR", "PYPL", "Q", "QCOM", "RCL", "RDDT", "REG", "REGN", "RF", "RJF",
+  "RL", "RMD", "ROK", "ROL", "ROP", "ROST", "RSG", "RTX", "RVTY", "SBAC",
+  "SBUX", "SCHW", "SHW", "SJM", "SLB", "SMCI", "SNA", "SNDK", "SNPS", "SO",
+  "SOLV", "SPG", "SPGI", "SRE", "STE", "STLD", "STT", "STX", "STZ", "SW",
+  "SWK", "SWKS", "SYF", "SYK", "SYY", "T", "TAP", "TDG", "TDY", "TECH",
+  "TEL", "TER", "TFC", "TGT", "TJX", "TKO", "TMO", "TMUS", "TPL", "TPR",
+  "TRGP", "TRMB", "TROW", "TRV", "TSCO", "TSLA", "TSN", "TT", "TTD", "TTWO",
+  "TXN", "TXT", "TYL", "UAL", "UBER", "UDR", "UHS", "ULTA", "UNH", "UNP",
+  "UPS", "URI", "USB", "V", "VEEV", "VICI", "VLO", "VLTO", "VMC", "VMRK",
+  "VRSK", "VRSN", "VRT", "VRTX", "VST", "VTR", "VTRS", "VZ", "WAB", "WAT",
+  "WBD", "WDAY", "WDC", "WEC", "WELL", "WFC", "WM", "WMB", "WMT", "WRB",
+  "WSM", "WST", "WTW", "WY", "WYNN", "XEL", "XOM", "XYL", "XYZ", "YUM",
+  "ZBH", "ZBRA", "ZTS",
+]
+
+# ------------------------------------------------------------------------ recycled tickers
+# NOT a data-quality note -- a correctness one. Each of these fetches a clean, full-length,
+# coverage-passing series for a DIFFERENT COMPANY than the one the index removed. Every
+# automatic check passes; the screen that catches them is the vendor's current `longName`
+# against the company the change log says was removed, and it ran over all 103 removed-and-
+# priced tickers. Three more were flagged and cleared as spelling (Aimco / Apartment
+# Investment and Management, Owens-Illinois / O-I Glass, VF / V.F. Corporation).
+[recycled]
+APC = "ARKO Petroleum Corp, a Nasdaq Capital Market micro-cap serving 142 bars from 2026-02-12; Anadarko Petroleum was acquired by Occidental in 2019"
+CSRA = "Cohen & Steers Real Assets Active ETF trades under CSRA today; CSRA Inc was acquired by General Dynamics in 2018"
+EMC = "Global X Emerging Markets Great Consumer ETF; EMC Corporation was acquired by Dell in 2016"
+HOT = "the vendor serves the series under the name '1659453' -- a placeholder, not a company"
+INFO = "Harbor PanAgora Dynamic Large Cap Core ETF; IHS Markit merged into S&P Global in 2022"
+NFX = "Corgi NFLX 2x Daily ETF -- a LEVERAGED NETFLIX FUND; Newfield Exploration merged into Encana in 2019"
+SE = "Sea Limited, a Singaporean e-commerce company; Spectra Energy merged into Enbridge in 2017"
+SPLS = "PIMCO US Stocks PLUS Active Bond ETF; Staples was taken private by Sycamore in 2017"
+STI = "Solidion Technology, a micro-cap; SunTrust Banks merged into Truist in 2019"
+TWX = "the vendor serves the series under the name '17007297' -- a placeholder, not a company"
+
+# ------------------------------------------------------------------------ reissued tickers
+# THE HALF-RECYCLED CASE, and it needs its own table because `[recycled]`'s remedy is wrong for
+# it. These four tickers mean one company before a date and a DIFFERENT, legitimately-current
+# constituent after it, so stripping them from every snapshot -- what `[recycled]` does -- would
+# delete Dow Inc, Fox Corporation and Qnity from the snapshots they really do belong to. They are
+# stripped from snapshots dated BEFORE `from` and kept in the rest.
+#
+# `from` is the first bar the primary vendor serves under the new company, and it is checked, not
+# asserted: the stored series must begin at or before the first snapshot that survives the strip,
+# which is what `test_every_point_in_time_member_is_stored_back_to_the_snapshot_that_holds_it`
+# requires of every ever-member. That test is how all four were found -- they were being dropped
+# from the early windows by the coverage filter, under the same
+# `dropped_history_starts_late` heading as a genuine post-window IPO.
+#
+# The cost is the same one `[recycled]` carries and is not yet counted: the pre-`from` company was
+# a real constituent that is now priced by nobody, and it is not in `unpriceable`, so the stress
+# bound's exposure arithmetic understates how many names are missing from the early windows. The
+# run's own per-period `dropped_not_in_store` is the number to use there.
+[reissued]
+DOW = { from = "2019-03-20", why = "Dow Inc, spun out of DowDuPont in 2019 -- 1877 bars from 2019-03-20. The 2016 constituent under DOW was Dow Chemical, which merged into DowDuPont (DWDP, unpriceable) in 2017." }
+FOX = { from = "2019-03-13", why = "Fox Corporation -- 1882 bars from 2019-03-13. The 2016-2018 constituent was Twenty-First Century Fox, whose assets went to Disney in March 2019." }
+FOXA = { from = "2019-03-12", why = "Fox Corporation class A -- 1883 bars from 2019-03-12; same split as FOX." }
+Q = { from = "2025-10-27", why = "Qnity Electronics, DuPont's 2025 electronics spinoff -- 216 bars from 2025-10-27. The 2017 constituent under Q was QuintilesIMS, which renamed to IQVIA in November 2017; the change log carries that as IQV from the 2018 snapshot on, so this file already holds Q in 2017 and 2026 only and the two are different companies." }
+
+# ------------------------------------------------------- truncated by the primary vendor
+# A THIRD failure mode, and the one that is hardest to see, because nothing about it looks like
+# an error: the primary vendor serves these under the RIGHT company name with only a few weeks
+# of history. All four begin on the same day -- 2026-07-17, with `firstTradeDate` set to it --
+# which is what makes it a vendor defect rather than four coincidences. AVB is AvalonBay
+# Communities (an S&P 100 REIT), EA is Electronic Arts, LEG is Leggett & Platt, BBBY is Bed
+# Bath & Beyond. None of them stopped trading in 2026 and none is a reissued ticker.
+#
+# The behaviour is CORRECT without this table -- `load_panel`'s coverage filter drops a symbol
+# with 27 bars from every window and says so -- so the cost is silent: three large caps that
+# belong in every candidate set are missing from all of them, counted under
+# `dropped_history_starts_late` alongside genuine post-window IPOs. They are declared here so
+# that the second vendor is asked for them, and so that a test can require every ever-member's
+# stored history to reach the first snapshot that holds it OR be named here. That test is the
+# screen whose absence let these four through.
+[truncated]
+AVB = "27 stored bars 2026-07-17 -> 2026-08-24; AvalonBay Communities, still trading"
+BBBY = "36 stored bars from 2026-07-17; Bed Bath & Beyond -- the second vendor 400s it, so it is unpriceable in practice and is listed there too"
+EA = "6 stored bars from 2026-07-17; Electronic Arts, still trading"
+LEG = "5 stored bars from 2026-07-17; Leggett & Platt, still trading"

@@ -163,6 +163,21 @@ try {
     deviceScaleFactor: 1,
     mobile: false,
   })
+  // THE PROFILE IS PERSISTENT, SO THE READER'S SAVED VIEW STATE IS TOO, and that makes this
+  // tool lie in the one way it exists to prevent. `config.writeStored` keeps any departure
+  // from the defaults in `localStorage`, so a run that passed a `#theme=` fragment writes the
+  // WHOLE config -- and the next run reads it back and renders last week's view of this
+  // week's code. Measured 2026-09-05: two screenshots taken to check a changed default
+  // rendered the OLD default, from a store written before the change, and the pictures were
+  // internally consistent and completely wrong. Nothing in the console, nothing in the PNG.
+  //
+  // Cleared per RUN rather than per profile: the profile has to stay (see --user-data-dir
+  // above), and a screenshot must show what a first-time reader sees. A `#`-fragment on the
+  // URL still wins over the defaults, which is the point of passing one.
+  await send('Storage.clearDataForOrigin', {
+    origin: new URL(url).origin,
+    storageTypes: 'local_storage',
+  })
   await send('Page.navigate', { url })
   await sleep(SETTLE_MS)
 

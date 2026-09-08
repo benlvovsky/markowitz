@@ -22,6 +22,42 @@
 # whole hosting design -- the repo is the database.
 pipeline/data/prices/
 
+# The `^IRX` yield cache `backtest.py` keeps, and ignored for the first of the two reasons
+# above: it is a fetch cache nothing verifies, refetched with `--refresh-rf`.
+#
+# `pipeline/results/backtest.json` is NOT ignored, and the difference is not size. It cannot be
+# regenerated: its cutoffs are "1, 2 and 3 years back from the panel's last bar", so the next
+# `update-data` run moves all three windows and the file becomes unreproducible the moment it is
+# a week old. It carries the panel's start and end so it says which run it belongs to. A cache
+# is refetchable and a measurement is not.
+pipeline/data/irx.parquet
+
+# The second vendor's series for the delisted constituents split BOTH ways, and the split is the
+# same distinction as above with the sides swapped.
+#
+# `raw/*.csv` is COMMITTED, and it is the one fetch in this repo that is not refetchable. These
+# twelve tickers no longer trade; a vendor that serves a dead symbol today is under no obligation
+# to serve it next year, and there is no third source (Stooq is behind a JS challenge, Nasdaq
+# answers "symbol not exists", and the primary vendor 404s -- all four were tried). They are the
+# evidence for a published number about survivorship bias, they are 1.2 MB of text, and they
+# change never rather than weekly. If they vanish upstream the claim becomes unauditable, which
+# is the one case `.gitignore`'s first block says to commit for.
+#
+# `panel_*.parquet` is IGNORED, because it is `delisted.stitch` output -- raw plus the store plus
+# a stated continuation -- and a stored derivative can drift from the inputs it claims to
+# summarise. Same reason `store.total_return`'s adjusted panel is never materialised. Rebuild with
+# `python -u pipeline/delisted.py`; `provenance_*.json` is committed and says what a rebuild
+# should reproduce.
+pipeline/data/delisted/panel_*.parquet
+
+# THERE ARE TWO OF THESE DIRECTORIES AND THE SECOND ONE NEEDS ITS OWN LINE, which is the whole
+# reason for this block. `delisted/` is the 12 names `sp500_2023.toml` needs; `delisted_pit/` is the
+# 25 that `sp500_pit.toml`'s ten snapshots need, fetched with `--longest` because a name deleted in
+# 2017 has to reach a training window that opens in 2011. Same split for the same reasons -- raw
+# CSVs committed because a dead ticker is not refetchable, stitched panels ignored because they are
+# derivatives -- and a glob written for one directory silently commits the other's 4 MB of parquet.
+pipeline/data/delisted_pit/panel_*.parquet
+
 __pycache__/
 *.pyc
 .pytest_cache/

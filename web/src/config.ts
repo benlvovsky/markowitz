@@ -60,7 +60,20 @@ export function defaults(manifest: Manifest): Config {
     rf: manifest.rf_default,
     pos: null,
     groups: [...manifest.groups],
-    fitFrontier: false,
+    // FITTED TO THE FRONTIER by default, and this was the other way round until 2026-09-05.
+    // "Fit every asset" sounds like the honest default and is not: the domain is then set by the
+    // single worst outlier, and in this universe that is UNG at -24% return and 49% volatility.
+    // It costs the bottom half of the plot and a third of its width, and the frontier -- the
+    // subject of the chart -- is squeezed into the top-left quarter, flat enough that the
+    // curvature and the tangency are both hard to see. Fitting to the frontier stops one dot from
+    // choosing the scale for the other 115.
+    //
+    // What it COSTS, stated because it is a real cost and the toggle beside the chart is the
+    // remedy: an asset outside the frontier's box is clipped, and only its LABEL survives,
+    // clamped to the plot edge. UNG therefore reads as a name in the bottom-right corner with no
+    // dot under it. It is not hidden and it is not misplaced, but it is not a position either --
+    // "Fitted to every asset" is one click away and shows all 116 in their true coordinates.
+    fitFrontier: true,
     logScale: true,
   }
 }
@@ -143,7 +156,11 @@ export function toHash(c: Config, manifest: Manifest): string {
   if (c.rf !== d.rf) p.set('rf', String(Number(c.rf.toFixed(6))))
   if (c.pos !== null) p.set('pos', String(Number(c.pos.toFixed(6))))
   if (c.groups.length !== d.groups.length) p.set('groups', c.groups.join(','))
-  if (c.fitFrontier) p.set('fit', '1')
+  // Both of these default to TRUE, so it is the false case that departs from the default and
+  // has to be written down. Written as `!c.x -> '0'` rather than `c.x -> '1'` for that reason:
+  // the other way round puts `fit=1` into every link ever copied, which is the same defect
+  // `default-cap-written-into-the-link` guards against one field along.
+  if (!c.fitFrontier) p.set('fit', '0')
   if (!c.logScale) p.set('log', '0')
   if (c.theme) p.set('theme', c.theme)
   return p.toString()

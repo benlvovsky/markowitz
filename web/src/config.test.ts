@@ -90,7 +90,7 @@ describe('the URL fragment', () => {
       { ...defaults(manifest), pos: null, rf: 0.055 },
       { ...defaults(manifest), pos: 0 },
       { ...defaults(manifest), pos: 1 },
-      { ...defaults(manifest), pos: 0.641_025, rf: 0, fitFrontier: true, logScale: false },
+      { ...defaults(manifest), pos: 0.641_025, rf: 0, fitFrontier: false, logScale: false },
       { ...defaults(manifest), theme: 'dark' },
       { ...defaults(manifest), theme: 'light' },
       { ...defaults(manifest), cap: manifest.caps[manifest.caps.length - 1].slug },
@@ -124,7 +124,7 @@ describe('the URL fragment', () => {
   })
 
   it('is short and hand-editable rather than an encoded blob', () => {
-    const c: Config = { ...defaults(manifest), rf: 0.05, pos: 0.5, fitFrontier: true }
+    const c: Config = { ...defaults(manifest), rf: 0.05, pos: 0.5, fitFrontier: false }
     const hash = toHash(c, manifest)
     expect(hash).toMatch(/^[\w=&.,-]+$/)
     expect(hash.length).toBeLessThan(80)
@@ -137,7 +137,7 @@ describe('the URL fragment', () => {
       ...defaults(manifest),
       cap: manifest.caps[manifest.caps.length - 1].slug,
       pos: 0.9,
-      fitFrontier: true,
+      fitFrontier: false,
       theme: 'dark',
     }
     store.setItem(STORAGE_KEY, JSON.stringify(stored))
@@ -240,7 +240,7 @@ describe('the settings file', () => {
       rf: 0.0615,
       pos: 0.25,
       groups: [manifest.groups[0]],
-      fitFrontier: true,
+      fitFrontier: false,
       logScale: false,
       theme: 'dark',
     }
